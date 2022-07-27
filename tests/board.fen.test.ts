@@ -38,7 +38,7 @@ describe("Testing board with standard start position ...", () => {
 	});
 
 	test("no en passant move possible", () => {
-		expect(board.enPassantSquare).toBe(null);
+		expect(board.enPassantSquarePosition).toBe(null);
 	});
 
 	test("half moves should be 0", () => {
@@ -78,7 +78,7 @@ describe("Testing board with middle game position ...", () => {
 	});
 
 	test("no en passant move possible", () => {
-		expect(board.enPassantSquare).toBe(null);
+		expect(board.enPassantSquarePosition).toBe(null);
 	});
 
 	test("half moves should be 5", () => {
@@ -94,10 +94,6 @@ describe("Testing board with en passant move ...", () => {
 	const board = new Board("r1bqkbnr/2p2ppp/p1n5/1pPpp3/3PP3/5N2/PP3PPP/RNBQKB1R w KQkq b6 0 6");
 
 	test("en passant move on b6", () => {
-		expect(board.enPassantSquare).toBe("b6");
-	});
-
-	test("square information should be set to true for en passant", () => {
-		expect(board.squares[Board.getIndexFromNotation("b6")].isEnPassantSquare).toBe(true);
+		expect(board.enPassantSquarePosition).toBe(42);
 	});
 });

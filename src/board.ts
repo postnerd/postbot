@@ -3,9 +3,7 @@ interface squareInformation {
 	color: "white" | "black" | null,
 	pieceType: "king" | "queen" | "rook" | "bishop" | "knight" | "pawn" | null,
 	position: number,
-	isEnPassantSquare: boolean,
-	isOnBoard: boolean,
-	isEmpty: boolean,
+	isOnBoard: boolean
 }
 
 interface castlingInformation {
@@ -33,126 +31,98 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
 		color: null,
 		pieceType: null,
 		position: 0,
-		isEnPassantSquare: false,
 		isOnBoard: false,
-		isEmpty: false,
 	},
 	"empty": {
-		piece: " ",
+		piece: null,
 		color: null,
 		pieceType: null,
 		position: 0,
-		isEnPassantSquare: false,
 		isOnBoard: true,
-		isEmpty: true,
 	},
 	"p": {
 		piece: "p",
 		color: "black",
 		pieceType: "pawn",
 		position: 0,
-		isEnPassantSquare: false,
 		isOnBoard: true,
-		isEmpty: false,
 	},
 	"n": {
 		piece: "n",
 		color: "black",
 		pieceType: "knight",
 		position: 0,
-		isEnPassantSquare: false,
 		isOnBoard: true,
-		isEmpty: false,
 	},
 	"b": {
 		piece: "b",
 		color: "black",
 		pieceType: "bishop",
 		position: 0,
-		isEnPassantSquare: false,
 		isOnBoard: true,
-		isEmpty: false,
 	},
 	"r": {
 		piece: "r",
 		color: "black",
 		pieceType: "rook",
 		position: 0,
-		isEnPassantSquare: false,
 		isOnBoard: true,
-		isEmpty: false,
 	},
 	"q": {
 		piece: "q",
 		color: "black",
 		pieceType: "queen",
 		position: 0,
-		isEnPassantSquare: false,
 		isOnBoard: true,
-		isEmpty: false,
 	},
 	"k": {
 		piece: "k",
 		color: "black",
 		pieceType: "king",
 		position: 0,
-		isEnPassantSquare: false,
 		isOnBoard: true,
-		isEmpty: false,
 	},
 	"P": {
 		piece: "P",
 		color: "white",
 		pieceType: "pawn",
 		position: 0,
-		isEnPassantSquare: false,
 		isOnBoard: true,
-		isEmpty: false,
 	},
 	"N": {
 		piece: "N",
 		color: "white",
 		pieceType: "knight",
 		position: 0,
-		isEnPassantSquare: false,
 		isOnBoard: true,
-		isEmpty: false,
 	},
 	"B": {
 		piece: "B",
 		color: "white",
 		pieceType: "bishop",
 		position: 0,
-		isEnPassantSquare: false,
 		isOnBoard: true,
-		isEmpty: false,
 	},
 	"R": {
 		piece: "R",
 		color: "white",
 		pieceType: "rook",
 		position: 0,
-		isEnPassantSquare: false,
 		isOnBoard: true,
-		isEmpty: false,
 	},
 	"Q": {
 		piece: "Q",
 		color: "white",
 		pieceType: "queen",
 		position: 0,
-		isEnPassantSquare: false,
 		isOnBoard: true,
-		isEmpty: false,
 	},
 	"K": {
 		piece: "K",
 		color: "white",
 		pieceType: "king",
 		position: 0,
-		isEnPassantSquare: false,
 		isOnBoard: true,
-		isEmpty: false,
 	},
 };
 
@@ -171,7 +141,7 @@ export default class Board {
 		isBlackKingSidePossible: false,
 		isBlackQueenSidePossible: false,
 	};
-	enPassantSquare: String | null = null;
+	enPassantSquarePosition: number | null = null;
 	halfMoveCountSinceLastCaptureOrPawnMove: number = 0;
 	moveCount: number = 0;
 
@@ -254,8 +224,7 @@ export default class Board {
 
 		// 3: Determine if a en passant move from this position will be possible
 		if (inputs[3] !== "-") {
-			this.enPassantSquare = inputs[3];
-			this.squares[Board.getIndexFromNotation(inputs[3])].isEnPassantSquare = true;
+			this.enPassantSquarePosition = Board.getIndexFromNotation(inputs[3]);
 		}
 
 		// 4: Set the amount of half moves happened so far since the last piece was captured or we had a pawn move
@@ -284,7 +253,7 @@ export default class Board {
 
 				// promotion move
 				if (canPromote) {
-					if (this.squares[position].isEmpty) {
+					if (this.squares[position].piece === null) {
 						["queen", "rook", "bishop", "knight"].forEach(promotionType => {
 							moves.push({
 								"piece": squareInfo.pieceType,
@@ -321,7 +290,7 @@ export default class Board {
 					}
 				}
 				else { // simple move
-					if (this.squares[position].isEmpty) {
+					if (this.squares[position].isOnBoard && this.squares[position].piece === null) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
@@ -348,11 +317,11 @@ export default class Board {
 						});
 					}
 
-					if (this.squares[capturePosition1].isEnPassantSquare || this.squares[capturePosition2].isEnPassantSquare) {
+					if (capturePosition1 === this.enPassantSquarePosition || capturePosition2 === this.enPassantSquarePosition) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
-							"to": this.squares[capturePosition1].isEnPassantSquare ? capturePosition1 : capturePosition2,
+							"to": this.enPassantSquarePosition,
 							"willCapture": true,
 							"isEnPassant": true,
 						});
@@ -362,7 +331,7 @@ export default class Board {
 				// two steps
 				if (hasStartPosition) {
 					let twoStepPosition = position + movesDirections[0];
-					if (this.squares[position].isEmpty && this.squares[twoStepPosition].isEmpty) {
+					if (this.squares[position].piece === null && this.squares[twoStepPosition].piece === null) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
@@ -378,7 +347,7 @@ export default class Board {
 				for (let i = 0; i < movesDirections.length; i++) {
 					let position: number = squareInfo.position + movesDirections[i];
 
-					if (this.squares[position].isEmpty || this.squares[position].color === oppositeColor) {
+					if (this.squares[position].isOnBoard && (this.squares[position].piece === null || this.squares[position].color === oppositeColor)) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
@@ -393,7 +362,7 @@ export default class Board {
 				const isQueenSideCastlePossible = this.activeColor === "white" ? this.castlingInformation.isWhiteQueenSidePossible : this.castlingInformation.isBlackQueenSidePossible;
 
 				if (isKingSideCastlePossible) {
-					if (this.squares[squareInfo.position + 1].isEmpty && this.squares[squareInfo.position + 2].isEmpty && !this._isKingPlacedInCheckByMove({ from: squareInfo.position, to: squareInfo.position + 1 })) {
+					if (this.squares[squareInfo.position + 1].piece === null && this.squares[squareInfo.position + 2].piece === null && !this._isKingPlacedInCheckByMove({ from: squareInfo.position, to: squareInfo.position + 1 })) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
@@ -405,7 +374,7 @@ export default class Board {
 				}
 
 				if (isQueenSideCastlePossible) {
-					if (this.squares[squareInfo.position - 1].isEmpty && this.squares[squareInfo.position - 2].isEmpty && this.squares[squareInfo.position - 3].isEmpty && !this._isKingPlacedInCheckByMove({ from: squareInfo.position, to: squareInfo.position - 1 })) {
+					if (this.squares[squareInfo.position - 1].piece === null && this.squares[squareInfo.position - 2].piece === null && this.squares[squareInfo.position - 3].piece === null && !this._isKingPlacedInCheckByMove({ from: squareInfo.position, to: squareInfo.position - 1 })) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
@@ -422,7 +391,7 @@ export default class Board {
 				for (let i = 0; i < movesDirections.length; i++) {
 					let position: number = squareInfo.position + movesDirections[i];
 
-					if (this.squares[position].isEmpty || this.squares[position].color === oppositeColor) {
+					if (this.squares[position].isOnBoard && (this.squares[position].piece === null || this.squares[position].color === oppositeColor)) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
@@ -439,7 +408,7 @@ export default class Board {
 					let captured = false;
 
 					while (this.squares[position].isOnBoard && !captured && this.squares[position].color !== this.activeColor) {
-						captured = !this.squares[position].isEmpty;
+						captured = this.squares[position].piece !== null;
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
@@ -501,7 +470,7 @@ export default class Board {
 		for (let i = 0; i < queenAndRookMoves.length; i++) {
 			let position: number = kingPosition + queenAndRookMoves[i];
 
-			while (this.squares[position].isOnBoard && this.squares[position].isEmpty) {
+			while (this.squares[position].isOnBoard && this.squares[position].piece === null) {
 				position += queenAndRookMoves[i];
 			}
 
@@ -513,7 +482,7 @@ export default class Board {
 		for (let i = 0; i < queenAndBishopMoves.length; i++) {
 			let position: number = kingPosition + queenAndBishopMoves[i];
 
-			while (this.squares[position].isOnBoard && this.squares[position].isEmpty) {
+			while (this.squares[position].isOnBoard && this.squares[position].piece === null) {
 				position += queenAndBishopMoves[i];
 			}
 
