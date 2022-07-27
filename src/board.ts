@@ -1,8 +1,7 @@
 interface squareInformation {
-	piece: "p" | "P" | "b" | "B" | "n" | "N" | "r" | "R" | "q" | "Q" | "k" | "K" | " " | null,
+	piece: "p" | "P" | "b" | "B" | "n" | "N" | "r" | "R" | "q" | "Q" | "k" | "K" | null,
 	color: "white" | "black" | null,
 	pieceType: "king" | "queen" | "rook" | "bishop" | "knight" | "pawn" | null,
-	position: number,
 	isOnBoard: boolean
 }
 
@@ -30,98 +29,84 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
 		piece: null,
 		color: null,
 		pieceType: null,
-		position: 0,
 		isOnBoard: false,
 	},
 	"empty": {
 		piece: null,
 		color: null,
 		pieceType: null,
-		position: 0,
 		isOnBoard: true,
 	},
 	"p": {
 		piece: "p",
 		color: "black",
 		pieceType: "pawn",
-		position: 0,
 		isOnBoard: true,
 	},
 	"n": {
 		piece: "n",
 		color: "black",
 		pieceType: "knight",
-		position: 0,
 		isOnBoard: true,
 	},
 	"b": {
 		piece: "b",
 		color: "black",
 		pieceType: "bishop",
-		position: 0,
 		isOnBoard: true,
 	},
 	"r": {
 		piece: "r",
 		color: "black",
 		pieceType: "rook",
-		position: 0,
 		isOnBoard: true,
 	},
 	"q": {
 		piece: "q",
 		color: "black",
 		pieceType: "queen",
-		position: 0,
 		isOnBoard: true,
 	},
 	"k": {
 		piece: "k",
 		color: "black",
 		pieceType: "king",
-		position: 0,
 		isOnBoard: true,
 	},
 	"P": {
 		piece: "P",
 		color: "white",
 		pieceType: "pawn",
-		position: 0,
 		isOnBoard: true,
 	},
 	"N": {
 		piece: "N",
 		color: "white",
 		pieceType: "knight",
-		position: 0,
 		isOnBoard: true,
 	},
 	"B": {
 		piece: "B",
 		color: "white",
 		pieceType: "bishop",
-		position: 0,
 		isOnBoard: true,
 	},
 	"R": {
 		piece: "R",
 		color: "white",
 		pieceType: "rook",
-		position: 0,
 		isOnBoard: true,
 	},
 	"Q": {
 		piece: "Q",
 		color: "white",
 		pieceType: "queen",
-		position: 0,
 		isOnBoard: true,
 	},
 	"K": {
 		piece: "K",
 		color: "white",
 		pieceType: "king",
-		position: 0,
 		isOnBoard: true,
 	},
 };
@@ -145,7 +130,9 @@ export default class Board {
 	halfMoveCountSinceLastCaptureOrPawnMove: number = 0;
 	moveCount: number = 0;
 
-	static startPosFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+	static readonly startPosFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+	static readonly startIndexBoard = 21;
+	static readonly endIndexBoard = 98;
 
 	static getIndexFromNotation(notation: string): number {
 		const startSquare: number = 21; // a8 is our staring square
@@ -175,7 +162,6 @@ export default class Board {
 		// first two ranks are filled with outside elements to have a easier move generation later on (to determine of a piece moved outside the board)
 		for (let i = 0; i < 20; i++) {
 			this.squares.push(Object.assign({}, SQUARE_TYPES.outside));
-			this.squares[this.squares.length - 1].position = this.squares.length - 1;
 		}
 
 		// setting up the board rank by rank with the fen string information
@@ -184,31 +170,26 @@ export default class Board {
 
 			// first element in rank is again an outside element
 			this.squares.push(Object.assign({}, SQUARE_TYPES.outside));
-			this.squares[this.squares.length - 1].position = this.squares.length - 1;
 
 			for (let i = 0; i < squares.length; i++) {
 				const squareInfo = squares[i];
 				if (isNaN(parseInt(squareInfo))) { // if the square info is not a number we know we got an actual piece
 					this.squares.push(Object.assign({}, SQUARE_TYPES[squareInfo]));
-					this.squares[this.squares.length - 1].position = this.squares.length - 1;
 				}
 				else { // if it's a number, for the next n (number) squares we have blank ones
 					for (let j = 0; j < parseInt(squareInfo); j++) {
 						this.squares.push(Object.assign({}, SQUARE_TYPES.empty));
-						this.squares[this.squares.length - 1].position = this.squares.length - 1;
 					}
 				}
 			}
 
 			// last element in rank is again an outside element
 			this.squares.push(Object.assign({}, SQUARE_TYPES.outside));
-			this.squares[this.squares.length - 1].position = this.squares.length - 1;
 		});
 
 		// last two ranks are again outside elements
 		for (let i = 0; i < 20; i++) {
 			this.squares.push(Object.assign({}, SQUARE_TYPES.outside));
-			this.squares[this.squares.length - 1].position = this.squares.length - 1;
 		}
 
 		// 1: WHO`S TO PLAY
@@ -238,18 +219,21 @@ export default class Board {
 	getPossibleMoves(): any[] {
 		let moves: any[] = [];
 
-		const squareInformation: squareInformation[] = this.squares.filter((square: squareInformation) => square.color === this.activeColor);
 		const oppositeColor: "white" | "black" = this.activeColor === "white" ? "black" : "white";
 
-		squareInformation.forEach((squareInfo: squareInformation) => {
+		for (let squarePosition = Board.startIndexBoard; squarePosition <= Board.endIndexBoard; squarePosition++) {
+			const squareInfo = this.squares[squarePosition];
+
+			if (squareInfo.color !== this.activeColor) continue;
+
 			if (squareInfo.pieceType === "pawn") {
 				const movesDirections: number[] = MOVE_DIRECTIONS[this.activeColor === "white" ? "whitePawnMove" : "blackPawnMove"];
 				const captureDirections: number[] = MOVE_DIRECTIONS[this.activeColor === "white" ? "whitePawnCapture" : "blackPawnCapture"];
-				const hasStartPosition: boolean = this.activeColor === "white" ? squareInfo.position >= 81 : squareInfo.position <= 38;
-				const canPromote: boolean = this.activeColor === "white" ? squareInfo.position <= 38 : squareInfo.position >= 81;
-				let position: number = squareInfo.position + movesDirections[0];
-				let capturePosition1: number = squareInfo.position + captureDirections[0];
-				let capturePosition2: number = squareInfo.position + captureDirections[1];
+				const hasStartPosition: boolean = this.activeColor === "white" ? squarePosition >= 81 : squarePosition <= 38;
+				const canPromote: boolean = this.activeColor === "white" ? squarePosition <= 38 : squarePosition >= 81;
+				let position: number = squarePosition + movesDirections[0];
+				let capturePosition1: number = squarePosition + captureDirections[0];
+				let capturePosition2: number = squarePosition + captureDirections[1];
 
 				// promotion move
 				if (canPromote) {
@@ -257,7 +241,7 @@ export default class Board {
 						["queen", "rook", "bishop", "knight"].forEach(promotionType => {
 							moves.push({
 								"piece": squareInfo.pieceType,
-								"from": squareInfo.position,
+								"from": squarePosition,
 								"to": position,
 								"willCapture": false,
 								"promoteTo": promotionType,
@@ -269,7 +253,7 @@ export default class Board {
 						["queen", "rook", "bishop", "knight"].forEach(promotionType => {
 							moves.push({
 								"piece": squareInfo.pieceType,
-								"from": squareInfo.position,
+								"from": squarePosition,
 								"to": capturePosition1,
 								"willCapture": true,
 								"promoteTo": promotionType,
@@ -281,7 +265,7 @@ export default class Board {
 						["queen", "rook", "bishop", "knight"].forEach(promotionType => {
 							moves.push({
 								"piece": squareInfo.pieceType,
-								"from": squareInfo.position,
+								"from": squarePosition,
 								"to": capturePosition2,
 								"willCapture": true,
 								"promoteTo": promotionType,
@@ -293,7 +277,7 @@ export default class Board {
 					if (this.squares[position].isOnBoard && this.squares[position].piece === null) {
 						moves.push({
 							"piece": squareInfo.pieceType,
-							"from": squareInfo.position,
+							"from": squarePosition,
 							"to": position,
 							"willCapture": false,
 						});
@@ -302,7 +286,7 @@ export default class Board {
 					if (this.squares[capturePosition1].color === oppositeColor) {
 						moves.push({
 							"piece": squareInfo.pieceType,
-							"from": squareInfo.position,
+							"from": squarePosition,
 							"to": capturePosition1,
 							"willCapture": true,
 						});
@@ -311,7 +295,7 @@ export default class Board {
 					if (this.squares[capturePosition2].color === oppositeColor) {
 						moves.push({
 							"piece": squareInfo.pieceType,
-							"from": squareInfo.position,
+							"from": squarePosition,
 							"to": capturePosition2,
 							"willCapture": true,
 						});
@@ -320,7 +304,7 @@ export default class Board {
 					if (capturePosition1 === this.enPassantSquarePosition || capturePosition2 === this.enPassantSquarePosition) {
 						moves.push({
 							"piece": squareInfo.pieceType,
-							"from": squareInfo.position,
+							"from": squarePosition,
 							"to": this.enPassantSquarePosition,
 							"willCapture": true,
 							"isEnPassant": true,
@@ -334,7 +318,7 @@ export default class Board {
 					if (this.squares[position].piece === null && this.squares[twoStepPosition].piece === null) {
 						moves.push({
 							"piece": squareInfo.pieceType,
-							"from": squareInfo.position,
+							"from": squarePosition,
 							"to": twoStepPosition,
 							"willCapture": false,
 						});
@@ -345,12 +329,12 @@ export default class Board {
 				const movesDirections: number[] = MOVE_DIRECTIONS.king;
 
 				for (let i = 0; i < movesDirections.length; i++) {
-					let position: number = squareInfo.position + movesDirections[i];
+					let position: number = squarePosition + movesDirections[i];
 
 					if (this.squares[position].isOnBoard && (this.squares[position].piece === null || this.squares[position].color === oppositeColor)) {
 						moves.push({
 							"piece": squareInfo.pieceType,
-							"from": squareInfo.position,
+							"from": squarePosition,
 							"to": position,
 							"willCapture": this.squares[position].color === oppositeColor,
 						});
@@ -362,11 +346,11 @@ export default class Board {
 				const isQueenSideCastlePossible = this.activeColor === "white" ? this.castlingInformation.isWhiteQueenSidePossible : this.castlingInformation.isBlackQueenSidePossible;
 
 				if (isKingSideCastlePossible) {
-					if (this.squares[squareInfo.position + 1].piece === null && this.squares[squareInfo.position + 2].piece === null && !this._isKingPlacedInCheckByMove({ from: squareInfo.position, to: squareInfo.position + 1 })) {
+					if (this.squares[squarePosition + 1].piece === null && this.squares[squarePosition + 2].piece === null && !this._isKingPlacedInCheckByMove({ from: squarePosition, to: squarePosition + 1 })) {
 						moves.push({
 							"piece": squareInfo.pieceType,
-							"from": squareInfo.position,
-							"to": squareInfo.position + 2,
+							"from": squarePosition,
+							"to": squarePosition + 2,
 							"willCapture": false,
 							"castle": true,
 						});
@@ -374,11 +358,11 @@ export default class Board {
 				}
 
 				if (isQueenSideCastlePossible) {
-					if (this.squares[squareInfo.position - 1].piece === null && this.squares[squareInfo.position - 2].piece === null && this.squares[squareInfo.position - 3].piece === null && !this._isKingPlacedInCheckByMove({ from: squareInfo.position, to: squareInfo.position - 1 })) {
+					if (this.squares[squarePosition - 1].piece === null && this.squares[squarePosition - 2].piece === null && this.squares[squarePosition - 3].piece === null && !this._isKingPlacedInCheckByMove({ from: squarePosition, to: squarePosition - 1 })) {
 						moves.push({
 							"piece": squareInfo.pieceType,
-							"from": squareInfo.position,
-							"to": squareInfo.position - 2,
+							"from": squarePosition,
+							"to": squarePosition - 2,
 							"willCapture": false,
 							"castle": true,
 						});
@@ -389,12 +373,12 @@ export default class Board {
 				const movesDirections: number[] = MOVE_DIRECTIONS.knight;
 
 				for (let i = 0; i < movesDirections.length; i++) {
-					let position: number = squareInfo.position + movesDirections[i];
+					let position: number = squarePosition + movesDirections[i];
 
 					if (this.squares[position].isOnBoard && (this.squares[position].piece === null || this.squares[position].color === oppositeColor)) {
 						moves.push({
 							"piece": squareInfo.pieceType,
-							"from": squareInfo.position,
+							"from": squarePosition,
 							"to": position,
 							"willCapture": this.squares[position].color === oppositeColor,
 						});
@@ -404,14 +388,14 @@ export default class Board {
 			else { // generate rook, bishop and queen moves
 				const movesDirections = MOVE_DIRECTIONS[String(squareInfo.pieceType)];
 				for (let i = 0; i < movesDirections.length; i++) {
-					let position = squareInfo.position + movesDirections[i];
+					let position = squarePosition + movesDirections[i];
 					let captured = false;
 
 					while (this.squares[position].isOnBoard && !captured && this.squares[position].color !== this.activeColor) {
 						captured = this.squares[position].piece !== null;
 						moves.push({
 							"piece": squareInfo.pieceType,
-							"from": squareInfo.position,
+							"from": squarePosition,
 							"to": position,
 							"willCapture": captured,
 						});
@@ -419,7 +403,7 @@ export default class Board {
 					}
 				}
 			}
-		});
+		}
 
 		// filter moves out that would place the king in check
 		return moves.filter(move => {
@@ -430,16 +414,12 @@ export default class Board {
 	_isKingPlacedInCheckByMove(move: any) {
 		const oldTo = this.squares[move.to];
 		this.squares[move.to] = this.squares[move.from];
-		this.squares[move.to].position = move.to;
 		this.squares[move.from] = Object.assign({}, SQUARE_TYPES.empty);
-		this.squares[move.from].position = move.from;
 
 		const isCheck = this.isCheck();
 
 		this.squares[move.from] = this.squares[move.to];
-		this.squares[move.from].position = move.from;
 		this.squares[move.to] = oldTo;
-		this.squares[move.to].position = move.to;
 
 		return isCheck;
 	}
