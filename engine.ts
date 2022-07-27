@@ -9,16 +9,16 @@ function printBoardToConsole(board: Board) {
 	for (let i = 20; i < 100; i++) {
 		if (i !== 20 && i % 10 === 0) boardString += " |\n —————————————————————————————————\n";
 
-		if (!board._squares[i].isOnBoard) continue;
+		if (!board.squares[i].isOnBoard) continue;
 
-		boardString += ` | ${board._squares[i].fenNotation}`;
+		boardString += ` | ${board.squares[i].piece}`;
 	}
 	boardString += " |\n —————————————————————————————————\n";
 	console.log(boardString);
 
 	if (isDebug) {
-		console.log(`${board._activeSide} to play | Possible moves: ${board.getPossibleMoves().length} | King check: ${board.isCheck()} | Checkmate: ${board.isCheckmate()}`);
-		console.log(`Move: ${board._moveCount} (${board._halfMoveCountSinceLastCaptureOrPawnMove}) | O-O: ${board._castlingInformation.isWhiteKingSidePossible} | O-O-O: ${board._castlingInformation.isWhiteQueenSidePossible} | o-o: ${board._castlingInformation.isBlackKingSidePossible} | o-o-o: ${board._castlingInformation.isBlackQueenSidePossible} | en passant: ${board._enPassantSquare} (${board._enPassantSquare ? Board.getIndexFromNotation(board._enPassantSquare.toString()) : "-"})`);
+		console.log(`${board.activeColor} to play | Possible moves: ${board.getPossibleMoves().length} | King check: ${board.isCheck()} | Checkmate: ${board.isCheckmate()}`);
+		console.log(`Move: ${board.moveCount} (${board.halfMoveCountSinceLastCaptureOrPawnMove}) | O-O: ${board.castlingInformation.isWhiteKingSidePossible} | O-O-O: ${board.castlingInformation.isWhiteQueenSidePossible} | o-o: ${board.castlingInformation.isBlackKingSidePossible} | o-o-o: ${board.castlingInformation.isBlackQueenSidePossible} | en passant: ${board.enPassantSquare} (${board.enPassantSquare ? Board.getIndexFromNotation(board.enPassantSquare.toString()) : "-"})`);
 	}
 }
 

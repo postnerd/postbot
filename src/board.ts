@@ -1,7 +1,7 @@
 interface squareInformation {
-	fenNotation: "p" | "P" | "b" | "B" | "n" | "N" | "r" | "R" | "q" | "Q" | "k" | "K" | " " | null,
+	piece: "p" | "P" | "b" | "B" | "n" | "N" | "r" | "R" | "q" | "Q" | "k" | "K" | " " | null,
 	color: "white" | "black" | null,
-	pieceType: "king" | "queen" | "rook" | "bishop" | "knight" | "pawn" | "empty" | null,
+	pieceType: "king" | "queen" | "rook" | "bishop" | "knight" | "pawn" | null,
 	position: number,
 	isEnPassantSquare: boolean,
 	isOnBoard: boolean,
@@ -29,7 +29,7 @@ const MOVE_DIRECTIONS: {[key: string]: number[]} = {
 
 const SQUARE_TYPES: {[key: string]: squareInformation } = {
 	"outside": {
-		fenNotation: null,
+		piece: null,
 		color: null,
 		pieceType: null,
 		position: 0,
@@ -38,16 +38,16 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
 		isEmpty: false,
 	},
 	"empty": {
-		fenNotation: " ",
+		piece: " ",
 		color: null,
-		pieceType: "empty",
+		pieceType: null,
 		position: 0,
 		isEnPassantSquare: false,
 		isOnBoard: true,
 		isEmpty: true,
 	},
 	"p": {
-		fenNotation: "p",
+		piece: "p",
 		color: "black",
 		pieceType: "pawn",
 		position: 0,
@@ -56,7 +56,7 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
 		isEmpty: false,
 	},
 	"n": {
-		fenNotation: "n",
+		piece: "n",
 		color: "black",
 		pieceType: "knight",
 		position: 0,
@@ -65,7 +65,7 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
 		isEmpty: false,
 	},
 	"b": {
-		fenNotation: "b",
+		piece: "b",
 		color: "black",
 		pieceType: "bishop",
 		position: 0,
@@ -74,7 +74,7 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
 		isEmpty: false,
 	},
 	"r": {
-		fenNotation: "r",
+		piece: "r",
 		color: "black",
 		pieceType: "rook",
 		position: 0,
@@ -83,7 +83,7 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
 		isEmpty: false,
 	},
 	"q": {
-		fenNotation: "q",
+		piece: "q",
 		color: "black",
 		pieceType: "queen",
 		position: 0,
@@ -92,7 +92,7 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
 		isEmpty: false,
 	},
 	"k": {
-		fenNotation: "k",
+		piece: "k",
 		color: "black",
 		pieceType: "king",
 		position: 0,
@@ -101,7 +101,7 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
 		isEmpty: false,
 	},
 	"P": {
-		fenNotation: "P",
+		piece: "P",
 		color: "white",
 		pieceType: "pawn",
 		position: 0,
@@ -110,7 +110,7 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
 		isEmpty: false,
 	},
 	"N": {
-		fenNotation: "N",
+		piece: "N",
 		color: "white",
 		pieceType: "knight",
 		position: 0,
@@ -119,7 +119,7 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
 		isEmpty: false,
 	},
 	"B": {
-		fenNotation: "B",
+		piece: "B",
 		color: "white",
 		pieceType: "bishop",
 		position: 0,
@@ -128,7 +128,7 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
 		isEmpty: false,
 	},
 	"R": {
-		fenNotation: "R",
+		piece: "R",
 		color: "white",
 		pieceType: "rook",
 		position: 0,
@@ -137,7 +137,7 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
 		isEmpty: false,
 	},
 	"Q": {
-		fenNotation: "Q",
+		piece: "Q",
 		color: "white",
 		pieceType: "queen",
 		position: 0,
@@ -146,7 +146,7 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
 		isEmpty: false,
 	},
 	"K": {
-		fenNotation: "K",
+		piece: "K",
 		color: "white",
 		pieceType: "king",
 		position: 0,
@@ -163,17 +163,17 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
  * The first two and the last two ranks are just added to have an easier move generation because we can check if an piece has moved outside the 8x8 chess board
  */
 export default class Board {
-	_squares: squareInformation[] = [];
-	_activeSide: "white" | "black" = "white";
-	_castlingInformation: castlingInformation = {
+	squares: squareInformation[] = [];
+	activeColor: "white" | "black" = "white";
+	castlingInformation: castlingInformation = {
 		isWhiteKingSidePossible: false,
 		isWhiteQueenSidePossible: false,
 		isBlackKingSidePossible: false,
 		isBlackQueenSidePossible: false,
 	};
-	_enPassantSquare: String | null = null;
-	_halfMoveCountSinceLastCaptureOrPawnMove: number = 0;
-	_moveCount: number = 0;
+	enPassantSquare: String | null = null;
+	halfMoveCountSinceLastCaptureOrPawnMove: number = 0;
+	moveCount: number = 0;
 
 	static startPosFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -204,8 +204,8 @@ export default class Board {
 
 		// first two ranks are filled with outside elements to have a easier move generation later on (to determine of a piece moved outside the board)
 		for (let i = 0; i < 20; i++) {
-			this._squares.push(Object.assign({}, SQUARE_TYPES.outside));
-			this._squares[this._squares.length - 1].position = this._squares.length - 1;
+			this.squares.push(Object.assign({}, SQUARE_TYPES.outside));
+			this.squares[this.squares.length - 1].position = this.squares.length - 1;
 		}
 
 		// setting up the board rank by rank with the fen string information
@@ -213,78 +213,78 @@ export default class Board {
 			const squares: string[] = rank.split("");
 
 			// first element in rank is again an outside element
-			this._squares.push(Object.assign({}, SQUARE_TYPES.outside));
-			this._squares[this._squares.length - 1].position = this._squares.length - 1;
+			this.squares.push(Object.assign({}, SQUARE_TYPES.outside));
+			this.squares[this.squares.length - 1].position = this.squares.length - 1;
 
 			for (let i = 0; i < squares.length; i++) {
 				const squareInfo = squares[i];
 				if (isNaN(parseInt(squareInfo))) { // if the square info is not a number we know we got an actual piece
-					this._squares.push(Object.assign({}, SQUARE_TYPES[squareInfo]));
-					this._squares[this._squares.length - 1].position = this._squares.length - 1;
+					this.squares.push(Object.assign({}, SQUARE_TYPES[squareInfo]));
+					this.squares[this.squares.length - 1].position = this.squares.length - 1;
 				}
 				else { // if it's a number, for the next n (number) squares we have blank ones
 					for (let j = 0; j < parseInt(squareInfo); j++) {
-						this._squares.push(Object.assign({}, SQUARE_TYPES.empty));
-						this._squares[this._squares.length - 1].position = this._squares.length - 1;
+						this.squares.push(Object.assign({}, SQUARE_TYPES.empty));
+						this.squares[this.squares.length - 1].position = this.squares.length - 1;
 					}
 				}
 			}
 
 			// last element in rank is again an outside element
-			this._squares.push(Object.assign({}, SQUARE_TYPES.outside));
-			this._squares[this._squares.length - 1].position = this._squares.length - 1;
+			this.squares.push(Object.assign({}, SQUARE_TYPES.outside));
+			this.squares[this.squares.length - 1].position = this.squares.length - 1;
 		});
 
 		// last two ranks are again outside elements
 		for (let i = 0; i < 20; i++) {
-			this._squares.push(Object.assign({}, SQUARE_TYPES.outside));
-			this._squares[this._squares.length - 1].position = this._squares.length - 1;
+			this.squares.push(Object.assign({}, SQUARE_TYPES.outside));
+			this.squares[this.squares.length - 1].position = this.squares.length - 1;
 		}
 
 		// 1: WHO`S TO PLAY
-		this._activeSide = inputs[1] === "w" ? "white" : "black";
+		this.activeColor = inputs[1] === "w" ? "white" : "black";
 
 		// 2: Setting the castling information
 		inputs[2].split("").forEach((castlingInfo: string) => {
-			if (castlingInfo === "K") this._castlingInformation.isWhiteKingSidePossible = true;
-			else if (castlingInfo === "Q") this._castlingInformation.isWhiteQueenSidePossible = true;
-			else if (castlingInfo === "k") this._castlingInformation.isBlackKingSidePossible = true;
-			else if (castlingInfo === "q") this._castlingInformation.isBlackQueenSidePossible = true;
+			if (castlingInfo === "K") this.castlingInformation.isWhiteKingSidePossible = true;
+			else if (castlingInfo === "Q") this.castlingInformation.isWhiteQueenSidePossible = true;
+			else if (castlingInfo === "k") this.castlingInformation.isBlackKingSidePossible = true;
+			else if (castlingInfo === "q") this.castlingInformation.isBlackQueenSidePossible = true;
 		});
 
 		// 3: Determine if a en passant move from this position will be possible
 		if (inputs[3] !== "-") {
-			this._enPassantSquare = inputs[3];
-			this._squares[Board.getIndexFromNotation(inputs[3])].isEnPassantSquare = true;
+			this.enPassantSquare = inputs[3];
+			this.squares[Board.getIndexFromNotation(inputs[3])].isEnPassantSquare = true;
 		}
 
 		// 4: Set the amount of half moves happened so far since the last piece was captured or we had a pawn move
 		// this will be relevant cause after 50 half moves without a capture or a pawn move we have a draw
-		this._halfMoveCountSinceLastCaptureOrPawnMove = parseInt(inputs[4]);
+		this.halfMoveCountSinceLastCaptureOrPawnMove = parseInt(inputs[4]);
 
 		// 5: Set the amount of total moves (two half moves are one move / to be considered as a move every player had to move one of his/her pieces)
-		this._moveCount = parseInt(inputs[5]);
+		this.moveCount = parseInt(inputs[5]);
 	}
 
 	getPossibleMoves(): any[] {
 		let moves: any[] = [];
 
-		const squareInformation: squareInformation[] = this._squares.filter((square: squareInformation) => square.color === this._activeSide);
-		const oppositeColor: "white" | "black" = this._activeSide === "white" ? "black" : "white";
+		const squareInformation: squareInformation[] = this.squares.filter((square: squareInformation) => square.color === this.activeColor);
+		const oppositeColor: "white" | "black" = this.activeColor === "white" ? "black" : "white";
 
 		squareInformation.forEach((squareInfo: squareInformation) => {
 			if (squareInfo.pieceType === "pawn") {
-				const movesDirections: number[] = MOVE_DIRECTIONS[this._activeSide === "white" ? "whitePawnMove" : "blackPawnMove"];
-				const captureDirections: number[] = MOVE_DIRECTIONS[this._activeSide === "white" ? "whitePawnCapture" : "blackPawnCapture"];
-				const hasStartPosition: boolean = this._activeSide === "white" ? squareInfo.position >= 81 : squareInfo.position <= 38;
-				const canPromote: boolean = this._activeSide === "white" ? squareInfo.position <= 38 : squareInfo.position >= 81;
+				const movesDirections: number[] = MOVE_DIRECTIONS[this.activeColor === "white" ? "whitePawnMove" : "blackPawnMove"];
+				const captureDirections: number[] = MOVE_DIRECTIONS[this.activeColor === "white" ? "whitePawnCapture" : "blackPawnCapture"];
+				const hasStartPosition: boolean = this.activeColor === "white" ? squareInfo.position >= 81 : squareInfo.position <= 38;
+				const canPromote: boolean = this.activeColor === "white" ? squareInfo.position <= 38 : squareInfo.position >= 81;
 				let position: number = squareInfo.position + movesDirections[0];
 				let capturePosition1: number = squareInfo.position + captureDirections[0];
 				let capturePosition2: number = squareInfo.position + captureDirections[1];
 
 				// promotion move
 				if (canPromote) {
-					if (this._squares[position].isEmpty) {
+					if (this.squares[position].isEmpty) {
 						["queen", "rook", "bishop", "knight"].forEach(promotionType => {
 							moves.push({
 								"piece": squareInfo.pieceType,
@@ -296,7 +296,7 @@ export default class Board {
 						});
 					}
 
-					if (this._squares[capturePosition1].color === oppositeColor) {
+					if (this.squares[capturePosition1].color === oppositeColor) {
 						["queen", "rook", "bishop", "knight"].forEach(promotionType => {
 							moves.push({
 								"piece": squareInfo.pieceType,
@@ -308,7 +308,7 @@ export default class Board {
 						});
 					}
 
-					if (this._squares[capturePosition2].color === oppositeColor) {
+					if (this.squares[capturePosition2].color === oppositeColor) {
 						["queen", "rook", "bishop", "knight"].forEach(promotionType => {
 							moves.push({
 								"piece": squareInfo.pieceType,
@@ -321,7 +321,7 @@ export default class Board {
 					}
 				}
 				else { // simple move
-					if (this._squares[position].isEmpty) {
+					if (this.squares[position].isEmpty) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
@@ -330,7 +330,7 @@ export default class Board {
 						});
 					}
 
-					if (this._squares[capturePosition1].color === oppositeColor) {
+					if (this.squares[capturePosition1].color === oppositeColor) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
@@ -339,7 +339,7 @@ export default class Board {
 						});
 					}
 
-					if (this._squares[capturePosition2].color === oppositeColor) {
+					if (this.squares[capturePosition2].color === oppositeColor) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
@@ -348,11 +348,11 @@ export default class Board {
 						});
 					}
 
-					if (this._squares[capturePosition1].isEnPassantSquare || this._squares[capturePosition2].isEnPassantSquare) {
+					if (this.squares[capturePosition1].isEnPassantSquare || this.squares[capturePosition2].isEnPassantSquare) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
-							"to": this._squares[capturePosition1].isEnPassantSquare ? capturePosition1 : capturePosition2,
+							"to": this.squares[capturePosition1].isEnPassantSquare ? capturePosition1 : capturePosition2,
 							"willCapture": true,
 							"isEnPassant": true,
 						});
@@ -362,7 +362,7 @@ export default class Board {
 				// two steps
 				if (hasStartPosition) {
 					let twoStepPosition = position + movesDirections[0];
-					if (this._squares[position].isEmpty && this._squares[twoStepPosition].isEmpty) {
+					if (this.squares[position].isEmpty && this.squares[twoStepPosition].isEmpty) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
@@ -378,22 +378,22 @@ export default class Board {
 				for (let i = 0; i < movesDirections.length; i++) {
 					let position: number = squareInfo.position + movesDirections[i];
 
-					if (this._squares[position].isEmpty || this._squares[position].color === oppositeColor) {
+					if (this.squares[position].isEmpty || this.squares[position].color === oppositeColor) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
 							"to": position,
-							"willCapture": this._squares[position].color === oppositeColor,
+							"willCapture": this.squares[position].color === oppositeColor,
 						});
 					}
 				}
 
 				// castle moves
-				const isKingSideCastlePossible = this._activeSide === "white" ? this._castlingInformation.isWhiteKingSidePossible : this._castlingInformation.isBlackKingSidePossible;
-				const isQueenSideCastlePossible = this._activeSide === "white" ? this._castlingInformation.isWhiteQueenSidePossible : this._castlingInformation.isBlackQueenSidePossible;
+				const isKingSideCastlePossible = this.activeColor === "white" ? this.castlingInformation.isWhiteKingSidePossible : this.castlingInformation.isBlackKingSidePossible;
+				const isQueenSideCastlePossible = this.activeColor === "white" ? this.castlingInformation.isWhiteQueenSidePossible : this.castlingInformation.isBlackQueenSidePossible;
 
 				if (isKingSideCastlePossible) {
-					if (this._squares[squareInfo.position + 1].isEmpty && this._squares[squareInfo.position + 2].isEmpty && !this._isKingPlacedInCheckByMove({ from: squareInfo.position, to: squareInfo.position + 1 })) {
+					if (this.squares[squareInfo.position + 1].isEmpty && this.squares[squareInfo.position + 2].isEmpty && !this._isKingPlacedInCheckByMove({ from: squareInfo.position, to: squareInfo.position + 1 })) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
@@ -405,7 +405,7 @@ export default class Board {
 				}
 
 				if (isQueenSideCastlePossible) {
-					if (this._squares[squareInfo.position - 1].isEmpty && this._squares[squareInfo.position - 2].isEmpty && this._squares[squareInfo.position - 3].isEmpty && !this._isKingPlacedInCheckByMove({ from: squareInfo.position, to: squareInfo.position - 1 })) {
+					if (this.squares[squareInfo.position - 1].isEmpty && this.squares[squareInfo.position - 2].isEmpty && this.squares[squareInfo.position - 3].isEmpty && !this._isKingPlacedInCheckByMove({ from: squareInfo.position, to: squareInfo.position - 1 })) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
@@ -422,12 +422,12 @@ export default class Board {
 				for (let i = 0; i < movesDirections.length; i++) {
 					let position: number = squareInfo.position + movesDirections[i];
 
-					if (this._squares[position].isEmpty || this._squares[position].color === oppositeColor) {
+					if (this.squares[position].isEmpty || this.squares[position].color === oppositeColor) {
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
 							"to": position,
-							"willCapture": this._squares[position].color === oppositeColor,
+							"willCapture": this.squares[position].color === oppositeColor,
 						});
 					}
 				}
@@ -438,8 +438,8 @@ export default class Board {
 					let position = squareInfo.position + movesDirections[i];
 					let captured = false;
 
-					while (this._squares[position].isOnBoard && !captured && this._squares[position].color !== this._activeSide) {
-						captured = this._squares[position].pieceType !== "empty";
+					while (this.squares[position].isOnBoard && !captured && this.squares[position].color !== this.activeColor) {
+						captured = !this.squares[position].isEmpty;
 						moves.push({
 							"piece": squareInfo.pieceType,
 							"from": squareInfo.position,
@@ -459,41 +459,41 @@ export default class Board {
 	}
 
 	_isKingPlacedInCheckByMove(move: any) {
-		const oldTo = this._squares[move.to];
-		this._squares[move.to] = this._squares[move.from];
-		this._squares[move.to].position = move.to;
-		this._squares[move.from] = Object.assign({}, SQUARE_TYPES.empty);
-		this._squares[move.from].position = move.from;
+		const oldTo = this.squares[move.to];
+		this.squares[move.to] = this.squares[move.from];
+		this.squares[move.to].position = move.to;
+		this.squares[move.from] = Object.assign({}, SQUARE_TYPES.empty);
+		this.squares[move.from].position = move.from;
 
 		const isCheck = this.isCheck();
 
-		this._squares[move.from] = this._squares[move.to];
-		this._squares[move.from].position = move.from;
-		this._squares[move.to] = oldTo;
-		this._squares[move.to].position = move.to;
+		this.squares[move.from] = this.squares[move.to];
+		this.squares[move.from].position = move.from;
+		this.squares[move.to] = oldTo;
+		this.squares[move.to].position = move.to;
 
 		return isCheck;
 	}
 
 	isCheck(): boolean {
-		const kingFen: "K" | "k" = this._activeSide === "white" ? "K" : "k";
-		const oppositeQueenFen: "Q" | "q" = this._activeSide !== "white" ? "Q" : "q";
-		const oppositeRookFen: "R" | "r" = this._activeSide !== "white" ? "R" : "r";
-		const oppositeBishopFen: "B" | "b" = this._activeSide !== "white" ? "B" : "b";
-		const oppositeKnightFen: "N" | "n" = this._activeSide !== "white" ? "N" : "n";
-		const oppositePawnFen: "P" | "p" = this._activeSide !== "white" ? "P" : "p";
+		const kingFen: "K" | "k" = this.activeColor === "white" ? "K" : "k";
+		const oppositeQueenFen: "Q" | "q" = this.activeColor !== "white" ? "Q" : "q";
+		const oppositeRookFen: "R" | "r" = this.activeColor !== "white" ? "R" : "r";
+		const oppositeBishopFen: "B" | "b" = this.activeColor !== "white" ? "B" : "b";
+		const oppositeKnightFen: "N" | "n" = this.activeColor !== "white" ? "N" : "n";
+		const oppositePawnFen: "P" | "p" = this.activeColor !== "white" ? "P" : "p";
 
-		const kingPosition: number = this._squares.findIndex((squareInformation: squareInformation) => squareInformation.fenNotation === kingFen);
+		const kingPosition: number = this.squares.findIndex((squareInformation: squareInformation) => squareInformation.piece === kingFen);
 
 		// check for pawn checks
 		const pawnMoves: number[] = kingFen === "K" ? MOVE_DIRECTIONS.whitePawnCapture : MOVE_DIRECTIONS.blackPawnCapture;
-		if (this._squares[kingPosition + pawnMoves[0]].fenNotation === oppositePawnFen || this._squares[kingPosition + pawnMoves[1]].fenNotation === oppositePawnFen) return true;
+		if (this.squares[kingPosition + pawnMoves[0]].piece === oppositePawnFen || this.squares[kingPosition + pawnMoves[1]].piece === oppositePawnFen) return true;
 
 
 		// check for knight checks
 		const knightMoves: number[] = MOVE_DIRECTIONS.knight;
 		for (let i = 0; i < knightMoves.length; i++) {
-			if (this._squares[kingPosition - knightMoves[i]].fenNotation === oppositeKnightFen) return true;
+			if (this.squares[kingPosition - knightMoves[i]].piece === oppositeKnightFen) return true;
 		}
 
 		// check for queen and rook checks
@@ -501,11 +501,11 @@ export default class Board {
 		for (let i = 0; i < queenAndRookMoves.length; i++) {
 			let position: number = kingPosition + queenAndRookMoves[i];
 
-			while (this._squares[position].isOnBoard && this._squares[position].isEmpty) {
+			while (this.squares[position].isOnBoard && this.squares[position].isEmpty) {
 				position += queenAndRookMoves[i];
 			}
 
-			if (this._squares[position].fenNotation === oppositeQueenFen || this._squares[position].fenNotation === oppositeRookFen) return true;
+			if (this.squares[position].piece === oppositeQueenFen || this.squares[position].piece === oppositeRookFen) return true;
 		}
 
 		// check for queen and bishop checks
@@ -513,11 +513,11 @@ export default class Board {
 		for (let i = 0; i < queenAndBishopMoves.length; i++) {
 			let position: number = kingPosition + queenAndBishopMoves[i];
 
-			while (this._squares[position].isOnBoard && this._squares[position].isEmpty) {
+			while (this.squares[position].isOnBoard && this.squares[position].isEmpty) {
 				position += queenAndBishopMoves[i];
 			}
 
-			if (this._squares[position].fenNotation === oppositeQueenFen || this._squares[position].fenNotation === oppositeBishopFen) return true;
+			if (this.squares[position].piece === oppositeQueenFen || this.squares[position].piece === oppositeBishopFen) return true;
 		}
 
 		// check for "king checks"
@@ -525,7 +525,7 @@ export default class Board {
 		for (let i = 0; i < kingMoves.length; i++) {
 			let position: number = kingPosition + kingMoves[i];
 
-			if (this._squares[position].pieceType === "king") return true;
+			if (this.squares[position].pieceType === "king") return true;
 		}
 
 		return false;
