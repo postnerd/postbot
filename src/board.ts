@@ -5,6 +5,32 @@ interface squareInformation {
 	isOnBoard: boolean
 }
 
+const EMPTY_BOARD: squareInformation[] = [
+	{ piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false },
+	{ piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false },
+	{ piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: false },
+	{ piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: false },
+	{ piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: false },
+	{ piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: false },
+	{ piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: false },
+	{ piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: false },
+	{ piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: false },
+	{ piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: true }, { piece: null, color: null, pieceType: null, isOnBoard: false },
+	{ piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false },
+	{ piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false }, { piece: null, color: null, pieceType: null, isOnBoard: false },
+];
+
+const CHESS_BOARD_POSITIONS: number[] = [
+	21,	22,	23,	24,	25,	26,	27,	28,
+	31,	32,	33,	34,	35,	36,	37,	38,
+	41,	42,	43,	44,	45,	46,	47,	48,
+	51,	52,	53,	54,	55,	56,	57,	58,
+	61,	62,	63,	64,	65,	66,	67,	68,
+	71,	72,	73,	74,	75,	76,	77,	78,
+	81,	82,	83,	84,	85,	86,	87,	88,
+	91,	92,	93,	94,	95,	96,	97,	98,
+];
+
 interface castlingInformation {
 	isWhiteKingSidePossible: boolean,
 	isWhiteQueenSidePossible: boolean,
@@ -131,8 +157,6 @@ export default class Board {
 	moveCount: number = 0;
 
 	static readonly startPosFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-	static readonly startIndexBoard = 21;
-	static readonly endIndexBoard = 98;
 
 	static getIndexFromNotation(notation: string): number {
 		const startSquare: number = 21; // a8 is our staring square
@@ -142,6 +166,8 @@ export default class Board {
 	}
 
 	constructor(fen: string) {
+		// creating an empty board
+		this.squares = JSON.parse(JSON.stringify(EMPTY_BOARD));
 		this._setupBoardFromFen(fen);
 	}
 
@@ -159,38 +185,25 @@ export default class Board {
 		// board information are provided rank by rank separated by "/"
 		const rankInformation: string[] = inputs[0].split("/");
 
-		// first two ranks are filled with outside elements to have a easier move generation later on (to determine of a piece moved outside the board)
-		for (let i = 0; i < 20; i++) {
-			this.squares.push(Object.assign({}, SQUARE_TYPES.outside));
-		}
-
 		// setting up the board rank by rank with the fen string information
+		let boardIndex = 0;
 		rankInformation.forEach((rank: string) => {
-			const squares: string[] = rank.split("");
+			const squareInformation: string[] = rank.split("");
 
-			// first element in rank is again an outside element
-			this.squares.push(Object.assign({}, SQUARE_TYPES.outside));
-
-			for (let i = 0; i < squares.length; i++) {
-				const squareInfo = squares[i];
+			for (let i = 0; i < squareInformation.length; i++) {
+				const squareInfo = squareInformation[i];
 				if (isNaN(parseInt(squareInfo))) { // if the square info is not a number we know we got an actual piece
-					this.squares.push(Object.assign({}, SQUARE_TYPES[squareInfo]));
+					this.squares[CHESS_BOARD_POSITIONS[boardIndex]] = Object.assign({}, SQUARE_TYPES[squareInfo]);
+					boardIndex++;
 				}
 				else { // if it's a number, for the next n (number) squares we have blank ones
 					for (let j = 0; j < parseInt(squareInfo); j++) {
-						this.squares.push(Object.assign({}, SQUARE_TYPES.empty));
+						this.squares[CHESS_BOARD_POSITIONS[boardIndex]] = Object.assign({}, SQUARE_TYPES.empty);
+						boardIndex++;
 					}
 				}
 			}
-
-			// last element in rank is again an outside element
-			this.squares.push(Object.assign({}, SQUARE_TYPES.outside));
 		});
-
-		// last two ranks are again outside elements
-		for (let i = 0; i < 20; i++) {
-			this.squares.push(Object.assign({}, SQUARE_TYPES.outside));
-		}
 
 		// 1: WHO`S TO PLAY
 		this.activeColor = inputs[1] === "w" ? "white" : "black";
@@ -221,7 +234,8 @@ export default class Board {
 
 		const oppositeColor: "white" | "black" = this.activeColor === "white" ? "black" : "white";
 
-		for (let squarePosition = Board.startIndexBoard; squarePosition <= Board.endIndexBoard; squarePosition++) {
+		for (let boardIndex = 0; boardIndex < 64; boardIndex++) {
+			const squarePosition = CHESS_BOARD_POSITIONS[boardIndex];
 			const squareInfo = this.squares[squarePosition];
 
 			if (squareInfo.color !== this.activeColor) continue;
