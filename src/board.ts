@@ -1,4 +1,4 @@
-interface squareInformation {
+interface squareObject {
 	piece: "p" | "P" | "b" | "B" | "n" | "N" | "r" | "R" | "q" | "Q" | "k" | "K" | null,
 	color: "white" | "black" | null,
 	pieceType: "king" | "queen" | "rook" | "bishop" | "knight" | "pawn" | null
@@ -49,69 +49,6 @@ const MOVE_DIRECTIONS: {[key: string]: number[]} = {
 	"blackPawnCapture": [9, 11],
 };
 
-const SQUARE_TYPES: {[key: string]: squareInformation } = {
-	"p": {
-		piece: "p",
-		color: "black",
-		pieceType: "pawn",
-	},
-	"n": {
-		piece: "n",
-		color: "black",
-		pieceType: "knight",
-	},
-	"b": {
-		piece: "b",
-		color: "black",
-		pieceType: "bishop",
-	},
-	"r": {
-		piece: "r",
-		color: "black",
-		pieceType: "rook",
-	},
-	"q": {
-		piece: "q",
-		color: "black",
-		pieceType: "queen",
-	},
-	"k": {
-		piece: "k",
-		color: "black",
-		pieceType: "king",
-	},
-	"P": {
-		piece: "P",
-		color: "white",
-		pieceType: "pawn",
-	},
-	"N": {
-		piece: "N",
-		color: "white",
-		pieceType: "knight",
-	},
-	"B": {
-		piece: "B",
-		color: "white",
-		pieceType: "bishop",
-	},
-	"R": {
-		piece: "R",
-		color: "white",
-		pieceType: "rook",
-	},
-	"Q": {
-		piece: "Q",
-		color: "white",
-		pieceType: "queen",
-	},
-	"K": {
-		piece: "K",
-		color: "white",
-		pieceType: "king",
-	},
-};
-
 /**
  * CHESS BOARD REPRESENTATION
  *
@@ -119,7 +56,7 @@ const SQUARE_TYPES: {[key: string]: squareInformation } = {
  * The first two and the last two ranks are just added to have an easier move generation because we can check if an piece has moved outside the 8x8 chess board
  */
 export default class Board {
-	squares: squareInformation[] = [];
+	squares: squareObject[] = [];
 	activeColor: "white" | "black" = "white";
 	castlingInformation: castlingInformation = {
 		isWhiteKingSidePossible: false,
@@ -140,6 +77,39 @@ export default class Board {
 		return startSquare + ranksToAdd + filesToAdd;
 	}
 
+	static getSquareObjectByFenNotation(fenNotation: string): squareObject {
+		switch (fenNotation) {
+		case "p":
+			return { piece: "p", color: "black", pieceType: "pawn" };
+		case "P":
+			return { piece: "P", color: "white", pieceType: "pawn" };
+		case "n":
+			return { piece: "n", color: "black", pieceType: "knight" };
+		case "N":
+			return { piece: "N", color: "white", pieceType: "knight" };
+		case "b":
+			return { piece: "b", color: "black", pieceType: "bishop" };
+		case "B":
+			return { piece: "B", color: "white", pieceType: "bishop" };
+		case "r":
+			return { piece: "r", color: "black", pieceType: "rook" };
+		case "R":
+			return { piece: "R", color: "white", pieceType: "rook" };
+		case "q":
+			return { piece: "q", color: "black", pieceType: "queen" };
+		case "Q":
+			return { piece: "Q", color: "white", pieceType: "queen" };
+		case "k":
+			return { piece: "k", color: "black", pieceType: "king" };
+		case "K":
+			return { piece: "K", color: "white", pieceType: "king" };
+		case "empty":
+			return { piece: null, color: null, pieceType: null };
+		default:
+			throw new Error(`Fen notation for "${fenNotation}" is not recognized.`);
+		}
+	}
+
 	static isOnBoard(index: number): boolean {
 		return CHESS_BOARD_BOUNDARIES[index];
 	}
@@ -147,7 +117,7 @@ export default class Board {
 	constructor(fen: string) {
 		// creating an empty board
 		for (let i = 0; i < 120; i++) {
-			this.squares.push({ piece: null, color: null, pieceType: null });
+			this.squares.push(Board.getSquareObjectByFenNotation("empty"));
 		}
 		this._setupBoardFromFen(fen);
 	}
@@ -174,12 +144,12 @@ export default class Board {
 			for (let i = 0; i < squareInformation.length; i++) {
 				const squareInfo = squareInformation[i];
 				if (isNaN(parseInt(squareInfo))) { // if the square info is not a number we know we got an actual piece
-					this.squares[CHESS_BOARD_POSITIONS[boardIndex]] = Object.assign({}, SQUARE_TYPES[squareInfo]);
+					this.squares[CHESS_BOARD_POSITIONS[boardIndex]] = Board.getSquareObjectByFenNotation(squareInfo);
 					boardIndex++;
 				}
 				else { // if it's a number, for the next n (number) squares we have blank ones
 					for (let j = 0; j < parseInt(squareInfo); j++) {
-						this.squares[CHESS_BOARD_POSITIONS[boardIndex]] = { piece: null, color: null, pieceType: null };
+						this.squares[CHESS_BOARD_POSITIONS[boardIndex]] = Board.getSquareObjectByFenNotation("empty");
 						boardIndex++;
 					}
 				}
@@ -409,7 +379,7 @@ export default class Board {
 	_isKingPlacedInCheckByMove(move: any) {
 		const oldTo = this.squares[move.to];
 		this.squares[move.to] = this.squares[move.from];
-		this.squares[move.from] = { piece: null, color: null, pieceType: null };
+		this.squares[move.from] = Board.getSquareObjectByFenNotation("empty");
 
 		const isCheck = this.isCheck();
 
@@ -427,7 +397,7 @@ export default class Board {
 		const oppositeKnightFen: "N" | "n" = this.activeColor !== "white" ? "N" : "n";
 		const oppositePawnFen: "P" | "p" = this.activeColor !== "white" ? "P" : "p";
 
-		const kingPosition: number = this.squares.findIndex((squareInformation: squareInformation) => squareInformation.piece === kingFen);
+		const kingPosition: number = this.squares.findIndex((squareInformation: squareObject) => squareInformation.piece === kingFen);
 
 		// check for pawn checks
 		const pawnMoves: number[] = kingFen === "K" ? MOVE_DIRECTIONS.whitePawnCapture : MOVE_DIRECTIONS.blackPawnCapture;
