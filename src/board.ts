@@ -142,10 +142,9 @@ export default class Board {
 		for (let i = 0; i < 120; i++) {
 			this.squares.push(Board.getSquareObjectByFenNotation("empty"));
 		}
-		this._setupBoardFromFen(fen);
-	}
 
-	_setupBoardFromFen(fen: string) {
+		// Setting up board from fen notation
+
 		// Parsing fen string into an array
 		// 0: board information
 		// 1: side to play
@@ -379,7 +378,7 @@ export default class Board {
 				const isQueenSideCastlePossible = this.activeColor === "white" ? this.castlingInformation.isWhiteQueenSidePossible : this.castlingInformation.isBlackQueenSidePossible;
 
 				if (isKingSideCastlePossible) {
-					if (this.squares[squarePosition + 1].piece === null && this.squares[squarePosition + 2].piece === null && !this._isKingPlacedInCheckByMove({ pieceType: "king", from: squarePosition, to: squarePosition + 1, willCapture: false })) {
+					if (this.squares[squarePosition + 1].piece === null && this.squares[squarePosition + 2].piece === null && !this.isKingPlacedInCheckByMove({ pieceType: "king", from: squarePosition, to: squarePosition + 1, willCapture: false })) {
 						moves.push({
 							pieceType: squareInfo.pieceType,
 							from: squarePosition,
@@ -391,7 +390,7 @@ export default class Board {
 				}
 
 				if (isQueenSideCastlePossible) {
-					if (this.squares[squarePosition - 1].piece === null && this.squares[squarePosition - 2].piece === null && this.squares[squarePosition - 3].piece === null && !this._isKingPlacedInCheckByMove({ pieceType: "king", from: squarePosition, to: squarePosition - 1, willCapture: false })) {
+					if (this.squares[squarePosition - 1].piece === null && this.squares[squarePosition - 2].piece === null && this.squares[squarePosition - 3].piece === null && !this.isKingPlacedInCheckByMove({ pieceType: "king", from: squarePosition, to: squarePosition - 1, willCapture: false })) {
 						moves.push({
 							pieceType: squareInfo.pieceType,
 							from: squarePosition,
@@ -443,11 +442,11 @@ export default class Board {
 
 		// filter moves out that would place the king in check
 		return moves.filter((move: Move) => {
-			return !this._isKingPlacedInCheckByMove(move);
+			return !this.isKingPlacedInCheckByMove(move);
 		});
 	}
 
-	_isKingPlacedInCheckByMove(move: Move) {
+	isKingPlacedInCheckByMove(move: Move) {
 		const oldTo = this.squares[move.to];
 		this.squares[move.to] = this.squares[move.from];
 		this.squares[move.from] = Board.getSquareObjectByFenNotation("empty");
