@@ -169,10 +169,29 @@ export default class Board {
 
 		// 2: Setting the castling information
 		inputs[2].split("").forEach((castlingInfo: string) => {
-			if (castlingInfo === "K") this.castlingInformation.isWhiteKingSidePossible = true;
-			else if (castlingInfo === "Q") this.castlingInformation.isWhiteQueenSidePossible = true;
-			else if (castlingInfo === "k") this.castlingInformation.isBlackKingSidePossible = true;
-			else if (castlingInfo === "q") this.castlingInformation.isBlackQueenSidePossible = true;
+			switch (castlingInfo) {
+			case "K": {
+				this.castlingInformation.isWhiteKingSidePossible = true;
+				break;
+			}
+			case "Q": {
+				this.castlingInformation.isWhiteQueenSidePossible = true;
+				break;
+			}
+			case "k": {
+				this.castlingInformation.isBlackKingSidePossible = true;
+				break;
+			}
+			case "q": {
+				this.castlingInformation.isBlackQueenSidePossible = true;
+				break;
+			}
+			case "-": {
+				break;
+			}
+			default:
+				throw new Error(`Couldn't read castling information "${castlingInfo}" from fen notation "${inputs[2]}".`);
+			}
 		});
 
 		// 3: Determine if a en passant move from this position will be possible
