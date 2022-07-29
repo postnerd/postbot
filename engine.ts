@@ -9,7 +9,7 @@ function printBoardToConsole(board: Board) {
 	for (let i = 20; i < 100; i++) {
 		if (i !== 20 && i % 10 === 0) boardString += " |\n —————————————————————————————————\n";
 
-		if (!board.squares[i].isOnBoard) continue;
+		if (!Board.isOnBoard(i)) continue;
 
 		boardString += ` | ${board.squares[i].piece ?? " "}`;
 	}
