@@ -19,8 +19,6 @@ const fenMoveCount: any[] = [
 	// { fen: "", result: 0 },
 	// { fen: "", result: 0 },
 	// { fen: "", result: 0 },
-	// { fen: "", result: 0 },
-	// { fen: "", result: 0 },
 ];
 
 const fenEnPassantMoveCount: any[] = [
@@ -61,6 +59,11 @@ const fenTiedUpMoveCount: any[] = [
 	{ fen: "3K4/8/8/1Q3B2/2n1p3/3k4/8/8 b - - 0 1", result: 6 },
 ];
 
+const castleMoveCount: any[] = [
+	{ fen: "rnbqk1nr/pppppppp/8/8/8/4b3/P6P/R3K2R w KQkq - 0 1", result: 12 },
+	{ fen: "rnbqkbnr/pppppppp/8/8/8/8/P6P/R3K2R w KQkq - 0 1", result: 16 },
+];
+
 describe("Testing general move generation", () => {
 	fenMoveCount.forEach(testFen => {
 		test(`Testing move count with ${testFen.fen}`, () => {
@@ -99,6 +102,15 @@ describe("Testing promotion moves", () => {
 
 describe("Testing tied up moves", () => {
 	fenTiedUpMoveCount.forEach(testFen => {
+		test(`Testing move count with ${testFen.fen}`, () => {
+			const board = new Board(testFen.fen);
+			expect(board.getPossibleMoves().length).toBe(testFen.result);
+		});
+	});
+});
+
+describe("Testing castle moves", () => {
+	castleMoveCount.forEach(testFen => {
 		test(`Testing move count with ${testFen.fen}`, () => {
 			const board = new Board(testFen.fen);
 			expect(board.getPossibleMoves().length).toBe(testFen.result);
