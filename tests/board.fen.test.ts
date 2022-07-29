@@ -2,11 +2,11 @@ import Board from "../src/board";
 
 describe("Testing static board functions", () => {
 	test("Getting index of a8", () => {
-		expect(Board.getIndexFromNotation("a8")).toBe(21);
+		expect(Board.getPositionFromNotation("a8")).toBe(21);
 	});
 
 	test("Getting index of h1", () => {
-		expect(Board.getIndexFromNotation("h1")).toBe(98);
+		expect(Board.getPositionFromNotation("h1")).toBe(98);
 	});
 });
 

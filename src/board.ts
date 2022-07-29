@@ -4,7 +4,7 @@ interface squareObject {
 	pieceType: "king" | "queen" | "rook" | "bishop" | "knight" | "pawn" | null
 }
 
-const CHESS_BOARD_POSITIONS: number[] = [
+const CHESS_BOARD_POSITIONS = [
 	21,	22,	23,	24,	25,	26,	27,	28,
 	31,	32,	33,	34,	35,	36,	37,	38,
 	41,	42,	43,	44,	45,	46,	47,	48,
@@ -15,7 +15,18 @@ const CHESS_BOARD_POSITIONS: number[] = [
 	91,	92,	93,	94,	95,	96,	97,	98,
 ];
 
-const CHESS_BOARD_BOUNDARIES: boolean[] = [
+const CHESS_BOARD_NOTATION: {[key: string]: number} = {
+	"a8": 21,	"b8": 22,	"c8": 23,	"d8": 24,	"e8": 25,	"f8": 26,	"g8": 27,	"h8": 28,
+	"a7": 31,	"b7": 32,	"c7": 33,	"d7": 34,	"e7": 35,	"f7": 36,	"g7": 37,	"h7": 38,
+	"a6": 41,	"b6": 42,	"c6": 43,	"d6": 44,	"e6": 45,	"f6": 46,	"g6": 47,	"h6": 48,
+	"a5": 51,	"b5": 52,	"c5": 53,	"d5": 54,	"e5": 55,	"f5": 56,	"g5": 57,	"h5": 58,
+	"a4": 61,	"b4": 62,	"c4": 63,	"d4": 64,	"e4": 65,	"f4": 66,	"g4": 67,	"h4": 68,
+	"a3": 71,	"b3": 72,	"c3": 73,	"d3": 74,	"e3": 75,	"f3": 76,	"g3": 77,	"h3": 78,
+	"a2": 81,	"b2": 82,	"c2": 83,	"d2": 84,	"e2": 85,	"f2": 86,	"g2": 87,	"h2": 88,
+	"a1": 91,	"b1": 92,	"c1": 93,	"d1": 94,	"e1": 95,	"f1": 96,	"g1": 97,	"h1": 98,
+};
+
+const CHESS_BOARD_BOUNDARIES = [
 	false, false, false, false, false, false, false, false, false, false,
 	false, false, false, false, false, false, false, false, false, false,
 	false, true, true, true, true, true, true, true, true, false,
@@ -70,11 +81,8 @@ export default class Board {
 
 	static readonly startPosFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-	static getIndexFromNotation(notation: string): number {
-		const startSquare: number = 21; // a8 is our staring square
-		const filesToAdd: number = notation[0].charCodeAt(0) - 97; // charCode for "a" is 97, so we get the difference from letter notation to our starting square "a"
-		const ranksToAdd: number = (8 - parseInt(notation[1])) * 10; // since every rank has 8 squares we get the difference to our starting square and multiply it by 10 because our board is represented by 10 squares per rank
-		return startSquare + ranksToAdd + filesToAdd;
+	static getPositionFromNotation(notation: string): number {
+		return CHESS_BOARD_NOTATION[notation];
 	}
 
 	static getSquareObjectByFenNotation(fenNotation: string): squareObject {
@@ -110,8 +118,8 @@ export default class Board {
 		}
 	}
 
-	static isOnBoard(index: number): boolean {
-		return CHESS_BOARD_BOUNDARIES[index];
+	static isOnBoard(position: number): boolean {
+		return CHESS_BOARD_BOUNDARIES[position];
 	}
 
 	constructor(fen: string) {
@@ -169,7 +177,7 @@ export default class Board {
 
 		// 3: Determine if a en passant move from this position will be possible
 		if (inputs[3] !== "-") {
-			this.enPassantSquarePosition = Board.getIndexFromNotation(inputs[3]);
+			this.enPassantSquarePosition = Board.getPositionFromNotation(inputs[3]);
 		}
 
 		// 4: Set the amount of half moves happened so far since the last piece was captured or we had a pawn move
