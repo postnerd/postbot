@@ -1,7 +1,6 @@
 type Piece = "p" | "P" | "b" | "B" | "n" | "N" | "r" | "R" | "q" | "Q" | "k" | "K" | null;
 type Color = "white" | "black" | null;
 type PieceType = "king" | "queen" | "rook" | "bishop" | "knight" | "pawn" | null;
-type PromotionType = "queen" | "rook" | "bishop" | "knight" | null;
 
 interface SquareObject {
 	piece: Piece;
@@ -58,7 +57,8 @@ interface Move {
 	from: number,
 	to: number,
 	willCapture: boolean,
-	promoteTo?: PromotionType,
+	capturedSquareInfo?: SquareObject,
+	promoteToSquareInfo?: SquareObject,
 	isEnPassant?: boolean,
 	isCastle?: boolean,
 }
@@ -93,6 +93,7 @@ export default class Board {
 	enPassantSquarePosition: number | null = null;
 	halfMoveCountSinceLastCaptureOrPawnMove: number = 0;
 	moveCount: number = 0;
+	moves: Move[] = [];
 
 	static readonly startPosFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -100,7 +101,11 @@ export default class Board {
 		return CHESS_BOARD_NOTATION[notation];
 	}
 
-	static getSquareObjectByFenNotation(fenNotation: string): SquareObject {
+	static getFenNotationFromPosition(position: number): string {
+		return Object.keys(CHESS_BOARD_NOTATION).find((key) => CHESS_BOARD_NOTATION[key] === position) || "";
+	}
+
+	static getSquareObjectByFenNotation(fenNotation: string | null): SquareObject {
 		switch (fenNotation) {
 		case "p":
 			return { piece: "p", color: "black", pieceType: "pawn" };
@@ -128,8 +133,10 @@ export default class Board {
 			return { piece: "K", color: "white", pieceType: "king" };
 		case "empty":
 			return { piece: null, color: null, pieceType: null };
-		default:
-			throw new Error(`Fen notation for "${fenNotation}" is not recognized.`);
+		default: {
+			throw new Error(`Fen notation for ${fenNotation} is not recognized.`);
+		}
+
 		}
 	}
 
@@ -138,6 +145,10 @@ export default class Board {
 	}
 
 	constructor(fen: string) {
+		this.setPositionFromFen(fen);
+	}
+
+	setPositionFromFen(fen: string): void {
 		// creating an empty board
 		for (let i = 0; i < 120; i++) {
 			this.squares.push(Board.getSquareObjectByFenNotation("empty"));
@@ -255,7 +266,7 @@ export default class Board {
 
 				// 1: Promotion moves
 				if (canPromote) {
-					const possiblePromotions: PromotionType[] = ["queen", "rook", "bishop", "knight"];
+					const possiblePromotions = this.activeColor === "white" ? ["Q", "R", "B", "N"] : ["q", "r", "b", "n"];
 
 					// normal promotion moves
 					if (this.squares[newPosition].piece === null) {
@@ -265,7 +276,7 @@ export default class Board {
 								from: squarePosition,
 								to: newPosition,
 								willCapture: false,
-								promoteTo: promotionType,
+								promoteToSquareInfo: Board.getSquareObjectByFenNotation(promotionType),
 							});
 						});
 					}
@@ -278,7 +289,7 @@ export default class Board {
 								from: squarePosition,
 								to: capturePosition1,
 								willCapture: true,
-								promoteTo: promotionType,
+								promoteToSquareInfo: Board.getSquareObjectByFenNotation(promotionType),
 							});
 						});
 					}
@@ -291,7 +302,7 @@ export default class Board {
 								from: squarePosition,
 								to: capturePosition2,
 								willCapture: true,
-								promoteTo: promotionType,
+								promoteToSquareInfo: Board.getSquareObjectByFenNotation(promotionType),
 							});
 						});
 					}
@@ -525,5 +536,158 @@ export default class Board {
 		if (!this.isCheck() && this.getPossibleMoves().length === 0) return true;
 
 		return false;
+	}
+
+	makeMove(move: Move) {
+		this.squares[move.to] = this.squares[move.from];
+		this.squares[move.from] = Board.getSquareObjectByFenNotation("empty");
+
+		if (move.promoteToSquareInfo) {
+			this.squares[move.to] = move.promoteToSquareInfo;
+		}
+
+		if (move.isCastle) {
+			let rook = {
+				from: 0,
+				to: 0,
+			};
+
+			if (move.to === 93 || move.to === 23) {
+				rook.from = move.to - 2;
+				rook.to = move.to + 1;
+			}
+			else if (move.to === 97 || move.to === 27) {
+				rook.from = move.to + 1;
+				rook.to = move.to - 1;
+			}
+
+			this.squares[rook.to] = this.squares[rook.from];
+			this.squares[rook.from] = Board.getSquareObjectByFenNotation("empty");
+
+			if (this.activeColor === "white") {
+				this.castlingInformation.isWhiteKingSidePossible = false;
+				this.castlingInformation.isWhiteQueenSidePossible = false;
+			}
+			else {
+				this.castlingInformation.isBlackKingSidePossible = false;
+				this.castlingInformation.isBlackQueenSidePossible = false;
+			}
+		}
+
+		if (move.pieceType === "king") {
+			if (this.activeColor === "white") {
+				this.castlingInformation.isWhiteKingSidePossible = false;
+				this.castlingInformation.isWhiteQueenSidePossible = false;
+			}
+			else {
+				this.castlingInformation.isBlackKingSidePossible = false;
+				this.castlingInformation.isBlackQueenSidePossible = false;
+			}
+		}
+
+		if (move.pieceType === "rook") {
+			if (move.from === 21) {
+				this.castlingInformation.isBlackQueenSidePossible = false;
+			}
+			else if (move.from === 28) {
+				this.castlingInformation.isBlackKingSidePossible = false;
+			}
+			else if (move.from === 91) {
+				this.castlingInformation.isWhiteQueenSidePossible = false;
+			}
+			else if (move.from === 98) {
+				this.castlingInformation.isWhiteKingSidePossible = false;
+			}
+		}
+
+		if (move.willCapture) {
+			if (move.to === 21) {
+				this.castlingInformation.isBlackQueenSidePossible = false;
+			}
+			else if (move.to === 28) {
+				this.castlingInformation.isBlackKingSidePossible = false;
+			}
+			else if (move.to === 91) {
+				this.castlingInformation.isWhiteQueenSidePossible = false;
+			}
+			else if (move.to === 98) {
+				this.castlingInformation.isWhiteKingSidePossible = false;
+			}
+		}
+
+		if (move.isEnPassant) {
+			if (this.activeColor === "white") {
+				this.squares[move.to + 10] = Board.getSquareObjectByFenNotation("empty");
+			}
+			else {
+				this.squares[move.to - 10] = Board.getSquareObjectByFenNotation("empty");
+			}
+		}
+
+		if (move.pieceType === "pawn" && Math.abs(move.to - move.from) === 20) {
+			if (this.activeColor === "white") {
+				this.enPassantSquarePosition = move.to + 10;
+			}
+			else {
+				this.enPassantSquarePosition = move.to - 10;
+			}
+		}
+		else {
+			this.enPassantSquarePosition = null;
+		}
+
+		if (this.activeColor === "black") {
+			this.moveCount++;
+		}
+
+		if (move.willCapture || move.pieceType === "pawn") {
+			this.halfMoveCountSinceLastCaptureOrPawnMove = 0;
+		}
+		else {
+			this.halfMoveCountSinceLastCaptureOrPawnMove++;
+		}
+
+		this.activeColor = this.activeColor === "white" ? "black" : "white";
+		this.moves.push(move);
+	}
+
+	makeMoveFromNotation(moveFEN: string) {
+		// Since we are getting our moves from the GUI, we don't have to check if the move is valid
+		const fromFEN: string = moveFEN.slice(0, 2);
+		const toFEN: string = moveFEN.slice(2, 4);
+		const promoteToFEN: string = moveFEN.slice(4, 5);
+		const willCapture = this.squares[Board.getPositionFromNotation(toFEN)].piece !== null;
+
+		const from = Board.getPositionFromNotation(fromFEN);
+		const to = Board.getPositionFromNotation(toFEN);
+		const pieceType = this.squares[from].pieceType;
+		let isCastle = false;
+		let isEnPassant = false;
+		let promoteToSquareInfo;
+
+		if (pieceType === "king" && Math.abs(from - to) === 2) {
+			isCastle = true;
+		}
+
+		if (pieceType === "pawn" && fromFEN[0] !== toFEN[0] && this.squares[to].piece === null) {
+			isEnPassant = true;
+		}
+
+		if (["q", "r", "b", "n"].includes(promoteToFEN)) {
+			promoteToSquareInfo = Board.getSquareObjectByFenNotation(this.activeColor === "white" ? promoteToFEN.toUpperCase() : promoteToFEN.toLowerCase());
+		}
+
+		const move: Move = {
+			pieceType: this.squares[from].pieceType,
+			from: from,
+			to: to,
+			willCapture: willCapture,
+			capturedSquareInfo: willCapture ? this.squares[to] : undefined,
+			promoteToSquareInfo: promoteToSquareInfo,
+			isCastle: isCastle,
+			isEnPassant: isEnPassant,
+		};
+
+		this.makeMove(move);
 	}
 }
