@@ -385,6 +385,8 @@ export default class Board {
 				}
 
 				// castle moves
+				if (this.isCheck()) continue;
+
 				const isKingSideCastlePossible = this.activeColor === "white" ? this.castlingInformation.isWhiteKingSidePossible : this.castlingInformation.isBlackKingSidePossible;
 				const isQueenSideCastlePossible = this.activeColor === "white" ? this.castlingInformation.isWhiteQueenSidePossible : this.castlingInformation.isBlackQueenSidePossible;
 
