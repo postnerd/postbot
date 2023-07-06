@@ -12,6 +12,12 @@ const engine: Engine = {
 	isUCIRunning: false,
 };
 
+function processMoves(commands: string[], start: number): void {
+	commands.slice(start).forEach((move: string) => {
+		currentGame.makeMove(move);
+	});
+}
+
 let currentGame: Game;
 
 function handleUCIInput(inputData: string) {
@@ -53,31 +59,32 @@ function handleUCIInput(inputData: string) {
 		console.log("readyok");
 	}
 	else if (commands[0] === "ucinewgame") {
-		currentGame = new Game(Date.now().toString());
+		// Noting to do here at the moment
 	}
 	else if (commands[0] === "position") {
+		let fen = "startpos";
 
-		if (commands[1] === "startpos") {
-			// Is needed because the position command can be used without ucinewgame
-			if (currentGame === undefined) {
-				currentGame = new Game(Date.now().toString());
-			}
-			else {
-				currentGame.resetBoard();
-			}
+		if (commands[1] === "fen") {
+			fen = (`${commands[2]} ${commands[3]} ${commands[4]} ${commands[5]} ${commands[6]} ${commands[7]}`);
 		}
-		else if (commands[1] === "fen") {
-			// TODO: Implement FEN handling
+
+		// Is needed because the position command can be used without ucinewgame
+		if (currentGame === undefined) {
+			currentGame = new Game(Date.now().toString(), fen);
+		}
+		else {
+			currentGame.resetBoard();
 		}
 
 		if (commands[2] === "moves") {
-			commands.slice(3).forEach((move: string) => {
-				currentGame.makeMove(move);
-			});
+			processMoves(commands, 3);
+		}
+		else {
+			processMoves(commands, 9);
+		}
 
-			if (isDebug) {
-				printBoardToConsole(currentGame.board, true);
-			}
+		if (isDebug) {
+			printBoardToConsole(currentGame.board, true);
 		}
 	}
 	else if (commands[0] === "go") {

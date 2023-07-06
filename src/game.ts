@@ -3,10 +3,12 @@ import Board from "./board";
 export default class Game {
 	id: string;
 	board: Board;
+	fen: string;
 
-	constructor(id: string) {
+	constructor(id: string, fen: string) {
 		this.id = id;
-		this.board = new Board(Board.startPosFen);
+		this.fen = fen === "startpos" ? Board.startPosFen : fen;
+		this.board = new Board(this.fen);
 	}
 
 	makeMove(move: string) {
@@ -31,6 +33,6 @@ export default class Game {
 	}
 
 	resetBoard() {
-		this.board = new Board(Board.startPosFen);
+		this.board = new Board(this.fen);
 	}
 }
