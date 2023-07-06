@@ -12,9 +12,10 @@ This is the chess engine _postbot_ from postnerd written in Typescript/JavaScrip
 - [x] ALPHA: setup with github / typescript / jest
 - [x] ALPHA: board representation and move generator
 - [x] ALPHA: uci / lichess communication with random moves
-- [ ] ALPHA: release a bot called postbotR to play random moves on lichess
+- [X] ALPHA: release a bot called postbotR to play random moves on lichess
 - [ ] BETA: board evaluation 1.0
 - [ ] BETA: search algorithm 1.0
+- [ ] BETA: release a bot called postbot on lichess
 - [ ] define a real roadmap
 
 ## Changelog
