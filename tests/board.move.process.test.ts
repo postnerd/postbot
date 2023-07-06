@@ -1,5 +1,4 @@
 import Board from "../src/board";
-import { printBoardToConsole } from "../src/utils";
 
 describe("Test basic moves and information handling", () => {
 	const board = new Board(Board.startPosFen);
