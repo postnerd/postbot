@@ -17,6 +17,12 @@ const PIECE_VALUES = {
 
 export default function evaluate(board: Board): number {
 	let score = 0;
+
+	if (board.isCheckmate()) {
+		if (board.activeColor === "white") return -10000;
+		else return 10000;
+	}
+
 	board.squares.forEach((square) => {
 		if (square.piece) score += PIECE_VALUES[square.piece];
 	});
