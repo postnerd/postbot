@@ -60,7 +60,7 @@ interface currentBoardState {
 	moveCount: number,
 }
 
-interface Move {
+export interface Move {
 	piece: Piece,
 	pieceType: PieceType,
 	from: number,
@@ -317,6 +317,7 @@ export default class Board {
 								from: squarePosition,
 								to: capturePosition1,
 								willCapture: true,
+								capturedSquareInfo: this.squares[capturePosition1],
 								promoteToSquareInfo: Board.getSquareObjectByFenNotation(promotionType),
 								currentBoardState: this.getCurrentBoardStateInfo(),
 							});
@@ -332,6 +333,7 @@ export default class Board {
 								from: squarePosition,
 								to: capturePosition2,
 								willCapture: true,
+								capturedSquareInfo: this.squares[capturePosition2],
 								promoteToSquareInfo: Board.getSquareObjectByFenNotation(promotionType),
 								currentBoardState: this.getCurrentBoardStateInfo(),
 							});
@@ -360,6 +362,7 @@ export default class Board {
 							from: squarePosition,
 							to: capturePosition1,
 							willCapture: true,
+							capturedSquareInfo: this.squares[capturePosition1],
 							currentBoardState: this.getCurrentBoardStateInfo(),
 						});
 					}
@@ -372,6 +375,7 @@ export default class Board {
 							from: squarePosition,
 							to: capturePosition2,
 							willCapture: true,
+							capturedSquareInfo: this.squares[capturePosition2],
 							currentBoardState: this.getCurrentBoardStateInfo(),
 						});
 					}
@@ -384,6 +388,7 @@ export default class Board {
 							from: squarePosition,
 							to: this.enPassantSquarePosition,
 							willCapture: true,
+							capturedSquareInfo: this.activeColor === "white" ? this.squares[this.enPassantSquarePosition + 10] : this.squares[this.enPassantSquarePosition - 10],
 							isEnPassant: true,
 							currentBoardState: this.getCurrentBoardStateInfo(),
 						});
@@ -422,6 +427,7 @@ export default class Board {
 							from: squarePosition,
 							to: newPosition,
 							willCapture: this.squares[newPosition].color === oppositeColor,
+							capturedSquareInfo: this.squares[newPosition].color === oppositeColor ? this.squares[newPosition] : undefined,
 							currentBoardState: this.getCurrentBoardStateInfo(),
 						});
 					}
@@ -475,6 +481,7 @@ export default class Board {
 							from: squarePosition,
 							to: position,
 							willCapture: this.squares[position].color === oppositeColor,
+							capturedSquareInfo: this.squares[position].color === oppositeColor ? this.squares[position] : undefined,
 							currentBoardState: this.getCurrentBoardStateInfo(),
 						});
 					}
@@ -496,6 +503,7 @@ export default class Board {
 							from: squarePosition,
 							to: position,
 							willCapture: captured,
+							capturedSquareInfo: captured ? this.squares[position] : undefined,
 							currentBoardState: this.getCurrentBoardStateInfo(),
 						});
 						position += movesDirections[i];

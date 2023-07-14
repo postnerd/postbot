@@ -3,7 +3,7 @@
   "version": "0.0.2-alpha",
   "description": "A TS chess engine",
   "type": "module",
-  "main": "engine.js",
+  "main": "main.js",
   "scripts": {
     "start": "node compiled/engine.js",
     "watch": "rollup -c -w",

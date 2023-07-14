@@ -4,14 +4,6 @@ import { printBoardToConsole } from "./src/utils";
 
 const isDebug: boolean = process.argv.includes("--debug");
 
-interface Engine {
-	isUCIRunning: boolean,
-}
-
-const engine: Engine = {
-	isUCIRunning: false,
-};
-
 function processMoves(commands: string[], start: number): void {
 	commands.slice(start).forEach((move: string) => {
 		currentGame.makeMove(move);
@@ -29,7 +21,6 @@ function handleUCIInput(inputData: string) {
 	}
 
 	if (commands[0] === "uci") {
-		engine.isUCIRunning = true;
 		console.log(`id name ${name} ${version}`);
 		console.log(`id author ${author}`);
 		// console.log("option name Debug Log File type string default");
@@ -88,7 +79,15 @@ function handleUCIInput(inputData: string) {
 		}
 	}
 	else if (commands[0] === "go") {
-		console.log(`bestmove ${currentGame.bestMove()}`);
+		if (commands[1] === "infinite") {
+			currentGame.analyze();
+		}
+		else {
+			console.log(`bestmove ${currentGame.randomMove()}`);
+		}
+	}
+	else if (commands[0] === "stop") {
+		// TODO: Implement stop command
 	}
 	else if (commands[0] === "quit") {
 		process.exit();

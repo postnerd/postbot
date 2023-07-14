@@ -3,9 +3,9 @@ import typescript from "@rollup/plugin-typescript";
 import json from "@rollup/plugin-json";
 
 export default {
-	input: "engine.ts",
+	input: "main.ts",
 	output: {
-		dir: "compiled",
+		file: "compiled/engine.js",
 		format: "es",
 	},
 	plugins: [typescript(), json()],

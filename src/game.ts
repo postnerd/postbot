@@ -1,4 +1,6 @@
 import Board from "./board";
+import search from "./search";
+import { printBoardToConsole } from "./utils";
 
 export default class Game {
 	id: string;
@@ -15,7 +17,15 @@ export default class Game {
 		this.board.makeMoveFromNotation(move);
 	}
 
-	bestMove() {
+	undoLastMove() {
+		this.board.undoLastMove();
+	}
+
+	analyze() {
+		search(this.board, 6);
+	}
+
+	randomMove() {
 		const possibleMoves = this.board.getPossibleMoves();
 		const lengthOfPossibleMoves = possibleMoves.length;
 		const randomIndex = Math.floor(Math.random() * lengthOfPossibleMoves);
