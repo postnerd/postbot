@@ -1,4 +1,6 @@
-type Piece = "p" | "P" | "b" | "B" | "n" | "N" | "r" | "R" | "q" | "Q" | "k" | "K" | null;
+import HashTable from "./hashTable";
+
+export type Piece = "p" | "P" | "b" | "B" | "n" | "N" | "r" | "R" | "q" | "Q" | "k" | "K" | null;
 type Color = "white" | "black" | null;
 type PieceType = "king" | "queen" | "rook" | "bishop" | "knight" | "pawn" | null;
 
@@ -104,6 +106,9 @@ export default class Board {
 	halfMoveCountSinceLastCaptureOrPawnMove: number = 0;
 	moveCount: number = 0;
 	moves: Move[] = [];
+	bestMove: Move | null = null;
+	hashTable: HashTable;
+	hash: number = 0;
 
 	static readonly startPosFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -156,6 +161,8 @@ export default class Board {
 
 	constructor(fen: string) {
 		this.setPositionFromFen(fen);
+		this.hashTable = new HashTable(this);
+		this.hash = this.hashTable.getComputedHash();
 	}
 
 	getCurrentBoardStateInfo(): currentBoardState {
@@ -600,6 +607,10 @@ export default class Board {
 	}
 
 	makeMove(move: Move) {
+		// Remove pieces from hash
+		this.hash ^= this.hashTable.getHashFromSquareAndPiece(move.from, this.squares[move.from].piece);
+		this.hash ^= this.hashTable.getHashFromSquareAndPiece(move.to, this.squares[move.to].piece);
+
 		this.squares[move.to] = this.squares[move.from];
 		this.squares[move.from] = Board.getSquareObjectByFenNotation("empty");
 
@@ -624,8 +635,16 @@ export default class Board {
 				rook.to = move.to - 1;
 			}
 
+			// Remove old rook position from hash
+			this.hash ^= this.hashTable.getHashFromSquareAndPiece(rook.from, this.squares[rook.from].piece);
+			this.hash ^= this.hashTable.getHashFromSquareAndPiece(rook.to, this.squares[rook.to].piece);
+
 			this.squares[rook.to] = this.squares[rook.from];
 			this.squares[rook.from] = Board.getSquareObjectByFenNotation("empty");
+
+			// Add new rook position to hash
+			this.hash ^= this.hashTable.getHashFromSquareAndPiece(rook.from, this.squares[rook.from].piece);
+			this.hash ^= this.hashTable.getHashFromSquareAndPiece(rook.to, this.squares[rook.to].piece);
 
 			// Update castling information
 			if (this.activeColor === "white") {
@@ -723,12 +742,20 @@ export default class Board {
 
 		// Store moves for undo
 		this.moves.push(move);
+
+		// Add pieces to hash
+		this.hash ^= this.hashTable.getHashFromSquareAndPiece(move.from, this.squares[move.from].piece);
+		this.hash ^= this.hashTable.getHashFromSquareAndPiece(move.to, this.squares[move.to].piece);
 	}
 
 	undoLastMove() {
 		const lastMove = this.moves.pop();
 
 		if (lastMove) {
+			// Remove pieces from hash
+			this.hash ^= this.hashTable.getHashFromSquareAndPiece(lastMove.from, this.squares[lastMove.from].piece);
+			this.hash ^= this.hashTable.getHashFromSquareAndPiece(lastMove.to, this.squares[lastMove.to].piece);
+
 			this.squares[lastMove.from] = Board.getSquareObjectByFenNotation(lastMove.piece);
 
 			if (lastMove.capturedSquareInfo) {
@@ -750,20 +777,52 @@ export default class Board {
 
 				if (lastMove.isCastle) {
 					if (lastMove.to === 23) {
+						// Remove old rook position from hash
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(21, this.squares[21].piece);
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(24, this.squares[24].piece);
+
 						this.squares[21] = Board.getSquareObjectByFenNotation("r");
 						this.squares[24] = Board.getSquareObjectByFenNotation("empty");
+
+						// Add new rook position to hash
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(21, this.squares[21].piece);
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(24, this.squares[24].piece);
 					}
 					else if (lastMove.to === 27) {
+						// Remove old rook position from hash
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(28, this.squares[28].piece);
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(26, this.squares[26].piece);
+
 						this.squares[28] = Board.getSquareObjectByFenNotation("r");
 						this.squares[26] = Board.getSquareObjectByFenNotation("empty");
+
+						// Add new rook position to hash
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(28, this.squares[28].piece);
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(26, this.squares[26].piece);
 					}
 					else if (lastMove.to === 97) {
+						// Remove old rook position from hash
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(98, this.squares[98].piece);
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(96, this.squares[96].piece);
+
 						this.squares[98] = Board.getSquareObjectByFenNotation("R");
 						this.squares[96] = Board.getSquareObjectByFenNotation("empty");
+
+						// Add new rook position to hash
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(98, this.squares[98].piece);
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(96, this.squares[96].piece);
 					}
 					else if (lastMove.to === 93) {
+						// Remove old rook position from hash
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(91, this.squares[91].piece);
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(94, this.squares[94].piece);
+
 						this.squares[91] = Board.getSquareObjectByFenNotation("R");
 						this.squares[94] = Board.getSquareObjectByFenNotation("empty");
+
+						// Add new rook position to hash
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(91, this.squares[91].piece);
+						this.hash ^= this.hashTable.getHashFromSquareAndPiece(94, this.squares[94].piece);
 					}
 				}
 			}
@@ -773,6 +832,10 @@ export default class Board {
 			this.enPassantSquarePosition = lastMove.currentBoardState.enPassantSquarePosition;
 			this.moveCount = lastMove.currentBoardState.moveCount;
 			this.halfMoveCountSinceLastCaptureOrPawnMove = lastMove.currentBoardState.halfMoveCountSinceLastCaptureOrPawnMove;
+
+			// Add new pieces to hash
+			this.hash ^= this.hashTable.getHashFromSquareAndPiece(lastMove.from, this.squares[lastMove.from].piece);
+			this.hash ^= this.hashTable.getHashFromSquareAndPiece(lastMove.to, this.squares[lastMove.to].piece);
 		}
 	}
 
