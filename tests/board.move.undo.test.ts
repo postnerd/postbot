@@ -1,5 +1,4 @@
 import Board from "../src/board";
-import { printBoardToConsole } from "../src/utils";
 
 function generateBoardHash(board: Board) {
 	let hash = "";
