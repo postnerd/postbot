@@ -25,6 +25,9 @@ function extractPvFromHashTable(board: Board, depth: number) {
 }
 
 export default function search(board: Board, depth: number) {
+	let nodes = 0;
+	let startTime = Date.now();
+
 	function negaMax(depthleft: number) {
 		if (depthleft === 0) {
 			const activeColorScore = board.activeColor === "white" ? 1 : -1;
@@ -32,6 +35,7 @@ export default function search(board: Board, depth: number) {
 			return evaluate(board) * activeColorScore;
 		}
 
+		nodes++;
 		let alpha = -Infinity;
 
 		const moves = board.getPossibleMoves();
@@ -59,7 +63,9 @@ export default function search(board: Board, depth: number) {
 
 		board.bestMove = board.hashTable.getCacheItem();
 
-		let info = `info depth ${i} score cp ${score} pv ${extractPvFromHashTable(board, i)}`;
+		let currentTime = Date.now() - startTime;
+		let nps = nodes / (currentTime / 1000);
+		let info = `info depth ${i} score cp ${score} time ${currentTime} nodes ${nodes} nps ${nps} pv ${extractPvFromHashTable(board, i)}`;
 
 		console.log(info);
 
