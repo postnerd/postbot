@@ -2,28 +2,6 @@ import Board from "./board";
 import { Move } from "./board";
 import evaluate from "./evaluate";
 
-function extractPvFromHashTable(board: Board, depth: number) {
-	let moves: Move[] = [];
-	let pv = "";
-
-	for (let i = 0; i < depth; i++) {
-		if (board.hashTable.cache[board.hash] !== undefined) {
-			moves[i] = board.hashTable.getCacheItem();
-			pv += Board.getFenNotationFromPosition(moves[i].from) + Board.getFenNotationFromPosition(moves[i].to) + " ";
-			board.makeMove(moves[i]);
-		}
-		else {
-			break;
-		}
-	}
-
-	for (let i = moves.length - 1; i >= 0; i--) {
-		board.undoLastMove();
-	}
-
-	return pv;
-}
-
 export default function search(board: Board, depth: number) {
 	let nodes = 0;
 	let startTime = Date.now();
@@ -65,7 +43,7 @@ export default function search(board: Board, depth: number) {
 
 		let currentTime = Date.now() - startTime;
 		let nps = nodes / (currentTime / 1000);
-		let info = `info depth ${i} score cp ${score} time ${currentTime} nodes ${nodes} nps ${nps} pv ${extractPvFromHashTable(board, i)}`;
+		let info = `info depth ${i} score cp ${score} time ${currentTime} nodes ${nodes} nps ${nps} pv ${board.hashTable.getPvFromHashTable(board, i)}`;
 
 		console.log(info);
 

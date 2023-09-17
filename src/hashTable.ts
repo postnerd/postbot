@@ -92,4 +92,26 @@ export default class HashTable {
 	getHashFromSquareAndPiece(square: number, piece: Piece): number {
 		return this.zobristTable[square][getPieceZobristIndex(piece)];
 	}
+
+	getPvFromHashTable(board: Board, depth: number) {
+		let moves: Move[] = [];
+		let pv = "";
+
+		for (let i = 0; i < depth; i++) {
+			if (board.hashTable.cache[board.hash] !== undefined) {
+				moves[i] = board.hashTable.getCacheItem();
+				pv += Board.getFenMoveNotationFromMove(moves[i]) + " ";
+				board.makeMove(moves[i]);
+			}
+			else {
+				break;
+			}
+		}
+
+		for (let i = moves.length - 1; i >= 0; i--) {
+			board.undoLastMove();
+		}
+
+		return pv;
+	}
 }

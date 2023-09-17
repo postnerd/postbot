@@ -21,24 +21,16 @@ export default class Game {
 	}
 
 	analyze() {
-		search(this.board, 6);
+		search(this.board, 10);
 	}
 
 	randomMove() {
 		const possibleMoves = this.board.getPossibleMoves();
 		const lengthOfPossibleMoves = possibleMoves.length;
 		const randomIndex = Math.floor(Math.random() * lengthOfPossibleMoves);
+		const randomMove = possibleMoves[randomIndex];
 
-		const from = possibleMoves[randomIndex].from;
-		const to = possibleMoves[randomIndex].to;
-		const promoteToSquareInfo = possibleMoves[randomIndex].promoteToSquareInfo;
-		let promoteTo = "";
-
-		if (promoteToSquareInfo !== undefined) {
-			promoteTo = promoteToSquareInfo.piece !== null ? promoteToSquareInfo.piece.toLowerCase() : "";
-		}
-
-		return `${Board.getFenNotationFromPosition(from)}${Board.getFenNotationFromPosition(to)}${promoteTo}`;
+		return Board.getFenMoveNotationFromMove(randomMove);
 	}
 
 	findBestMove() {
@@ -51,16 +43,7 @@ export default class Game {
 
 		if (bestMove === null) return this.randomMove();
 
-		const from = bestMove.from;
-		const to = bestMove.to;
-		const promoteToSquareInfo = bestMove.promoteToSquareInfo;
-		let promoteTo = "";
-
-		if (promoteToSquareInfo !== undefined) {
-			promoteTo = promoteToSquareInfo.piece !== null ? promoteToSquareInfo.piece.toLowerCase() : "";
-		}
-
-		return `${Board.getFenNotationFromPosition(from)}${Board.getFenNotationFromPosition(to)}${promoteTo}`;
+		return Board.getFenMoveNotationFromMove(bestMove);
 	}
 
 

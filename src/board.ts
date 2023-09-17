@@ -155,6 +155,20 @@ export default class Board {
 		}
 	}
 
+	static getFenMoveNotationFromMove(move: Move): string {
+		const from = move.from;
+		const to = move.to;
+		const promoteToSquareInfo = move.promoteToSquareInfo;
+		let promoteTo = "";
+
+		if (promoteToSquareInfo !== undefined) {
+			promoteTo = promoteToSquareInfo.piece !== null ? promoteToSquareInfo.piece.toLowerCase() : "";
+		}
+
+		return `${Board.getFenNotationFromPosition(from)}${Board.getFenNotationFromPosition(to)}${promoteTo}`;
+	}
+
+
 	static isOnBoard(position: number): boolean {
 		return CHESS_BOARD_BOUNDARIES[position];
 	}
