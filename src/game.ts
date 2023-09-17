@@ -1,6 +1,5 @@
 import Board from "./board";
 import search from "./search";
-import { printBoardToConsole } from "./utils";
 
 export default class Game {
 	id: string;
@@ -41,6 +40,29 @@ export default class Game {
 
 		return `${Board.getFenNotationFromPosition(from)}${Board.getFenNotationFromPosition(to)}${promoteTo}`;
 	}
+
+	findBestMove() {
+		search(this.board, 4);
+		return this.currentBestMove();
+	}
+
+	currentBestMove() {
+		const bestMove = this.board.bestMove;
+
+		if (bestMove === null) return this.randomMove();
+
+		const from = bestMove.from;
+		const to = bestMove.to;
+		const promoteToSquareInfo = bestMove.promoteToSquareInfo;
+		let promoteTo = "";
+
+		if (promoteToSquareInfo !== undefined) {
+			promoteTo = promoteToSquareInfo.piece !== null ? promoteToSquareInfo.piece.toLowerCase() : "";
+		}
+
+		return `${Board.getFenNotationFromPosition(from)}${Board.getFenNotationFromPosition(to)}${promoteTo}`;
+	}
+
 
 	resetBoard() {
 		this.board = new Board(this.fen);

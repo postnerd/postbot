@@ -2,9 +2,29 @@ import Board from "./board";
 import { Move } from "./board";
 import evaluate from "./evaluate";
 
-export default function search(board: Board, depth: number) {
-	let bestMove: Move[];
+function extractPvFromHashTable(board: Board, depth: number) {
+	let moves: Move[] = [];
+	let pv = "";
 
+	for (let i = 0; i < depth; i++) {
+		if (board.hashTable.cache[board.hash] !== undefined) {
+			moves[i] = board.hashTable.getCacheItem();
+			pv += Board.getFenNotationFromPosition(moves[i].from) + Board.getFenNotationFromPosition(moves[i].to) + " ";
+			board.makeMove(moves[i]);
+		}
+		else {
+			break;
+		}
+	}
+
+	for (let i = moves.length - 1; i >= 0; i--) {
+		board.undoLastMove();
+	}
+
+	return pv;
+}
+
+export default function search(board: Board, depth: number) {
 	function negaMax(depthleft: number) {
 		if (depthleft === 0) {
 			const activeColorScore = board.activeColor === "white" ? 1 : -1;
@@ -25,7 +45,7 @@ export default function search(board: Board, depth: number) {
 
 			if (score > alpha) {
 				alpha = score;
-				bestMove[depthleft] = moves[i];
+				board.hashTable.addCacheItem(moves[i]);
 			}
 		}
 
@@ -33,11 +53,16 @@ export default function search(board: Board, depth: number) {
 	}
 
 	for (let i = 1; i <= depth; i++) {
-		bestMove = [];
+		board.hashTable.cache = {};
 
 		let score = negaMax(i);
 
-		let info = `info depth ${i} score cp ${score} pv ${Board.getFenNotationFromPosition(bestMove[i].from)}${Board.getFenNotationFromPosition(bestMove[i].to)}`;
+		board.bestMove = board.hashTable.getCacheItem();
+
+		let info = `info depth ${i} score cp ${score} pv ${extractPvFromHashTable(board, i)}`;
+
 		console.log(info);
+
+		if (score === 10000 || score === -10000) break;
 	}
 }

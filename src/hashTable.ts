@@ -1,4 +1,4 @@
-import Board, { Piece } from "./board";
+import Board, { Piece, Move } from "./board";
 
 function randomInt() {
 	let min = 0;
@@ -30,6 +30,9 @@ function getPieceZobristIndex(piece: string | null) {
 export default class HashTable {
 	board: Board;
 	zobristTable: number[][] = new Array(99);
+	zobristWhite = randomInt();
+	zobristBlack = randomInt();
+	cache: {[key: string]: Move} = {};
 
 	constructor(board: Board) {
 		this.board = board;
@@ -49,6 +52,22 @@ export default class HashTable {
 		}
 	}
 
+	addCacheItem(move: Move, hash?: number) {
+		if (hash === undefined) {
+			hash = this.board.hash;
+		}
+
+		this.cache[hash] = move;
+	}
+
+	getCacheItem(hash?: number) {
+		if (hash === undefined) {
+			hash = this.board.hash;
+		}
+
+		return this.cache[hash];
+	}
+
 	// TODO: Include informations like castling rights, en passant square, active color
 	getComputedHash(): number {
 		let hash = 0;
@@ -58,6 +77,13 @@ export default class HashTable {
 
 				hash ^= this.zobristTable[i][getPieceZobristIndex(piece)];
 			}
+		}
+
+		if (this.board.activeColor === "white") {
+			hash ^= this.zobristWhite;
+		}
+		else {
+			hash ^= this.zobristBlack;
 		}
 
 		return hash;

@@ -610,6 +610,7 @@ export default class Board {
 		// Remove pieces from hash
 		this.hash ^= this.hashTable.getHashFromSquareAndPiece(move.from, this.squares[move.from].piece);
 		this.hash ^= this.hashTable.getHashFromSquareAndPiece(move.to, this.squares[move.to].piece);
+		this.hash ^= this.activeColor === "white" ? this.hashTable.zobristWhite : this.hashTable.zobristBlack;
 
 		this.squares[move.to] = this.squares[move.from];
 		this.squares[move.from] = Board.getSquareObjectByFenNotation("empty");
@@ -746,6 +747,7 @@ export default class Board {
 		// Add pieces to hash
 		this.hash ^= this.hashTable.getHashFromSquareAndPiece(move.from, this.squares[move.from].piece);
 		this.hash ^= this.hashTable.getHashFromSquareAndPiece(move.to, this.squares[move.to].piece);
+		this.hash ^= this.activeColor === "white" ? this.hashTable.zobristWhite : this.hashTable.zobristBlack;
 	}
 
 	undoLastMove() {
@@ -755,6 +757,7 @@ export default class Board {
 			// Remove pieces from hash
 			this.hash ^= this.hashTable.getHashFromSquareAndPiece(lastMove.from, this.squares[lastMove.from].piece);
 			this.hash ^= this.hashTable.getHashFromSquareAndPiece(lastMove.to, this.squares[lastMove.to].piece);
+			this.hash ^= this.activeColor === "white" ? this.hashTable.zobristWhite : this.hashTable.zobristBlack;
 
 			this.squares[lastMove.from] = Board.getSquareObjectByFenNotation(lastMove.piece);
 
@@ -836,6 +839,7 @@ export default class Board {
 			// Add new pieces to hash
 			this.hash ^= this.hashTable.getHashFromSquareAndPiece(lastMove.from, this.squares[lastMove.from].piece);
 			this.hash ^= this.hashTable.getHashFromSquareAndPiece(lastMove.to, this.squares[lastMove.to].piece);
+			this.hash ^= this.activeColor === "white" ? this.hashTable.zobristWhite : this.hashTable.zobristBlack;
 		}
 	}
 
