@@ -16,16 +16,28 @@ This is the chess engine _postbot_ from postnerd written in Typescript/JavaScrip
 - [X] ALPHA-02: board evaluation 1.0
 - [X] ALPHA-02: search algorithm 1.0
 - [X] ALPHA-02: use workers for search for not blocking engine communication
-- [ ] ALPHA-02: release a bot called postbot on lichess
+- [X] ALPHA-02: release a bot called postbot on lichess
 - [ ] define a real roadmap
 
 ## Changelog
+### postbot 0.0.2-alpha – 19.09.2023
+- launched postbot on lichess
+- basic evaluation and search algorithm
+- basic hash table implementation
+- search is handled by a worker thread to ensure proper communication between engine and GUI/lichess 
+- engine supports game and analyze mode via uci
+
 ### postbot 0.0.1-alpha – 06.07.2023
 - launched postbotR (little brother of postbot) on lichess
 - basic board representation and move generator
 - basic uci communication supporting to start from position
 
-## postbotR
-The little brother of postbot, just playing random moves. A proof of concept to launch a chess bot on lichess.
+## postbot on lichess
+Play against the current version on lichess. You can play rated and casual games.
+
+lichess: https://lichess.org/@/postbot
+
+## postbotR on lichess
+The little brother of postbot, just playing random moves in casual games. A proof of concept to launch a chess bot on lichess.
 
 lichess: https://lichess.org/@/postbotR
