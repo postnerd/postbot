@@ -93,9 +93,10 @@ export default class HashTable {
 		return this.zobristTable[square][getPieceZobristIndex(piece)];
 	}
 
-	getPvFromHashTable(board: Board, depth: number) {
+	getPvFromHashTable(depth: number) {
 		let moves: Move[] = [];
 		let pv = "";
+		const board = this.board;
 
 		for (let i = 0; i < depth; i++) {
 			if (board.hashTable.cache[board.hash] !== undefined) {
