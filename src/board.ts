@@ -106,7 +106,6 @@ export default class Board {
 	halfMoveCountSinceLastCaptureOrPawnMove: number = 0;
 	moveCount: number = 0;
 	moves: Move[] = [];
-	bestMove: Move | null = null;
 	hashTable: HashTable;
 	hash: number = 0;
 

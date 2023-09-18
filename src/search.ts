@@ -1,6 +1,6 @@
 import Board from "./board";
-import { Move } from "./board";
 import evaluate from "./evaluate";
+import { communicator } from "./utils";
 
 export default function search(board: Board, depth: number) {
 	let nodes = 0;
@@ -39,13 +39,13 @@ export default function search(board: Board, depth: number) {
 
 		let score = negaMax(i);
 
-		board.bestMove = board.hashTable.getCacheItem();
-
 		let currentTime = Date.now() - startTime;
 		let nps = nodes / (currentTime / 1000);
 		let info = `info depth ${i} score cp ${score} time ${currentTime} nodes ${nodes} nps ${nps} pv ${board.hashTable.getPvFromHashTable(board, i)}`;
+		let bestMove = board.hashTable.getCacheItem();
 
-		console.log(info);
+		communicator.log(info);
+		communicator.event("bestMove", Board.getFenMoveNotationFromMove(bestMove));
 
 		if (score === 10000 || score === -10000) break;
 	}

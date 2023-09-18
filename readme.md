@@ -9,14 +9,14 @@ This is the chess engine _postbot_ from postnerd written in Typescript/JavaScrip
 - discover more goals
 
 ## Roadmap
-- [x] ALPHA: setup with github / typescript / jest
-- [x] ALPHA: board representation and move generator
-- [x] ALPHA: uci / lichess communication with random moves
-- [X] ALPHA: release a bot called postbotR to play random moves on lichess
-- [X] BETA: board evaluation 1.0
-- [X] BETA: search algorithm 1.0
-- [ ] BETA: use workers for search for not blocking engine communication
-- [ ] BETA: release a bot called postbot on lichess
+- [x] ALPHA-01: setup with github / typescript / jest
+- [x] ALPHA-01: board representation and move generator
+- [x] ALPHA-01: uci / lichess communication with random moves
+- [X] ALPHA-01: release a bot called postbotR to play random moves on lichess
+- [X] ALPHA-02: board evaluation 1.0
+- [X] ALPHA-02: search algorithm 1.0
+- [X] ALPHA-02: use workers for search for not blocking engine communication
+- [ ] ALPHA-02: release a bot called postbot on lichess
 - [ ] define a real roadmap
 
 ## Changelog

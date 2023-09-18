@@ -1,18 +1,35 @@
+import path from "path";
+import { Worker } from "worker_threads";
+
 import { name, version, author } from "./package.json";
-import Game from "./src/game";
-import { printBoardToConsole } from "./src/utils";
+
+interface WorkerData {
+	mode: "analyze" | "findBestMove",
+	moves: string[],
+	fen: string,
+	isDebug: boolean,
+}
 
 const isDebug: boolean = process.argv.includes("--debug");
 
 function processMoves(commands: string[], start: number): void {
+	workerData.moves = [];
+
 	commands.slice(start).forEach((move: string) => {
-		currentGame.makeMove(move);
+		workerData.moves.push(move);
 	});
 }
 
-let currentGame: Game;
+let workerData: WorkerData = {
+	mode: "analyze",
+	moves: [],
+	fen: "startpos",
+	isDebug,
+};
+let worker: Worker;
+let currentBestMove: string;
 
-function handleUCIInput(inputData: string) {
+async function handleUCIInput(inputData: string) {
 	const input: string = inputData.toString().trim();
 	const commands: string[] = input.split(" ");
 
@@ -59,13 +76,7 @@ function handleUCIInput(inputData: string) {
 			fen = (`${commands[2]} ${commands[3]} ${commands[4]} ${commands[5]} ${commands[6]} ${commands[7]}`);
 		}
 
-		// Is needed because the position command can be used without ucinewgame
-		if (currentGame === undefined) {
-			currentGame = new Game(Date.now().toString(), fen);
-		}
-		else {
-			currentGame.resetBoard();
-		}
+		workerData.fen = fen;
 
 		if (commands[2] === "moves") {
 			processMoves(commands, 3);
@@ -73,21 +84,59 @@ function handleUCIInput(inputData: string) {
 		else {
 			processMoves(commands, 9);
 		}
-
-		if (isDebug) {
-			printBoardToConsole(currentGame.board, true);
-		}
 	}
 	else if (commands[0] === "go") {
 		if (commands[1] === "infinite") {
-			currentGame.analyze();
+			workerData.mode = "analyze";
 		}
 		else {
-			console.log(`bestmove ${currentGame.randomMove()}`);
+			workerData.mode = "findBestMove";
 		}
+
+		workerData.isDebug = isDebug;
+
+		worker = new Worker(path.join(__dirname, "chessWorker.js"), { workerData });
+
+		worker.on("message", (message: any) => {
+			if (isDebug) {
+				console.log(message);
+			}
+
+			if (message.event === "log") {
+				console.log(message.message);
+			}
+
+			if (message.event === "debug") {
+				if (isDebug) {
+					console.log(message.message);
+				}
+			}
+
+			if (message.event === "bestMove") {
+				currentBestMove = message.data;
+			}
+
+			if (message.event === "searchFinished") {
+				if (workerData.mode === "findBestMove") {
+					console.log(`bestmove ${currentBestMove}`);
+				}
+				else {
+					console.log("TODO: What should we do if there is nothing more to analyze?");
+				}
+			}
+		});
+
+		worker.on("exit", (code: number) => {
+			console.log(`Worker stopped with exit code ${code}`);
+		});
+
+		worker.on("error", (error: Error) => {
+			console.error(error);
+		});
 	}
 	else if (commands[0] === "stop") {
-		// TODO: Implement stop command
+		console.log(`bestmove ${currentBestMove}`);
+		worker.terminate();
 	}
 	else if (commands[0] === "quit") {
 		process.exit();
