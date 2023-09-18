@@ -4,10 +4,17 @@ import { Worker } from "worker_threads";
 import { name, version, author } from "./package.json";
 
 interface WorkerData {
-	mode: "analyze" | "findBestMove",
+	mode: "analyze" | "game",
 	moves: string[],
 	fen: string,
 	isDebug: boolean,
+	time: {
+		wtime: number,
+		btime: number,
+		winc: number,
+		binc: number,
+		movestogo: number,
+	},
 }
 
 const isDebug: boolean = process.argv.includes("--debug");
@@ -25,6 +32,13 @@ let workerData: WorkerData = {
 	moves: [],
 	fen: "startpos",
 	isDebug,
+	time: {
+		wtime: 0,
+		btime: 0,
+		winc: 0,
+		binc: 0,
+		movestogo: 0,
+	},
 };
 let worker: Worker;
 let currentBestMove: string;
@@ -90,7 +104,25 @@ async function handleUCIInput(inputData: string) {
 			workerData.mode = "analyze";
 		}
 		else {
-			workerData.mode = "findBestMove";
+			workerData.mode = "game";
+
+			for (let i = 1; i < commands.length; i++) {
+				if (commands[i] === "wtime") {
+					workerData.time.wtime = parseInt(commands[i + 1]);
+				}
+				else if (commands[i] === "btime") {
+					workerData.time.btime = parseInt(commands[i + 1]);
+				}
+				else if (commands[i] === "winc") {
+					workerData.time.winc = parseInt(commands[i + 1]);
+				}
+				else if (commands[i] === "binc") {
+					workerData.time.binc = parseInt(commands[i + 1]);
+				}
+				else if (commands[i] === "movestogo") {
+					workerData.time.movestogo = parseInt(commands[i + 1]);
+				}
+			}
 		}
 
 		workerData.isDebug = isDebug;
@@ -105,24 +137,27 @@ async function handleUCIInput(inputData: string) {
 			if (message.event === "log") {
 				console.log(message.message);
 			}
-
-			if (message.event === "debug") {
+			else if (message.event === "debug") {
 				if (isDebug) {
 					console.log(message.message);
 				}
 			}
-
-			if (message.event === "bestMove") {
+			else if (message.event === "bestMove") {
 				currentBestMove = message.data;
 			}
-
-			if (message.event === "searchFinished") {
-				if (workerData.mode === "findBestMove") {
+			else if (message.event === "searchFinished") {
+				if (workerData.mode === "game") {
 					console.log(`bestmove ${currentBestMove}`);
 				}
 				else {
 					console.log("TODO: What should we do if there is nothing more to analyze?");
 				}
+			}
+			else if (message.event === "timeLeft") {
+				setTimeout(() => {
+					worker.terminate();
+					console.log(`bestmove ${currentBestMove}`);
+				}, message.data);
 			}
 		});
 

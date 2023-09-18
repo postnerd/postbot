@@ -18,13 +18,22 @@ if (workerData.moves.length > 0) {
 	});
 }
 
+if (workerData.mode === "game") {
+	let myTimeLeft = 0;
+	let movesToGo = workerData.time.movestogo ? workerData.time.movestogo : 40;
+
+	if (board.activeColor === "white") {
+		myTimeLeft += workerData.time.wtime / movesToGo  + workerData.time.winc;
+	}
+	else {
+		myTimeLeft += workerData.time.btime / movesToGo + workerData.time.binc;
+	}
+
+	communicator.event("timeLeft", myTimeLeft);
+}
+
 communicator.event("bestMove", Board.getFenMoveNotationFromMove(board.getPossibleMoves()[0]));
 
-if (workerData.mode === "analyze") {
-	search(board, 9999);
-}
-else {
-	search(board, 4);
-}
+search(board, 9999);
 
 communicator.event("searchFinished");
