@@ -39,8 +39,8 @@ export default function search(board: Board, depth: number) {
 
 		let score = negaMax(i);
 
-		let currentTime = Date.now() - startTime;
-		let nps = nodes / (currentTime / 1000);
+		let currentTime = Date.now() - startTime + 1; // +1 to avoid division by zero
+		let nps = Math.floor(nodes / (currentTime / 1000));
 		let scoreInfo = "";
 		if (score === 10000) {
 			scoreInfo = "mate " + Math.round(i / 2);
