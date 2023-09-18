@@ -41,7 +41,18 @@ export default function search(board: Board, depth: number) {
 
 		let currentTime = Date.now() - startTime;
 		let nps = nodes / (currentTime / 1000);
-		let info = `info depth ${i} score cp ${score} time ${currentTime} nodes ${nodes} nps ${nps} pv ${board.hashTable.getPvFromHashTable(board, i)}`;
+		let scoreInfo = "";
+		if (score === 10000) {
+			scoreInfo = "mate " + Math.round(i / 2);
+		}
+		else if (score === -10000) {
+			scoreInfo = "mate -" + Math.round(i / 2);
+		}
+		else {
+			scoreInfo = `cp ${score}`;
+		}
+
+		let info = `info depth ${i} score ${scoreInfo} time ${currentTime} nodes ${nodes} nps ${nps} pv ${board.hashTable.getPvFromHashTable(i)}`;
 		let bestMove = board.hashTable.getCacheItem();
 
 		communicator.log(info);
