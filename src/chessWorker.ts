@@ -18,6 +18,9 @@ if (workerData.moves.length > 0) {
 	});
 }
 
+// Set a default best move in case we don't have time to search for a proper one
+communicator.event("bestMove", Board.getFenMoveNotationFromMove(board.getPossibleMoves()[0]));
+
 if (workerData.mode === "game") {
 	let myTimeLeft = 0;
 	let movesToGo = workerData.time.movestogo ? workerData.time.movestogo : 40;
@@ -31,8 +34,6 @@ if (workerData.mode === "game") {
 
 	communicator.event("timeLeft", myTimeLeft);
 }
-
-communicator.event("bestMove", Board.getFenMoveNotationFromMove(board.getPossibleMoves()[0]));
 
 search(board, 9999);
 
