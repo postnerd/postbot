@@ -6,7 +6,7 @@ export default function search(board: Board, depth: number) {
 	let nodes = 0;
 	let startTime = Date.now();
 
-	function negaMax(depthleft: number) {
+	function mainSearch(alpha: number, beta: number, depthleft: number) {
 		if (depthleft === 0) {
 			const activeColorScore = board.activeColor === "white" ? 1 : -1;
 
@@ -14,16 +14,19 @@ export default function search(board: Board, depth: number) {
 		}
 
 		nodes++;
-		let alpha = -Infinity;
 
 		const moves = board.getPossibleMoves();
 
 		for (let i = 0; i < moves.length; i++) {
 			board.makeMove(moves[i]);
 
-			let score = -negaMax(depthleft - 1);
+			let score = -mainSearch(-beta, -alpha, depthleft - 1);
 
 			board.undoLastMove();
+
+			if (score >= beta) {
+				return beta;
+			}
 
 			if (score > alpha) {
 				alpha = score;
@@ -37,7 +40,7 @@ export default function search(board: Board, depth: number) {
 	for (let i = 1; i <= depth; i++) {
 		board.hashTable.cache = {};
 
-		let score = negaMax(i);
+		let score = mainSearch(-Infinity, Infinity, i);
 
 		let currentTime = Date.now() - startTime + 1; // +1 to avoid division by zero
 		let nps = Math.floor(nodes / (currentTime / 1000));
