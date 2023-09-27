@@ -532,6 +532,30 @@ export default class Board {
 			}
 		}
 
+		// sort moves by captures first
+		moves.sort((a: Move, b: Move) => {
+			if (a.willCapture === b.willCapture) {
+				return 0;
+			}
+			if (a.willCapture) {
+				return -1;
+			}
+			return 1;
+		});
+
+		// Current best move should be first in the array
+		const currentBestMove = this.hashTable.getCacheItem();
+
+		if (currentBestMove !== undefined) {
+			moves.sort((a: Move, b: Move) => {
+				if (b.to === currentBestMove.to && b.from === currentBestMove.from) {
+					return -1;
+				}
+
+				return 0;
+			});
+		}
+
 		// filter moves out that would place the king in check
 		return moves.filter((move: Move) => {
 			return !this.isKingPlacedInCheckByMove(move);
@@ -539,6 +563,7 @@ export default class Board {
 	}
 
 	isKingPlacedInCheckByMove(move: Move) {
+		// TODO: Handle en passant moves
 		const oldTo = this.squares[move.to];
 		this.squares[move.to] = this.squares[move.from];
 		this.squares[move.from] = Board.getSquareObjectByFenNotation("empty");
