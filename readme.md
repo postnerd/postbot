@@ -17,9 +17,22 @@ This is the chess engine _postbot_ from postnerd written in Typescript/JavaScrip
 - [X] ALPHA-02: search algorithm 1.0
 - [X] ALPHA-02: use workers for search for not blocking engine communication
 - [X] ALPHA-02: release a bot called postbot on lichess
+- [X] ALPHA-03: deepen search on capture
+- [X] ALPHA-03: implement alpha-beta search
+- [X] ALPHA-03: sorted move candidates
+- [ ] ALPHA-04: have a basic evaluation function 
 - [ ] define a real roadmap
+    - [ ] null move pruning
+    - [ ] move caching
+    - [ ] hash tables include en passant information 
+    - [ ] performance optimizations
+    - [ ] detecting threefold repetition and 50 move rule
 
 ## Changelog
+### postbot 0.0.3-alpha – 27.09.2023
+- search optimizations by adding alpha beta pruning and quiesce search
+- basic move ordering to evaluate former best moves and capture moves first
+
 ### postbot 0.0.2-alpha – 19.09.2023
 - launched postbot on lichess
 - basic evaluation and search algorithm
@@ -36,6 +49,8 @@ This is the chess engine _postbot_ from postnerd written in Typescript/JavaScrip
 Play against the current version on lichess. You can play rated and casual games.
 
 lichess: https://lichess.org/@/postbot
+
+postbot is running on a Raspberry Pi 4.
 
 ## postbotR on lichess
 The little brother of postbot, just playing random moves in casual games. A proof of concept to launch a chess bot on lichess.
