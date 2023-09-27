@@ -6,11 +6,46 @@ export default function search(board: Board, depth: number) {
 	let nodes = 0;
 	let startTime = Date.now();
 
+	function captureSearch(alpha: number, beta: number) {
+		const activeColorScore = board.activeColor === "white" ? 1 : -1;
+		const score = evaluate(board) * activeColorScore;
+
+		if (score >= beta) {
+			return beta;
+		}
+
+		if (alpha < score) {
+			alpha = score;
+		}
+
+		const moves = board.getPossibleMoves();
+
+		for (let i = 0; i < moves.length; i++) {
+			if (moves[i].willCapture) {
+				nodes++;
+
+				board.makeMove(moves[i]);
+
+				let score = -captureSearch(-beta, -alpha);
+
+				board.undoLastMove();
+
+				if (score >= beta) {
+					return beta;
+				}
+
+				if (score > alpha) {
+					alpha = score;
+				}
+			}
+		}
+
+		return alpha;
+	}
+
 	function mainSearch(alpha: number, beta: number, depthleft: number) {
 		if (depthleft === 0) {
-			const activeColorScore = board.activeColor === "white" ? 1 : -1;
-
-			return evaluate(board) * activeColorScore;
+			return captureSearch(alpha, beta);
 		}
 
 		nodes++;
