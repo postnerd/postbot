@@ -23,7 +23,8 @@ communicator.event("bestMove", Board.getFenMoveNotationFromMove(board.getPossibl
 
 if (workerData.mode === "game") {
 	let myTimeLeft = 0;
-	let movesToGo = workerData.time.movestogo ? workerData.time.movestogo : 40;
+	// adding 2 extra moves if movestogo is provided to avoid time loss
+	let movesToGo = workerData.time.movestogo ? (workerData.time.movestogo + 2) : 40;
 
 	if (board.activeColor === "white") {
 		myTimeLeft += workerData.time.wtime / movesToGo  + workerData.time.winc;
