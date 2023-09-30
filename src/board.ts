@@ -1,3 +1,4 @@
+import Hash from "./hash";
 import HashTable from "./hashTable";
 
 export type Piece = "p" | "P" | "b" | "B" | "n" | "N" | "r" | "R" | "q" | "Q" | "k" | "K" | null;
@@ -107,7 +108,7 @@ export default class Board {
 	moveCount: number = 0;
 	moves: Move[] = [];
 	hashTable: HashTable;
-	hash: number = 0;
+	hash: Hash;
 
 	static readonly startPosFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -174,8 +175,9 @@ export default class Board {
 
 	constructor(fen: string) {
 		this.setPositionFromFen(fen);
-		this.hashTable = new HashTable(this);
-		this.hash = this.hashTable.getComputedHash();
+		this.hash = new Hash(this);
+		this.hashTable = new HashTable();
+		this.hashTable.increasePositionCount(this.hash.value);
 	}
 
 	getCurrentBoardStateInfo(): currentBoardState {
@@ -287,6 +289,10 @@ export default class Board {
 	 */
 	getPossibleMoves(): Move[] {
 		let moves: Move[] = [];
+
+		if (this.hashTable.getPositionCount(this.hash.value) === 3) {
+			return moves;
+		}
 
 		const oppositeColor: "white" | "black" = this.activeColor === "white" ? "black" : "white";
 
@@ -544,11 +550,11 @@ export default class Board {
 		});
 
 		// Current best move should be first in the array
-		const currentBestMove = this.hashTable.getCacheItem();
+		const currentBestMove = this.hashTable.getBestMove(this.hash.value);
 
 		if (currentBestMove !== undefined) {
-			moves.sort((a: Move, b: Move) => {
-				if (b.to === currentBestMove.to && b.from === currentBestMove.from) {
+			moves.sort((a: Move) => {
+				if (a.to === currentBestMove.to && a.from === currentBestMove.from) {
 					return -1;
 				}
 
@@ -646,9 +652,9 @@ export default class Board {
 
 	makeMove(move: Move) {
 		// Remove pieces from hash
-		this.hash ^= this.hashTable.getHashFromSquareAndPiece(move.from, this.squares[move.from].piece);
-		this.hash ^= this.hashTable.getHashFromSquareAndPiece(move.to, this.squares[move.to].piece);
-		this.hash ^= this.activeColor === "white" ? this.hashTable.zobristWhite : this.hashTable.zobristBlack;
+		this.hash.updatePiece(move.from, this.squares[move.from].piece);
+		this.hash.updatePiece(move.to, this.squares[move.to].piece);
+		this.hash.updateColor(this.activeColor);
 
 		this.squares[move.to] = this.squares[move.from];
 		this.squares[move.from] = Board.getSquareObjectByFenNotation("empty");
@@ -675,15 +681,15 @@ export default class Board {
 			}
 
 			// Remove old rook position from hash
-			this.hash ^= this.hashTable.getHashFromSquareAndPiece(rook.from, this.squares[rook.from].piece);
-			this.hash ^= this.hashTable.getHashFromSquareAndPiece(rook.to, this.squares[rook.to].piece);
+			this.hash.updatePiece(rook.from, this.squares[rook.from].piece);
+			this.hash.updatePiece(rook.to, this.squares[rook.to].piece);
 
 			this.squares[rook.to] = this.squares[rook.from];
 			this.squares[rook.from] = Board.getSquareObjectByFenNotation("empty");
 
 			// Add new rook position to hash
-			this.hash ^= this.hashTable.getHashFromSquareAndPiece(rook.from, this.squares[rook.from].piece);
-			this.hash ^= this.hashTable.getHashFromSquareAndPiece(rook.to, this.squares[rook.to].piece);
+			this.hash.updatePiece(rook.from, this.squares[rook.from].piece);
+			this.hash.updatePiece(rook.to, this.squares[rook.to].piece);
 
 			// Update castling information
 			if (this.activeColor === "white") {
@@ -783,19 +789,23 @@ export default class Board {
 		this.moves.push(move);
 
 		// Add pieces to hash
-		this.hash ^= this.hashTable.getHashFromSquareAndPiece(move.from, this.squares[move.from].piece);
-		this.hash ^= this.hashTable.getHashFromSquareAndPiece(move.to, this.squares[move.to].piece);
-		this.hash ^= this.activeColor === "white" ? this.hashTable.zobristWhite : this.hashTable.zobristBlack;
+		this.hash.updatePiece(move.from, this.squares[move.from].piece);
+		this.hash.updatePiece(move.to, this.squares[move.to].piece);
+		this.hash.updateColor(this.activeColor);
+
+		this.hashTable.increasePositionCount(this.hash.value);
 	}
 
 	undoLastMove() {
 		const lastMove = this.moves.pop();
 
 		if (lastMove) {
+			this.hashTable.decreasePositionCount(this.hash.value);
+
 			// Remove pieces from hash
-			this.hash ^= this.hashTable.getHashFromSquareAndPiece(lastMove.from, this.squares[lastMove.from].piece);
-			this.hash ^= this.hashTable.getHashFromSquareAndPiece(lastMove.to, this.squares[lastMove.to].piece);
-			this.hash ^= this.activeColor === "white" ? this.hashTable.zobristWhite : this.hashTable.zobristBlack;
+			this.hash.updatePiece(lastMove.from, this.squares[lastMove.from].piece);
+			this.hash.updatePiece(lastMove.to, this.squares[lastMove.to].piece);
+			this.hash.updateColor(this.activeColor);
 
 			this.squares[lastMove.from] = Board.getSquareObjectByFenNotation(lastMove.piece);
 
@@ -819,51 +829,51 @@ export default class Board {
 				if (lastMove.isCastle) {
 					if (lastMove.to === 23) {
 						// Remove old rook position from hash
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(21, this.squares[21].piece);
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(24, this.squares[24].piece);
+						this.hash.updatePiece(21, this.squares[21].piece);
+						this.hash.updatePiece(24, this.squares[24].piece);
 
 						this.squares[21] = Board.getSquareObjectByFenNotation("r");
 						this.squares[24] = Board.getSquareObjectByFenNotation("empty");
 
 						// Add new rook position to hash
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(21, this.squares[21].piece);
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(24, this.squares[24].piece);
+						this.hash.updatePiece(21, this.squares[21].piece);
+						this.hash.updatePiece(24, this.squares[24].piece);
 					}
 					else if (lastMove.to === 27) {
 						// Remove old rook position from hash
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(28, this.squares[28].piece);
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(26, this.squares[26].piece);
+						this.hash.updatePiece(28, this.squares[28].piece);
+						this.hash.updatePiece(26, this.squares[26].piece);
 
 						this.squares[28] = Board.getSquareObjectByFenNotation("r");
 						this.squares[26] = Board.getSquareObjectByFenNotation("empty");
 
 						// Add new rook position to hash
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(28, this.squares[28].piece);
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(26, this.squares[26].piece);
+						this.hash.updatePiece(28, this.squares[28].piece);
+						this.hash.updatePiece(26, this.squares[26].piece);
 					}
 					else if (lastMove.to === 97) {
 						// Remove old rook position from hash
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(98, this.squares[98].piece);
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(96, this.squares[96].piece);
+						this.hash.updatePiece(98, this.squares[98].piece);
+						this.hash.updatePiece(96, this.squares[96].piece);
 
 						this.squares[98] = Board.getSquareObjectByFenNotation("R");
 						this.squares[96] = Board.getSquareObjectByFenNotation("empty");
 
 						// Add new rook position to hash
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(98, this.squares[98].piece);
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(96, this.squares[96].piece);
+						this.hash.updatePiece(98, this.squares[98].piece);
+						this.hash.updatePiece(96, this.squares[96].piece);
 					}
 					else if (lastMove.to === 93) {
 						// Remove old rook position from hash
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(91, this.squares[91].piece);
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(94, this.squares[94].piece);
+						this.hash.updatePiece(91, this.squares[91].piece);
+						this.hash.updatePiece(94, this.squares[94].piece);
 
 						this.squares[91] = Board.getSquareObjectByFenNotation("R");
 						this.squares[94] = Board.getSquareObjectByFenNotation("empty");
 
 						// Add new rook position to hash
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(91, this.squares[91].piece);
-						this.hash ^= this.hashTable.getHashFromSquareAndPiece(94, this.squares[94].piece);
+						this.hash.updatePiece(91, this.squares[91].piece);
+						this.hash.updatePiece(94, this.squares[94].piece);
 					}
 				}
 			}
@@ -875,9 +885,9 @@ export default class Board {
 			this.halfMoveCountSinceLastCaptureOrPawnMove = lastMove.currentBoardState.halfMoveCountSinceLastCaptureOrPawnMove;
 
 			// Add new pieces to hash
-			this.hash ^= this.hashTable.getHashFromSquareAndPiece(lastMove.from, this.squares[lastMove.from].piece);
-			this.hash ^= this.hashTable.getHashFromSquareAndPiece(lastMove.to, this.squares[lastMove.to].piece);
-			this.hash ^= this.activeColor === "white" ? this.hashTable.zobristWhite : this.hashTable.zobristBlack;
+			this.hash.updatePiece(lastMove.from, this.squares[lastMove.from].piece);
+			this.hash.updatePiece(lastMove.to, this.squares[lastMove.to].piece);
+			this.hash.updateColor(this.activeColor);
 		}
 	}
 

@@ -136,6 +136,11 @@ export default function evaluate(board: Board): number {
 		else return 10000;
 	}
 
+	// detect threefold repetition
+	if (board.hashTable.getPositionCount(board.hash.value) === 3) {
+		return 0;
+	}
+
 	for (let i = 21; i <= 98; i++) {
 		const square = board.squares[i];
 

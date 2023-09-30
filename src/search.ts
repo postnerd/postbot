@@ -1,6 +1,6 @@
 import Board from "./board";
 import evaluate from "./evaluate";
-import { communicator } from "./utils";
+import { communicator, getPvFromHashTable } from "./utils";
 
 export default function search(board: Board, depth: number) {
 	let nodes = 0;
@@ -52,6 +52,10 @@ export default function search(board: Board, depth: number) {
 
 		const moves = board.getPossibleMoves();
 
+		if (moves.length === 0) {
+			return captureSearch(alpha, beta);
+		}
+
 		for (let i = 0; i < moves.length; i++) {
 			board.makeMove(moves[i]);
 
@@ -65,7 +69,7 @@ export default function search(board: Board, depth: number) {
 
 			if (score > alpha) {
 				alpha = score;
-				board.hashTable.addCacheItem(moves[i]);
+				board.hashTable.addBestMove(moves[i], board.hash.value);
 			}
 		}
 
@@ -73,29 +77,31 @@ export default function search(board: Board, depth: number) {
 	}
 
 	for (let i = 1; i <= depth; i++) {
-		board.hashTable.cache = {};
-
 		let score = mainSearch(-Infinity, Infinity, i);
 
 		let currentTime = Date.now() - startTime + 1; // +1 to avoid division by zero
 		let nps = Math.floor(nodes / (currentTime / 1000));
+		let pv = getPvFromHashTable(i, board);
+
 		let scoreInfo = "";
 		if (score === 10000) {
-			scoreInfo = "mate " + Math.round(i / 2);
+			scoreInfo = "mate " + Math.round(pv.split(" ").length / 2);
 		}
 		else if (score === -10000) {
-			scoreInfo = "mate -" + Math.round(i / 2);
+			scoreInfo = "mate -" + Math.round(pv.split(" ").length / 2);
 		}
 		else {
 			scoreInfo = `cp ${score}`;
 		}
 
-		let info = `info depth ${i} score ${scoreInfo} time ${currentTime} nodes ${nodes} nps ${nps} pv ${board.hashTable.getPvFromHashTable(i)}`;
-		let bestMove = board.hashTable.getCacheItem();
+
+
+		let info = `info depth ${i} score ${scoreInfo} time ${currentTime} nodes ${nodes} nps ${nps} pv ${pv}`;
+		let bestMove = board.hashTable.getBestMove(board.hash.value);
 
 		communicator.log(info);
-		communicator.event("bestMove", Board.getFenMoveNotationFromMove(bestMove));
-
-		if (score === 10000 || score === -10000) break;
+		if (bestMove !== undefined) {
+			communicator.event("bestMove", Board.getFenMoveNotationFromMove(bestMove));
+		}
 	}
 }

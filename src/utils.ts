@@ -1,4 +1,4 @@
-import Board from "./board";
+import Board, { type Move } from "./board";
 import { parentPort } from "worker_threads";
 
 export function printBoardToConsole(board: Board, isDebug: boolean) {
@@ -46,3 +46,26 @@ export const communicator = {
 		}
 	},
 };
+
+export function getPvFromHashTable(depth: number, board: Board) {
+	let moves: Move[] = [];
+	let pv = "";
+
+	for (let i = 0; i < depth; i++) {
+		const bestmove = board.hashTable.getBestMove(board.hash.value);
+		if (bestmove !== undefined) {
+			moves[i] = bestmove;
+			pv += Board.getFenMoveNotationFromMove(moves[i]) + " ";
+			board.makeMove(moves[i]);
+		}
+		else {
+			break;
+		}
+	}
+
+	for (let i = moves.length - 1; i >= 0; i--) {
+		board.undoLastMove();
+	}
+
+	return pv;
+}
