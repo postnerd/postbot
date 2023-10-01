@@ -1,13 +1,68 @@
-import Board from "./board";
+import Board, { Move, PieceType } from "./board";
 import evaluate from "./evaluate";
-import sortMoves from "./sort";
 import { communicator, getPvFromHashTable } from "./utils";
+
+const killerMoves: Map<number, Move[]> = new Map();
+
+function getPieceTypeValue(pieceType: PieceType) {
+	switch (pieceType) {
+	case "pawn": return 1;
+	case "knight": return 3;
+	case "bishop": return 3;
+	case "rook": return 5;
+	case "queen": return 9;
+	case "king": return 12;
+	default: return 0;
+	}
+}
+
+function sortMoves(moves: Move[], board: Board, ply: number) : Move[] {
+	// Current best move should be first in the array
+	const currentBestMove = board.hashTable.getBestMove(board.hash.valueLow, board.hash.valueHigh);
+
+	// Giving a move score
+	for (let i = 0; i < moves.length; i++) {
+		const move = moves[i];
+
+		// Current best move should be first in the array
+		if (currentBestMove !== undefined && move.to === currentBestMove.to && move.from === currentBestMove.from) {
+			move.score = 100000;
+		}
+		// Captures should be sorted by best captures
+		else if (move.willCapture) {
+			move.score = getPieceTypeValue(move.capturedSquareInfo!.pieceType) / getPieceTypeValue(move.pieceType) * 100;
+		}
+		// Killer moves
+		else if (killerMoves.get(ply)!.length > 0) {
+			const killers = killerMoves.get(ply);
+			const count = killers!.length > 1 ? 2 : 1;
+
+			for (let j = 0; j < count; j++) {
+				if (killers![j].from === move.from && killers![j].to === move.to) {
+					move.score = 1;
+				}
+			}
+		}
+	}
+
+	moves.sort((moveA: Move, moveB: Move) => {
+		const scoreA = moveA.score || 0;
+		const scoreB = moveB.score || 0;
+		return scoreB - scoreA;
+	});
+
+	return moves;
+}
 
 export default function search(board: Board, depth: number) {
 	let nodes = 0;
 	let startTime = Date.now();
 
-	function captureSearch(alpha: number, beta: number) {
+	for (let i = 0; i < 9999; i++) {
+		killerMoves.set(i, []);
+	}
+
+	function captureSearch(alpha: number, beta: number, ply: number) {
 		const activeColorScore = board.activeColor === "white" ? 1 : -1;
 		const score = evaluate(board) * activeColorScore;
 
@@ -19,7 +74,7 @@ export default function search(board: Board, depth: number) {
 			alpha = score;
 		}
 
-		const moves = sortMoves(board.getPossibleMoves(), board);
+		const moves = sortMoves(board.getPossibleMoves(), board, ply);
 
 		for (let i = 0; i < moves.length; i++) {
 			if (moves[i].willCapture) {
@@ -27,11 +82,14 @@ export default function search(board: Board, depth: number) {
 
 				board.makeMove(moves[i]);
 
-				let score = -captureSearch(-beta, -alpha);
+				let score = -captureSearch(-beta, -alpha, ply + 1);
 
 				board.undoLastMove();
 
 				if (score >= beta) {
+					if (!moves[i].willCapture) {
+						killerMoves.get(ply)!.unshift(moves[i]);
+					}
 					return beta;
 				}
 
@@ -44,27 +102,30 @@ export default function search(board: Board, depth: number) {
 		return alpha;
 	}
 
-	function mainSearch(alpha: number, beta: number, depthleft: number) {
-		if (depthleft === 0) {
-			return captureSearch(alpha, beta);
+	function mainSearch(alpha: number, beta: number, depthLeft: number, ply: number) {
+		if (depthLeft === 0) {
+			return captureSearch(alpha, beta, ply);
 		}
 
 		nodes++;
 
-		const moves = sortMoves(board.getPossibleMoves(), board);
+		const moves = sortMoves(board.getPossibleMoves(), board, ply);
 
 		if (moves.length === 0) {
-			return captureSearch(alpha, beta);
+			return captureSearch(alpha, beta, ply + 1);
 		}
 
 		for (let i = 0; i < moves.length; i++) {
 			board.makeMove(moves[i]);
 
-			let score = -mainSearch(-beta, -alpha, depthleft - 1);
+			let score = -mainSearch(-beta, -alpha, depthLeft - 1, ply + 1);
 
 			board.undoLastMove();
 
 			if (score >= beta) {
+				if (!moves[i].willCapture) {
+					killerMoves.get(ply)!.unshift(moves[i]);
+				}
 				return beta;
 			}
 
@@ -78,7 +139,7 @@ export default function search(board: Board, depth: number) {
 	}
 
 	for (let i = 1; i <= depth; i++) {
-		let score = mainSearch(-Infinity, Infinity, i);
+		let score = mainSearch(-Infinity, Infinity, i, 0);
 
 		let currentTime = Date.now() - startTime + 1; // +1 to avoid division by zero
 		let nps = Math.floor(nodes / (currentTime / 1000));

@@ -74,6 +74,7 @@ export interface Move {
 	isEnPassant?: boolean,
 	isCastle?: boolean,
 	currentBoardState: currentBoardState,
+	score?: number,
 }
 
 const MOVE_DIRECTIONS: {[key: string]: number[]} = {
