@@ -20,13 +20,15 @@ This is the chess engine _postbot_ from postnerd written in Typescript/JavaScrip
 - [X] ALPHA-03: deepen search on capture
 - [X] ALPHA-03: implement alpha-beta search
 - [X] ALPHA-03: sorted move candidates
-- [ ] ALPHA-04: have a basic evaluation function 
+- [X] ALPHA-04: detection for threefold repetition
+- [X] ALPHA-04: have a basic evaluation function
+- [X] ALPHA-04: hash tables include en passant information 
+- [X] ALPHA-04: eval score caching
 - [ ] define a real roadmap
     - [ ] null move pruning
     - [ ] move caching
-    - [ ] hash tables include en passant information 
     - [ ] performance optimizations
-    - [ ] detecting threefold repetition and 50 move rule
+    - [ ] detecting 50 move rule
 
 ## Changelog
 ### postbot 0.0.3-alpha – 27.09.2023

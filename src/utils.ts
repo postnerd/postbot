@@ -15,7 +15,12 @@ export function printBoardToConsole(board: Board) {
 
 	communicator.log(`${board.activeColor} to play | Possible moves: ${board.getPossibleMoves().length} | King check: ${board.isCheck()} | Checkmate: ${board.isCheckmate()}`);
 	communicator.log(`Move: ${board.moveCount} (${board.halfMoveCountSinceLastCaptureOrPawnMove}) | O-O: ${board.castlingInformation.isWhiteKingSidePossible} | O-O-O: ${board.castlingInformation.isWhiteQueenSidePossible} | o-o: ${board.castlingInformation.isBlackKingSidePossible} | o-o-o: ${board.castlingInformation.isBlackQueenSidePossible} | en passant: ${board.enPassantSquarePosition}`);
-	communicator.log(`Current Hash: ${board.hash}`);
+	communicator.log(`Current Hash: ${board.hash.valueLow}`);
+	let movesPlayed = "";
+	board.moves.forEach((move) => {
+		movesPlayed += Board.getFenMoveNotationFromMove(move) + " ";
+	});
+	communicator.log(`Moves played: ${movesPlayed}`);
 }
 
 export const communicator = {
@@ -50,7 +55,7 @@ export function getPvFromHashTable(depth: number, board: Board) {
 	let pv = "";
 
 	for (let i = 0; i < depth; i++) {
-		const bestmove = board.hashTable.getBestMove(board.hash.value);
+		const bestmove = board.hashTable.getBestMove(board.hash.valueLow, board.hash.valueHigh);
 		if (bestmove !== undefined) {
 			moves[i] = bestmove;
 			pv += Board.getFenMoveNotationFromMove(moves[i]) + " ";

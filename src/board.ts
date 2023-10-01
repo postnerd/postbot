@@ -177,7 +177,7 @@ export default class Board {
 		this.setPositionFromFen(fen);
 		this.hash = new Hash(this);
 		this.hashTable = new HashTable();
-		this.hashTable.increasePositionCount(this.hash.value);
+		this.hashTable.increasePositionCount(this.hash.valueLow, this.hash.valueHigh);
 	}
 
 	getCurrentBoardStateInfo(): currentBoardState {
@@ -290,7 +290,7 @@ export default class Board {
 	getPossibleMoves(): Move[] {
 		let moves: Move[] = [];
 
-		if (this.hashTable.getPositionCount(this.hash.value) === 3) {
+		if (this.hashTable.getPositionCount(this.hash.valueLow, this.hash.valueHigh) === 3) {
 			return moves;
 		}
 
@@ -550,7 +550,7 @@ export default class Board {
 		});
 
 		// Current best move should be first in the array
-		const currentBestMove = this.hashTable.getBestMove(this.hash.value);
+		const currentBestMove = this.hashTable.getBestMove(this.hash.valueLow, this.hash.valueHigh);
 
 		if (currentBestMove !== undefined) {
 			moves.sort((a: Move) => {
@@ -749,10 +749,14 @@ export default class Board {
 
 		if (move.isEnPassant) {
 			if (this.activeColor === "white") {
+				this.hash.updatePiece(move.to + 10, this.squares[move.to + 10].piece);
 				this.squares[move.to + 10] = Board.getSquareObjectByFenNotation("empty");
+				this.hash.updatePiece(move.to + 10, this.squares[move.to + 10].piece);
 			}
 			else {
+				this.hash.updatePiece(move.to - 10, this.squares[move.to - 10].piece);
 				this.squares[move.to - 10] = Board.getSquareObjectByFenNotation("empty");
+				this.hash.updatePiece(move.to - 10, this.squares[move.to - 10].piece);
 			}
 		}
 
@@ -764,6 +768,8 @@ export default class Board {
 			else {
 				this.enPassantSquarePosition = move.to - 10;
 			}
+			// Add en passant square to hash
+			this.hash.updatePiece(this.enPassantSquarePosition, this.squares[this.enPassantSquarePosition].piece);
 		}
 		else {
 			this.enPassantSquarePosition = null;
@@ -793,14 +799,14 @@ export default class Board {
 		this.hash.updatePiece(move.to, this.squares[move.to].piece);
 		this.hash.updateColor(this.activeColor);
 
-		this.hashTable.increasePositionCount(this.hash.value);
+		this.hashTable.increasePositionCount(this.hash.valueLow, this.hash.valueHigh);
 	}
 
 	undoLastMove() {
 		const lastMove = this.moves.pop();
 
 		if (lastMove) {
-			this.hashTable.decreasePositionCount(this.hash.value);
+			this.hashTable.decreasePositionCount(this.hash.valueLow, this.hash.valueHigh);
 
 			// Remove pieces from hash
 			this.hash.updatePiece(lastMove.from, this.squares[lastMove.from].piece);
@@ -812,10 +818,14 @@ export default class Board {
 			if (lastMove.capturedSquareInfo) {
 				if (lastMove.isEnPassant) {
 					if (lastMove.currentBoardState.activeColor === "white") {
+						this.hash.updatePiece(lastMove.to + 10, this.squares[lastMove.to + 10].piece);
 						this.squares[lastMove.to + 10] = Board.getSquareObjectByFenNotation(lastMove.capturedSquareInfo.piece);
+						this.hash.updatePiece(lastMove.to + 10, this.squares[lastMove.to + 10].piece);
 					}
 					else {
+						this.hash.updatePiece(lastMove.to - 10, this.squares[lastMove.to - 10].piece);
 						this.squares[lastMove.to - 10] = Board.getSquareObjectByFenNotation(lastMove.capturedSquareInfo.piece);
+						this.hash.updatePiece(lastMove.to - 10, this.squares[lastMove.to - 10].piece);
 					}
 					this.squares[lastMove.to] = Board.getSquareObjectByFenNotation("empty");
 				}
@@ -876,6 +886,11 @@ export default class Board {
 						this.hash.updatePiece(94, this.squares[94].piece);
 					}
 				}
+			}
+
+			// If last move has set a en passant square, remove it from hash
+			if (this.enPassantSquarePosition !== null) {
+				this.hash.updatePiece(this.enPassantSquarePosition, this.squares[this.enPassantSquarePosition].piece);
 			}
 
 			this.activeColor = lastMove.currentBoardState.activeColor;

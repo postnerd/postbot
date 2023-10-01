@@ -1,6 +1,6 @@
 {
   "name": "postbot",
-  "version": "0.0.3-alpha",
+  "version": "0.0.4-alpha_dev",
   "description": "A TS chess engine",
   "type": "commonjs",
   "main": "compiled/main.js",
@@ -36,5 +36,8 @@
     "ts-jest": "^28.0.5",
     "tslib": "^2.4.0",
     "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "random-js": "^2.1.0"
   }
 }

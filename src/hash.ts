@@ -1,9 +1,11 @@
 import Board, { Piece } from "./board";
+import { Random, MersenneTwister19937 } from "random-js";
+
+// -940586136 is just a crazy random number, kudo to mattiasahlsen ;-)
+const random = new Random(MersenneTwister19937.seed(-940586136));
 
 function randomInt() {
-	let min = 0;
-	let max = Math.pow(2, 64);
-	return Math.floor(Math.random() * (max - min) + min);
+	return random.integer(-Math.pow(2, 31), Math.pow(2, 31) - 1);
 }
 
 function getPieceZobristIndex(piece: string | null) {
@@ -28,55 +30,75 @@ function getPieceZobristIndex(piece: string | null) {
 }
 
 export default class Hash {
-	zobristTable: number[][] = new Array(99);
-	zobristWhite = randomInt();
-	zobristBlack = randomInt();
-	value: number = 0;
+	zobristTableLow: number[][] = new Array(99);
+	zobristTableHigh: number[][] = new Array(99);
+	zobristWhiteLow = randomInt();
+	zobristWhiteHigh = randomInt();
+	zobristBlackLow = randomInt();
+	zobristBlackHigh = randomInt();
+	valueLow: number = 0;
+	valueHigh: number = 0;
 
 	constructor(board: Board) {
 		this.initZobristTable();
-		this.value = this.getComputedHash(board);
+		const hashes = this.getComputedHash(board);
+		this.valueLow = hashes[0];
+		this.valueHigh = hashes[1];
 	}
 
 	initZobristTable() {
 		for (let i = 0; i < 99; i++) {
-			this.zobristTable[i] = new Array(13);
+			this.zobristTableLow[i] = new Array(13);
+			this.zobristTableHigh[i] = new Array(13);
 		}
 
 		for (let i = 0; i < 99; i++) {
 			for (let j = 0; j < 13; j++) {
-				this.zobristTable[i][j] = randomInt();
+				this.zobristTableLow[i][j] = randomInt();
+				this.zobristTableHigh[i][j] = randomInt();
 			}
 		}
 	}
 
 	// TODO: Include informations like castling rights, en passant square, active color
-	getComputedHash(board: Board): number {
-		let hash = 0;
+	getComputedHash(board: Board): number[] {
+		let hashLow = 0;
+		let hashHigh = 0;
 		for (let i = 21; i < 99; i++) {
 			if (board.squares[i] !== null) {
 				const piece = board.squares[i].piece;
 
-				hash ^= this.zobristTable[i][getPieceZobristIndex(piece)];
+				hashLow ^= this.zobristTableLow[i][getPieceZobristIndex(piece)];
+				hashHigh ^= this.zobristTableHigh[i][getPieceZobristIndex(piece)];
 			}
 		}
 
 		if (board.activeColor === "white") {
-			hash ^= this.zobristWhite;
+			hashLow ^= this.zobristWhiteLow;
+			hashHigh ^= this.zobristWhiteHigh;
 		}
 		else {
-			hash ^= this.zobristBlack;
+			hashLow ^= this.zobristBlackLow;
+			hashHigh ^= this.zobristBlackHigh;
 		}
 
-		return hash;
+		if (board.enPassantSquarePosition !== null) {
+			const piece = board.squares[board.enPassantSquarePosition].piece;
+			hashLow ^= this.zobristTableLow[board.enPassantSquarePosition][getPieceZobristIndex(piece)];
+			hashHigh ^= this.zobristTableHigh[board.enPassantSquarePosition][getPieceZobristIndex(piece)];
+		}
+
+		return [hashLow, hashHigh];
 	}
 
 	updatePiece(square: number, piece: Piece | null) {
-		this.value ^= this.zobristTable[square][getPieceZobristIndex(piece)];
+		this.valueLow ^= this.zobristTableLow[square][getPieceZobristIndex(piece)];
+		this.valueHigh ^= this.zobristTableHigh[square][getPieceZobristIndex(piece)];
 	}
 
 	updateColor(color: "white" | "black") {
-		this.value ^= color === "white" ? this.zobristWhite : this.zobristBlack;
+		this.valueLow ^= color === "white" ? this.zobristWhiteLow : this.zobristBlackLow;
+		this.valueHigh ^= color === "white" ? this.zobristWhiteHigh : this.zobristBlackHigh;
 	}
 
 }

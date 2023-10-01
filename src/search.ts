@@ -69,7 +69,7 @@ export default function search(board: Board, depth: number) {
 
 			if (score > alpha) {
 				alpha = score;
-				board.hashTable.addBestMove(moves[i], board.hash.value);
+				board.hashTable.addBestMove(moves[i], board.hash.valueLow, board.hash.valueHigh);
 			}
 		}
 
@@ -97,7 +97,7 @@ export default function search(board: Board, depth: number) {
 
 
 		let info = `info depth ${i} score ${scoreInfo} time ${currentTime} nodes ${nodes} nps ${nps} pv ${pv}`;
-		let bestMove = board.hashTable.getBestMove(board.hash.value);
+		let bestMove = board.hashTable.getBestMove(board.hash.valueLow, board.hash.valueHigh);
 
 		communicator.log(info);
 		if (bestMove !== undefined) {

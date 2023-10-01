@@ -1,4 +1,5 @@
 import Board from "./board";
+import { communicator, printBoardToConsole } from "./utils";
 
 const PIECE_VALUES = {
 	p: -100,
@@ -129,15 +130,27 @@ const pieceValueTable = {
 
 
 export default function evaluate(board: Board): number {
+	const hashedScore = board.hashTable.getScore(board.hash.valueLow, board.hash.valueHigh);
+	if (hashedScore !== undefined) {
+		return hashedScore;
+	}
+
 	let score = 0;
 
 	if (board.isCheckmate()) {
-		if (board.activeColor === "white") return -10000;
-		else return 10000;
+		if (board.activeColor === "white") {
+			board.hashTable.addScore(-10000, board.hash.valueLow, board.hash.valueHigh);
+			return -10000;
+		}
+		else {
+			board.hashTable.addScore(10000, board.hash.valueLow, board.hash.valueHigh);
+			return 10000;
+		}
 	}
 
 	// detect threefold repetition
-	if (board.hashTable.getPositionCount(board.hash.value) === 3) {
+	if (board.hashTable.getPositionCount(board.hash.valueLow, board.hash.valueHigh) === 3) {
+		board.hashTable.addScore(0, board.hash.valueLow, board.hash.valueHigh);
 		return 0;
 	}
 
@@ -149,6 +162,13 @@ export default function evaluate(board: Board): number {
 			score += pieceValueTable[square.piece][i];
 		}
 	}
+
+	// if (hashedScore !== undefined && score !== hashedScore) {
+	// 	communicator.log(`Hash table score mismatch for ${board.hash.valueLow}: ${score} vs ${hashedScore}`);
+	// 	printBoardToConsole(board);
+	// }
+
+	board.hashTable.addScore(score, board.hash.valueLow, board.hash.valueHigh);
 
 	return score;
 }
