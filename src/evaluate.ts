@@ -1,5 +1,4 @@
 import Board from "./board";
-import { communicator, printBoardToConsole } from "./utils";
 
 const PIECE_VALUES = {
 	p: -100,
@@ -162,11 +161,6 @@ export default function evaluate(board: Board): number {
 			score += pieceValueTable[square.piece][i];
 		}
 	}
-
-	// if (hashedScore !== undefined && score !== hashedScore) {
-	// 	communicator.log(`Hash table score mismatch for ${board.hash.valueLow}: ${score} vs ${hashedScore}`);
-	// 	printBoardToConsole(board);
-	// }
 
 	board.hashTable.addScore(score, board.hash.valueLow, board.hash.valueHigh);
 

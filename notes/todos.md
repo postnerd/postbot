@@ -6,3 +6,5 @@
 ## Bugs
 - [X] move ordering might be wrong (see discord conversation with Jonas)
 - [ ] isCheck not working with en passant
+- [X] support for lichess movetime feature in the beginning
+- [ ] better test coverage

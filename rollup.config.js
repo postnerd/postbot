@@ -9,5 +9,5 @@ export default {
 		format: "cjs",
 	},
 	plugins: [typescript(), json()],
-	external: ["path", "worker_threads"],
+	external: ["path", "worker_threads", "random-js"],
 };

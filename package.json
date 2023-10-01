@@ -1,6 +1,6 @@
 {
   "name": "postbot",
-  "version": "0.0.4-alpha_dev-move-sorting",
+  "version": "0.0.4-alpha",
   "description": "A TS chess engine",
   "type": "commonjs",
   "main": "compiled/main.js",
