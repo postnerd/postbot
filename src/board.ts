@@ -3,7 +3,7 @@ import HashTable from "./hashTable";
 
 export type Piece = "p" | "P" | "b" | "B" | "n" | "N" | "r" | "R" | "q" | "Q" | "k" | "K" | null;
 type Color = "white" | "black" | null;
-type PieceType = "king" | "queen" | "rook" | "bishop" | "knight" | "pawn" | null;
+export type PieceType = "king" | "queen" | "rook" | "bishop" | "knight" | "pawn" | null;
 
 interface SquareObject {
 	piece: Piece;
@@ -538,34 +538,12 @@ export default class Board {
 			}
 		}
 
-		// sort moves by captures first
-		moves.sort((a: Move, b: Move) => {
-			if (a.willCapture === b.willCapture) {
-				return 0;
-			}
-			if (a.willCapture) {
-				return -1;
-			}
-			return 1;
-		});
-
-		// Current best move should be first in the array
-		const currentBestMove = this.hashTable.getBestMove(this.hash.valueLow, this.hash.valueHigh);
-
-		if (currentBestMove !== undefined) {
-			moves.sort((a: Move) => {
-				if (a.to === currentBestMove.to && a.from === currentBestMove.from) {
-					return -1;
-				}
-
-				return 0;
-			});
-		}
-
 		// filter moves out that would place the king in check
-		return moves.filter((move: Move) => {
+		const finalMoves = moves.filter((move: Move) => {
 			return !this.isKingPlacedInCheckByMove(move);
 		});
+
+		return finalMoves;
 	}
 
 	isKingPlacedInCheckByMove(move: Move) {

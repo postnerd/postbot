@@ -1,5 +1,6 @@
 import Board from "./board";
 import evaluate from "./evaluate";
+import sortMoves from "./sort";
 import { communicator, getPvFromHashTable } from "./utils";
 
 export default function search(board: Board, depth: number) {
@@ -18,7 +19,7 @@ export default function search(board: Board, depth: number) {
 			alpha = score;
 		}
 
-		const moves = board.getPossibleMoves();
+		const moves = sortMoves(board.getPossibleMoves(), board);
 
 		for (let i = 0; i < moves.length; i++) {
 			if (moves[i].willCapture) {
@@ -50,7 +51,7 @@ export default function search(board: Board, depth: number) {
 
 		nodes++;
 
-		const moves = board.getPossibleMoves();
+		const moves = sortMoves(board.getPossibleMoves(), board);
 
 		if (moves.length === 0) {
 			return captureSearch(alpha, beta);
