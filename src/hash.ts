@@ -36,6 +36,14 @@ export default class Hash {
 	zobristWhiteHigh = randomInt();
 	zobristBlackLow = randomInt();
 	zobristBlackHigh = randomInt();
+	zobristIsWhiteKingSideCastlePossibleLow = randomInt();
+	zobristIsWhiteKingSideCastlePossibleHigh = randomInt();
+	zobristIsWhiteQueenSideCastlePossibleLow = randomInt();
+	zobristIsWhiteQueenSideCastlePossibleHigh = randomInt();
+	zobristIsBlackKingSideCastlePossibleLow = randomInt();
+	zobristIsBlackKingSideCastlePossibleHigh = randomInt();
+	zobristIsBlackQueenSideCastlePossibleLow = randomInt();
+	zobristIsBlackQueenSideCastlePossibleHigh = randomInt();
 	valueLow: number = 0;
 	valueHigh: number = 0;
 
@@ -88,6 +96,26 @@ export default class Hash {
 			hashHigh ^= this.zobristTableHigh[board.enPassantSquarePosition][getPieceZobristIndex(piece)];
 		}
 
+		if (board.castlingInformation.isWhiteKingSidePossible) {
+			hashLow ^= this.zobristIsWhiteKingSideCastlePossibleLow;
+			hashHigh ^= this.zobristIsWhiteKingSideCastlePossibleHigh;
+		}
+
+		if (board.castlingInformation.isWhiteQueenSidePossible) {
+			hashLow ^= this.zobristIsWhiteQueenSideCastlePossibleLow;
+			hashHigh ^= this.zobristIsWhiteQueenSideCastlePossibleHigh;
+		}
+
+		if (board.castlingInformation.isBlackKingSidePossible) {
+			hashLow ^= this.zobristIsBlackKingSideCastlePossibleLow;
+			hashHigh ^= this.zobristIsBlackKingSideCastlePossibleHigh;
+		}
+
+		if (board.castlingInformation.isBlackQueenSidePossible) {
+			hashLow ^= this.zobristIsBlackQueenSideCastlePossibleLow;
+			hashHigh ^= this.zobristIsBlackQueenSideCastlePossibleHigh;
+		}
+
 		return [hashLow, hashHigh];
 	}
 
@@ -101,4 +129,22 @@ export default class Hash {
 		this.valueHigh ^= color === "white" ? this.zobristWhiteHigh : this.zobristBlackHigh;
 	}
 
+	updateCastle(castleInformation: "isWhiteKingSideCastlePossible" | "isWhiteQueenSideCastlePossible" | "isBlackKingSideCastlePossible" | "isBlackQueenSideCastlePossible") {
+		if (castleInformation === "isWhiteKingSideCastlePossible") {
+			this.valueLow ^= this.zobristIsWhiteKingSideCastlePossibleLow;
+			this.valueHigh ^= this.zobristIsWhiteKingSideCastlePossibleHigh;
+		}
+		else if (castleInformation === "isWhiteQueenSideCastlePossible") {
+			this.valueLow ^= this.zobristIsWhiteQueenSideCastlePossibleLow;
+			this.valueHigh ^= this.zobristIsWhiteQueenSideCastlePossibleHigh;
+		}
+		else if (castleInformation === "isBlackKingSideCastlePossible") {
+			this.valueLow ^= this.zobristIsBlackKingSideCastlePossibleLow;
+			this.valueHigh ^= this.zobristIsBlackKingSideCastlePossibleHigh;
+		}
+		else if (castleInformation === "isBlackQueenSideCastlePossible") {
+			this.valueLow ^= this.zobristIsBlackQueenSideCastlePossibleLow;
+			this.valueHigh ^= this.zobristIsBlackQueenSideCastlePossibleHigh;
+		}
+	}
 }

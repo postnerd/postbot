@@ -291,7 +291,7 @@ export default class Board {
 	getPossibleMoves(): Move[] {
 		let moves: Move[] = [];
 
-		if (this.hashTable.getPositionCount(this.hash.valueLow, this.hash.valueHigh) === 3) {
+		if (this.hashTable.getPositionCount(this.hash.valueLow, this.hash.valueHigh) === 3 || this.halfMoveCountSinceLastCaptureOrPawnMove >= 50) {
 			return moves;
 		}
 
@@ -674,38 +674,50 @@ export default class Board {
 			if (this.activeColor === "white") {
 				this.castlingInformation.isWhiteKingSidePossible = false;
 				this.castlingInformation.isWhiteQueenSidePossible = false;
+				this.hash.updateCastle("isWhiteKingSideCastlePossible");
+				this.hash.updateCastle("isWhiteQueenSideCastlePossible");
 			}
 			else {
 				this.castlingInformation.isBlackKingSidePossible = false;
 				this.castlingInformation.isBlackQueenSidePossible = false;
+				this.hash.updateCastle("isBlackKingSideCastlePossible");
+				this.hash.updateCastle("isBlackQueenSideCastlePossible");
 			}
 		}
 
 		// Update castling information if we move a king or a rook
 		// King
-		if (move.pieceType === "king") {
+		else if (move.pieceType === "king") {
 			if (this.activeColor === "white") {
+				if (this.castlingInformation.isWhiteKingSidePossible) this.hash.updateCastle("isWhiteKingSideCastlePossible");
+				if (this.castlingInformation.isWhiteQueenSidePossible) this.hash.updateCastle("isWhiteQueenSideCastlePossible");
 				this.castlingInformation.isWhiteKingSidePossible = false;
 				this.castlingInformation.isWhiteQueenSidePossible = false;
 			}
 			else {
+				if (this.castlingInformation.isBlackKingSidePossible) this.hash.updateCastle("isBlackKingSideCastlePossible");
+				if (this.castlingInformation.isBlackQueenSidePossible) this.hash.updateCastle("isBlackQueenSideCastlePossible");
 				this.castlingInformation.isBlackKingSidePossible = false;
 				this.castlingInformation.isBlackQueenSidePossible = false;
 			}
 		}
 
 		// Rook
-		if (move.pieceType === "rook") {
+		else if (move.pieceType === "rook") {
 			if (move.from === 21) {
+				if (this.castlingInformation.isBlackQueenSidePossible) this.hash.updateCastle("isBlackQueenSideCastlePossible");
 				this.castlingInformation.isBlackQueenSidePossible = false;
 			}
 			else if (move.from === 28) {
+				if (this.castlingInformation.isBlackKingSidePossible) this.hash.updateCastle("isBlackKingSideCastlePossible");
 				this.castlingInformation.isBlackKingSidePossible = false;
 			}
 			else if (move.from === 91) {
+				if (this.castlingInformation.isWhiteQueenSidePossible) this.hash.updateCastle("isWhiteQueenSideCastlePossible");
 				this.castlingInformation.isWhiteQueenSidePossible = false;
 			}
 			else if (move.from === 98) {
+				if (this.castlingInformation.isWhiteKingSidePossible) this.hash.updateCastle("isWhiteKingSideCastlePossible");
 				this.castlingInformation.isWhiteKingSidePossible = false;
 			}
 		}
@@ -713,15 +725,19 @@ export default class Board {
 		// If we capture a rook, update castling information
 		if (move.willCapture) {
 			if (move.to === 21) {
+				if (this.castlingInformation.isBlackQueenSidePossible) this.hash.updateCastle("isBlackQueenSideCastlePossible");
 				this.castlingInformation.isBlackQueenSidePossible = false;
 			}
 			else if (move.to === 28) {
+				if (this.castlingInformation.isBlackKingSidePossible) this.hash.updateCastle("isBlackKingSideCastlePossible");
 				this.castlingInformation.isBlackKingSidePossible = false;
 			}
 			else if (move.to === 91) {
+				if (this.castlingInformation.isWhiteQueenSidePossible) this.hash.updateCastle("isWhiteQueenSideCastlePossible");
 				this.castlingInformation.isWhiteQueenSidePossible = false;
 			}
 			else if (move.to === 98) {
+				if (this.castlingInformation.isWhiteKingSidePossible) this.hash.updateCastle("isWhiteKingSideCastlePossible");
 				this.castlingInformation.isWhiteKingSidePossible = false;
 			}
 		}
@@ -870,6 +886,20 @@ export default class Board {
 			// If last move has set a en passant square, remove it from hash
 			if (this.enPassantSquarePosition !== null) {
 				this.hash.updatePiece(this.enPassantSquarePosition, this.squares[this.enPassantSquarePosition].piece);
+			}
+
+			// Update castling information
+			if (lastMove.currentBoardState.castlingInformation.isWhiteKingSidePossible !== this.castlingInformation.isWhiteKingSidePossible) {
+				this.hash.updateCastle("isWhiteKingSideCastlePossible");
+			}
+			if (lastMove.currentBoardState.castlingInformation.isWhiteQueenSidePossible !== this.castlingInformation.isWhiteQueenSidePossible) {
+				this.hash.updateCastle("isWhiteQueenSideCastlePossible");
+			}
+			if (lastMove.currentBoardState.castlingInformation.isBlackKingSidePossible !== this.castlingInformation.isBlackKingSidePossible) {
+				this.hash.updateCastle("isBlackKingSideCastlePossible");
+			}
+			if (lastMove.currentBoardState.castlingInformation.isBlackQueenSidePossible !== this.castlingInformation.isBlackQueenSidePossible) {
+				this.hash.updateCastle("isBlackQueenSideCastlePossible");
 			}
 
 			this.activeColor = lastMove.currentBoardState.activeColor;

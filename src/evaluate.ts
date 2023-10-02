@@ -153,6 +153,16 @@ export default function evaluate(board: Board): number {
 		return 0;
 	}
 
+	if (board.isStalemate()) {
+		board.hashTable.addScore(0, board.hash.valueLow, board.hash.valueHigh);
+		return 0;
+	}
+
+	if (board.halfMoveCountSinceLastCaptureOrPawnMove >= 50) {
+		board.hashTable.addScore(0, board.hash.valueLow, board.hash.valueHigh);
+		return 0;
+	}
+
 	for (let i = 21; i <= 98; i++) {
 		const square = board.squares[i];
 
