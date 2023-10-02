@@ -34,7 +34,7 @@ export default class HashTable {
 
 		let entry = this.cache.get(hashLow)?.get(hashHigh);
 
-		if (entry && entry.positionCount) entry.positionCount++;
+		if (entry && entry.positionCount !== undefined) entry.positionCount++;
 	}
 
 	decreasePositionCount(hashLow: number, hashHigh: number) {
