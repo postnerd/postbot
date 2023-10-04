@@ -57,12 +57,17 @@ function sortMoves(moves: Move[], board: Board, ply: number) : Move[] {
 export default function search(board: Board, depth: number) {
 	let nodes = 0;
 	let startTime = Date.now();
+	let finalScore: number | null = null;
 
 	for (let i = 0; i < 9999; i++) {
 		killerMoves.set(i, []);
 	}
 
 	function captureSearch(alpha: number, beta: number, ply: number) {
+		if (board.halfMoveCountSinceLastCaptureOrPawnMove >= 100 || board.hashTable.getPositionCount(board.hash.valueLow, board.hash.valueHigh) === 3) {
+			return 0;
+		}
+
 		const activeColorScore = board.activeColor === "white" ? 1 : -1;
 		const score = evaluate(board) * activeColorScore;
 
@@ -103,6 +108,10 @@ export default function search(board: Board, depth: number) {
 	}
 
 	function mainSearch(alpha: number, beta: number, depthLeft: number, ply: number) {
+		if (board.halfMoveCountSinceLastCaptureOrPawnMove >= 100 || board.hashTable.getPositionCount(board.hash.valueLow, board.hash.valueHigh) === 3) {
+			return 0;
+		}
+
 		if (depthLeft === 0) {
 			return captureSearch(alpha, beta, ply);
 		}
@@ -156,8 +165,6 @@ export default function search(board: Board, depth: number) {
 			scoreInfo = `cp ${score}`;
 		}
 
-
-
 		let info = `info depth ${i} score ${scoreInfo} time ${currentTime} nodes ${nodes} nps ${nps} pv ${pv}`;
 		let bestMove = board.hashTable.getBestMove(board.hash.valueLow, board.hash.valueHigh);
 
@@ -165,5 +172,9 @@ export default function search(board: Board, depth: number) {
 		if (bestMove !== undefined) {
 			communicator.event("bestMove", Board.getFenMoveNotationFromMove(bestMove));
 		}
+
+		finalScore = score;
 	}
+
+	return finalScore;
 }

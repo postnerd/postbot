@@ -1,5 +1,6 @@
 import Board from "../src/board";
 import evaluate from "../src/evaluate";
+import search from "../src/search";
 
 describe("Threefold Repetition", () => {
 	const board = new Board(Board.startPosFen);
@@ -38,16 +39,16 @@ describe("Stalemate", () => {
 });
 
 describe("Fifty Move Rule", () => {
-	const board = new Board("3k4/8/1b6/3B4/6P1/8/8/3K4 w - - 49 16");
+	const board = new Board("3k4/8/1b6/3B4/6P1/8/8/3K4 w - - 99 16");
 
 	test("Detect fifty move rule", () => {
-		expect(board.halfMoveCountSinceLastCaptureOrPawnMove).toBe(49);
+		expect(board.halfMoveCountSinceLastCaptureOrPawnMove).toBe(99);
 		expect(evaluate(board)).toBeGreaterThan(0);
 
 		board.makeMoveFromNotation("d1d2");
 
-		expect(board.halfMoveCountSinceLastCaptureOrPawnMove).toBe(50);
-		expect(evaluate(board)).toBe(0);
+		expect(board.halfMoveCountSinceLastCaptureOrPawnMove).toBe(100);
+		expect(search(board, 1)).toBe(0);
 	});
 });
 

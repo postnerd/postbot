@@ -147,18 +147,7 @@ export default function evaluate(board: Board): number {
 		}
 	}
 
-	// detect threefold repetition
-	if (board.hashTable.getPositionCount(board.hash.valueLow, board.hash.valueHigh) === 3) {
-		board.hashTable.addScore(0, board.hash.valueLow, board.hash.valueHigh);
-		return 0;
-	}
-
 	if (board.isStalemate()) {
-		board.hashTable.addScore(0, board.hash.valueLow, board.hash.valueHigh);
-		return 0;
-	}
-
-	if (board.halfMoveCountSinceLastCaptureOrPawnMove >= 50) {
 		board.hashTable.addScore(0, board.hash.valueLow, board.hash.valueHigh);
 		return 0;
 	}

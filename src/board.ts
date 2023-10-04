@@ -291,10 +291,6 @@ export default class Board {
 	getPossibleMoves(): Move[] {
 		let moves: Move[] = [];
 
-		if (this.hashTable.getPositionCount(this.hash.valueLow, this.hash.valueHigh) === 3 || this.halfMoveCountSinceLastCaptureOrPawnMove >= 50) {
-			return moves;
-		}
-
 		const oppositeColor: "white" | "black" = this.activeColor === "white" ? "black" : "white";
 
 		for (let boardIndex = 0; boardIndex < CHESS_BOARD_POSITIONS.length; boardIndex++) {
