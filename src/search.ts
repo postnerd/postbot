@@ -58,12 +58,20 @@ export default function search(board: Board, depth: number) {
 	let nodes = 0;
 	let startTime = Date.now();
 	let finalScore: number | null = null;
+	let tt: {[key: string]: {[key: string]: any}} = {};
+	let ttc: {[key: string]: {[key: string]: any}} = {};
 
 	for (let i = 0; i < 9999; i++) {
 		killerMoves.set(i, []);
 	}
 
 	function captureSearch(alpha: number, beta: number, ply: number) {
+		let hashEntry = ttc[board.hash.valueLow] ? ttc[board.hash.valueLow][board.hash.valueHigh] : undefined;
+
+		if (hashEntry) {
+			return hashEntry.score;
+		}
+
 		if (board.halfMoveCountSinceLastCaptureOrPawnMove >= 100 || board.hashTable.getPositionCount(board.hash.valueLow, board.hash.valueHigh) === 3) {
 			return 0;
 		}
@@ -72,6 +80,10 @@ export default function search(board: Board, depth: number) {
 		const score = evaluate(board) * activeColorScore;
 
 		if (score >= beta) {
+			ttc[board.hash.valueLow] = {};
+			ttc[board.hash.valueLow][board.hash.valueHigh] = {
+				score: beta,
+			};
 			return beta;
 		}
 
@@ -95,6 +107,10 @@ export default function search(board: Board, depth: number) {
 					if (!moves[i].willCapture) {
 						killerMoves.get(ply)!.unshift(moves[i]);
 					}
+					ttc[board.hash.valueLow] = {};
+					ttc[board.hash.valueLow][board.hash.valueHigh] = {
+						score: beta,
+					};
 					return beta;
 				}
 
@@ -104,10 +120,35 @@ export default function search(board: Board, depth: number) {
 			}
 		}
 
+		ttc[board.hash.valueLow] = {};
+		ttc[board.hash.valueLow][board.hash.valueHigh] = {
+			score: alpha,
+		};
 		return alpha;
 	}
 
 	function mainSearch(alpha: number, beta: number, depthLeft: number, ply: number) {
+		const alphaOriginal = alpha;
+		let hashEntry = tt[board.hash.valueLow] ? tt[board.hash.valueLow][board.hash.valueHigh] : undefined;
+
+		if (hashEntry) {
+			if (hashEntry.depth >= depthLeft) {
+				if (hashEntry.type === "exact") {
+					return hashEntry.score;
+				}
+				else if (hashEntry.type === "lowerbound") {
+					alpha = Math.max(alpha, hashEntry.score);
+				}
+				else if (hashEntry.type === "upperbound") {
+					beta = Math.min(beta, hashEntry.score);
+				}
+
+				if (alpha >= beta) {
+					return hashEntry.score;
+				}
+			}
+		}
+
 		if (board.halfMoveCountSinceLastCaptureOrPawnMove >= 100 || board.hashTable.getPositionCount(board.hash.valueLow, board.hash.valueHigh) === 3) {
 			return 0;
 		}
@@ -124,6 +165,8 @@ export default function search(board: Board, depth: number) {
 			return captureSearch(alpha, beta, ply + 1);
 		}
 
+		let evaluationScore = -Infinity;
+
 		for (let i = 0; i < moves.length; i++) {
 			board.makeMove(moves[i]);
 
@@ -131,23 +174,42 @@ export default function search(board: Board, depth: number) {
 
 			board.undoLastMove();
 
-			if (score >= beta) {
+			if (score > evaluationScore) {
+				board.hashTable.addBestMove(moves[i], board.hash.valueLow, board.hash.valueHigh);
+				evaluationScore = score;
+			}
+
+			alpha = Math.max(alpha, evaluationScore);
+
+			if (alpha >= beta) {
 				if (!moves[i].willCapture) {
 					killerMoves.get(ply)!.unshift(moves[i]);
 				}
-				return beta;
-			}
-
-			if (score > alpha) {
-				alpha = score;
-				board.hashTable.addBestMove(moves[i], board.hash.valueLow, board.hash.valueHigh);
+				break;
 			}
 		}
 
-		return alpha;
+		let ttEntry = {
+			depth: depthLeft,
+			score: evaluationScore,
+			type: "exact",
+		};
+
+		if (evaluationScore <= alphaOriginal) {
+			ttEntry.type = "upperbound";
+		}
+		else if (evaluationScore >= beta) {
+			ttEntry.type = "lowerbound";
+		}
+		tt[board.hash.valueLow] = {};
+		tt[board.hash.valueLow][board.hash.valueHigh] = ttEntry;
+
+		return evaluationScore;
 	}
 
 	for (let i = 1; i <= depth; i++) {
+		// We have to reset the transposition table for capture moves each depth because we don't store any depth details
+		ttc = {};
 		let score = mainSearch(-Infinity, Infinity, i, 0);
 
 		let currentTime = Date.now() - startTime + 1; // +1 to avoid division by zero
