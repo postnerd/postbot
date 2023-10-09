@@ -549,15 +549,31 @@ export default class Board {
 	}
 
 	isKingPlacedInCheckByMove(move: Move) {
-		// TODO: Handle en passant moves
 		const oldTo = this.squares[move.to];
+
 		this.squares[move.to] = this.squares[move.from];
 		this.squares[move.from] = Board.getSquareObjectByFenNotation("empty");
+		if (move.isEnPassant) {
+			if (this.activeColor === "white") {
+				this.squares[move.to + 10] = Board.getSquareObjectByFenNotation("empty");
+			}
+			else {
+				this.squares[move.to - 10] = Board.getSquareObjectByFenNotation("empty");
+			}
+		}
 
 		const isCheck = this.isCheck();
 
 		this.squares[move.from] = this.squares[move.to];
 		this.squares[move.to] = oldTo;
+		if (move.isEnPassant) {
+			if (this.activeColor === "white") {
+				this.squares[move.to + 10] = Board.getSquareObjectByFenNotation("p");
+			}
+			else {
+				this.squares[move.to - 10] = Board.getSquareObjectByFenNotation("P");
+			}
+		}
 
 		return isCheck;
 	}
