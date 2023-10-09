@@ -61,6 +61,7 @@ interface currentBoardState {
 	enPassantSquarePosition: number | null,
 	halfMoveCountSinceLastCaptureOrPawnMove: number,
 	moveCount: number,
+	possibleMoveCount: number,
 }
 
 export interface Move {
@@ -108,6 +109,7 @@ export default class Board {
 	halfMoveCountSinceLastCaptureOrPawnMove: number = 0;
 	moveCount: number = 0;
 	moves: Move[] = [];
+	possibleMoveCount = 0;
 	hashTable: HashTable;
 	hash: Hash;
 
@@ -179,6 +181,7 @@ export default class Board {
 		this.hash = new Hash(this);
 		this.hashTable = new HashTable();
 		this.hashTable.increasePositionCount(this.hash.valueLow, this.hash.valueHigh);
+		this.possibleMoveCount = this.getPossibleMoves().length;
 	}
 
 	getCurrentBoardStateInfo(): currentBoardState {
@@ -193,6 +196,7 @@ export default class Board {
 			enPassantSquarePosition: this.enPassantSquarePosition,
 			halfMoveCountSinceLastCaptureOrPawnMove: this.halfMoveCountSinceLastCaptureOrPawnMove,
 			moveCount: this.moveCount,
+			possibleMoveCount: this.possibleMoveCount,
 		};
 	}
 
@@ -540,6 +544,7 @@ export default class Board {
 			return !this.isKingPlacedInCheckByMove(move);
 		});
 
+		this.possibleMoveCount = finalMoves.length;
 		return finalMoves;
 	}
 
@@ -620,7 +625,7 @@ export default class Board {
 	}
 
 	isStalemate(): boolean {
-		if (!this.isCheck() && this.getPossibleMoves().length === 0) return true;
+		if (!this.isCheck() && this.possibleMoveCount === 0) return true;
 
 		return false;
 	}
@@ -903,6 +908,7 @@ export default class Board {
 			this.enPassantSquarePosition = lastMove.currentBoardState.enPassantSquarePosition;
 			this.moveCount = lastMove.currentBoardState.moveCount;
 			this.halfMoveCountSinceLastCaptureOrPawnMove = lastMove.currentBoardState.halfMoveCountSinceLastCaptureOrPawnMove;
+			this.possibleMoveCount = lastMove.currentBoardState.possibleMoveCount;
 
 			// Add new pieces to hash
 			this.hash.updatePiece(lastMove.from, this.squares[lastMove.from].piece);
