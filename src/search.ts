@@ -59,19 +59,12 @@ export default function search(board: Board, depth: number) {
 	let startTime = Date.now();
 	let finalScore: number | null = null;
 	let tt: {[key: string]: {[key: string]: any}} = {};
-	let ttc: {[key: string]: {[key: string]: any}} = {};
 
 	for (let i = 0; i < 9999; i++) {
 		killerMoves.set(i, []);
 	}
 
 	function captureSearch(alpha: number, beta: number, ply: number) {
-		let hashEntry = ttc[board.hash.valueLow] ? ttc[board.hash.valueLow][board.hash.valueHigh] : undefined;
-
-		if (hashEntry) {
-			return hashEntry.score;
-		}
-
 		if (board.halfMoveCountSinceLastCaptureOrPawnMove >= 100 || board.hashTable.getPositionCount(board.hash.valueLow, board.hash.valueHigh) === 3) {
 			return 0;
 		}
@@ -80,10 +73,6 @@ export default function search(board: Board, depth: number) {
 		const score = evaluate(board) * activeColorScore;
 
 		if (score >= beta) {
-			ttc[board.hash.valueLow] = {};
-			ttc[board.hash.valueLow][board.hash.valueHigh] = {
-				score: beta,
-			};
 			return beta;
 		}
 
@@ -107,10 +96,6 @@ export default function search(board: Board, depth: number) {
 					if (!moves[i].willCapture) {
 						killerMoves.get(ply)!.unshift(moves[i]);
 					}
-					ttc[board.hash.valueLow] = {};
-					ttc[board.hash.valueLow][board.hash.valueHigh] = {
-						score: beta,
-					};
 					return beta;
 				}
 
@@ -120,10 +105,6 @@ export default function search(board: Board, depth: number) {
 			}
 		}
 
-		ttc[board.hash.valueLow] = {};
-		ttc[board.hash.valueLow][board.hash.valueHigh] = {
-			score: alpha,
-		};
 		return alpha;
 	}
 
@@ -208,8 +189,6 @@ export default function search(board: Board, depth: number) {
 	}
 
 	for (let i = 1; i <= depth; i++) {
-		// We have to reset the transposition table for capture moves each depth because we don't store any depth details
-		ttc = {};
 		let score = mainSearch(-Infinity, Infinity, i, 0);
 
 		let currentTime = Date.now() - startTime + 1; // +1 to avoid division by zero
