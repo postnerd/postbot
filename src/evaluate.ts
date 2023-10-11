@@ -195,12 +195,6 @@ export default function evaluate(board: Board): number {
 		}
 	}
 
-	if (board.isStalemate()) {
-		board.hashTable.addScore(0, board.hash.valueLow, board.hash.valueHigh);
-		return 0;
-	}
-
-
 	let numberOfNonPawnPieces = 0;
 	let pieces = [];
 

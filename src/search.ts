@@ -71,7 +71,7 @@ export default function search(board: Board, depth: number) {
 	}
 
 	function captureSearch(alpha: number, beta: number, ply: number) {
-		if (board.halfMoveCountSinceLastCaptureOrPawnMove >= 100 || board.hashTable.getPositionCount(board.hash.valueLow, board.hash.valueHigh) === 3) {
+		if (board.halfMoveCountSinceLastCaptureOrPawnMove >= 100 || board.hashTable.getPositionCount(board.hash.valueLow, board.hash.valueHigh) === 3 || board.isStalemate()) {
 			return 0;
 		}
 

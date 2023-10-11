@@ -34,7 +34,6 @@ describe("Stalemate", () => {
 
 	test("Detect stalemate", () => {
 		expect(board.isStalemate()).toBe(true);
-		expect(evaluate(board)).toBe(0);
 	});
 });
 
