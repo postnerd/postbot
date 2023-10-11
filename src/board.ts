@@ -665,12 +665,12 @@ export default class Board {
 				to: 0,
 			};
 
-			// Queen side castle for white and black
+			// Queen side castle for white or black
 			if (move.to === 93 || move.to === 23) {
 				rook.from = move.to - 2;
 				rook.to = move.to + 1;
 			}
-			// King side castle for white and black
+			// King side castle for white or black
 			else if (move.to === 97 || move.to === 27) {
 				rook.from = move.to + 1;
 				rook.to = move.to - 1;
@@ -689,16 +689,26 @@ export default class Board {
 
 			// Update castling information
 			if (this.activeColor === "white") {
-				this.castlingInformation.isWhiteKingSidePossible = false;
-				this.castlingInformation.isWhiteQueenSidePossible = false;
-				this.hash.updateCastle("isWhiteKingSideCastlePossible");
-				this.hash.updateCastle("isWhiteQueenSideCastlePossible");
+				if (this.castlingInformation.isWhiteKingSidePossible) {
+					this.hash.updateCastle("isWhiteKingSideCastlePossible");
+					this.castlingInformation.isWhiteKingSidePossible = false;
+				}
+
+				if (this.castlingInformation.isWhiteQueenSidePossible) {
+					this.hash.updateCastle("isWhiteQueenSideCastlePossible");
+					this.castlingInformation.isWhiteQueenSidePossible = false;
+				}
 			}
 			else {
-				this.castlingInformation.isBlackKingSidePossible = false;
-				this.castlingInformation.isBlackQueenSidePossible = false;
-				this.hash.updateCastle("isBlackKingSideCastlePossible");
-				this.hash.updateCastle("isBlackQueenSideCastlePossible");
+				if (this.castlingInformation.isBlackKingSidePossible) {
+					this.hash.updateCastle("isBlackKingSideCastlePossible");
+					this.castlingInformation.isBlackKingSidePossible = false;
+				}
+
+				if (this.castlingInformation.isBlackQueenSidePossible) {
+					this.hash.updateCastle("isBlackQueenSideCastlePossible");
+					this.castlingInformation.isBlackQueenSidePossible = false;
+				}
 			}
 		}
 
