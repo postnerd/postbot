@@ -33,9 +33,19 @@ if (workerData.mode === "game") {
 
 		if (board.activeColor === "white") {
 			myTimeLeft += workerData.time.wtime / movesToGo  + workerData.time.winc;
+
+			if (workerData.time.wtime < workerData.time.winc * 2) {
+				// If we have less than two times the increment left, we should try to spend less time
+				myTimeLeft -= workerData.time.winc / 2;
+			}
 		}
 		else {
 			myTimeLeft += workerData.time.btime / movesToGo + workerData.time.binc;
+
+			if (workerData.time.btime < workerData.time.binc * 2) {
+				// If we have less than two times the increment left, we should try to spend less time
+				myTimeLeft -= workerData.time.binc / 2;
+			}
 		}
 	}
 
