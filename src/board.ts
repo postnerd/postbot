@@ -62,6 +62,10 @@ interface currentBoardState {
 	halfMoveCountSinceLastCaptureOrPawnMove: number,
 	moveCount: number,
 	possibleMoveCount: number,
+	hash: {
+		valueLow: number,
+		valueHigh: number,
+	}
 }
 
 export interface Move {
@@ -197,6 +201,10 @@ export default class Board {
 			halfMoveCountSinceLastCaptureOrPawnMove: this.halfMoveCountSinceLastCaptureOrPawnMove,
 			moveCount: this.moveCount,
 			possibleMoveCount: this.possibleMoveCount,
+			hash: {
+				valueLow: this.hash.valueLow,
+				valueHigh: this.hash.valueHigh,
+			},
 		};
 	}
 
@@ -647,6 +655,11 @@ export default class Board {
 	}
 
 	makeMove(move: Move) {
+		// Remove en passant square from hash if necessary
+		if (this.enPassantSquarePosition !== null) {
+			this.hash.updatePiece(this.enPassantSquarePosition, this.squares[this.enPassantSquarePosition].piece);
+		}
+
 		// Remove pieces from hash
 		this.hash.updatePiece(move.from, this.squares[move.from].piece);
 		this.hash.updatePiece(move.to, this.squares[move.to].piece);
@@ -830,24 +843,15 @@ export default class Board {
 		if (lastMove) {
 			this.hashTable.decreasePositionCount(this.hash.valueLow, this.hash.valueHigh);
 
-			// Remove pieces from hash
-			this.hash.updatePiece(lastMove.from, this.squares[lastMove.from].piece);
-			this.hash.updatePiece(lastMove.to, this.squares[lastMove.to].piece);
-			this.hash.updateColor(this.activeColor);
-
 			this.squares[lastMove.from] = Board.getSquareObjectByFenNotation(lastMove.piece);
 
 			if (lastMove.capturedSquareInfo) {
 				if (lastMove.isEnPassant) {
 					if (lastMove.currentBoardState.activeColor === "white") {
-						this.hash.updatePiece(lastMove.to + 10, this.squares[lastMove.to + 10].piece);
 						this.squares[lastMove.to + 10] = Board.getSquareObjectByFenNotation(lastMove.capturedSquareInfo.piece);
-						this.hash.updatePiece(lastMove.to + 10, this.squares[lastMove.to + 10].piece);
 					}
 					else {
-						this.hash.updatePiece(lastMove.to - 10, this.squares[lastMove.to - 10].piece);
 						this.squares[lastMove.to - 10] = Board.getSquareObjectByFenNotation(lastMove.capturedSquareInfo.piece);
-						this.hash.updatePiece(lastMove.to - 10, this.squares[lastMove.to - 10].piece);
 					}
 					this.squares[lastMove.to] = Board.getSquareObjectByFenNotation("empty");
 				}
@@ -860,73 +864,22 @@ export default class Board {
 
 				if (lastMove.isCastle) {
 					if (lastMove.to === 23) {
-						// Remove old rook position from hash
-						this.hash.updatePiece(21, this.squares[21].piece);
-						this.hash.updatePiece(24, this.squares[24].piece);
-
 						this.squares[21] = Board.getSquareObjectByFenNotation("r");
 						this.squares[24] = Board.getSquareObjectByFenNotation("empty");
-
-						// Add new rook position to hash
-						this.hash.updatePiece(21, this.squares[21].piece);
-						this.hash.updatePiece(24, this.squares[24].piece);
 					}
 					else if (lastMove.to === 27) {
-						// Remove old rook position from hash
-						this.hash.updatePiece(28, this.squares[28].piece);
-						this.hash.updatePiece(26, this.squares[26].piece);
-
 						this.squares[28] = Board.getSquareObjectByFenNotation("r");
 						this.squares[26] = Board.getSquareObjectByFenNotation("empty");
-
-						// Add new rook position to hash
-						this.hash.updatePiece(28, this.squares[28].piece);
-						this.hash.updatePiece(26, this.squares[26].piece);
 					}
 					else if (lastMove.to === 97) {
-						// Remove old rook position from hash
-						this.hash.updatePiece(98, this.squares[98].piece);
-						this.hash.updatePiece(96, this.squares[96].piece);
-
 						this.squares[98] = Board.getSquareObjectByFenNotation("R");
 						this.squares[96] = Board.getSquareObjectByFenNotation("empty");
-
-						// Add new rook position to hash
-						this.hash.updatePiece(98, this.squares[98].piece);
-						this.hash.updatePiece(96, this.squares[96].piece);
 					}
 					else if (lastMove.to === 93) {
-						// Remove old rook position from hash
-						this.hash.updatePiece(91, this.squares[91].piece);
-						this.hash.updatePiece(94, this.squares[94].piece);
-
 						this.squares[91] = Board.getSquareObjectByFenNotation("R");
 						this.squares[94] = Board.getSquareObjectByFenNotation("empty");
-
-						// Add new rook position to hash
-						this.hash.updatePiece(91, this.squares[91].piece);
-						this.hash.updatePiece(94, this.squares[94].piece);
 					}
 				}
-			}
-
-			// If last move has set a en passant square, remove it from hash
-			if (this.enPassantSquarePosition !== null) {
-				this.hash.updatePiece(this.enPassantSquarePosition, this.squares[this.enPassantSquarePosition].piece);
-			}
-
-			// Update castling information
-			if (lastMove.currentBoardState.castlingInformation.isWhiteKingSidePossible !== this.castlingInformation.isWhiteKingSidePossible) {
-				this.hash.updateCastle("isWhiteKingSideCastlePossible");
-			}
-			if (lastMove.currentBoardState.castlingInformation.isWhiteQueenSidePossible !== this.castlingInformation.isWhiteQueenSidePossible) {
-				this.hash.updateCastle("isWhiteQueenSideCastlePossible");
-			}
-			if (lastMove.currentBoardState.castlingInformation.isBlackKingSidePossible !== this.castlingInformation.isBlackKingSidePossible) {
-				this.hash.updateCastle("isBlackKingSideCastlePossible");
-			}
-			if (lastMove.currentBoardState.castlingInformation.isBlackQueenSidePossible !== this.castlingInformation.isBlackQueenSidePossible) {
-				this.hash.updateCastle("isBlackQueenSideCastlePossible");
 			}
 
 			this.activeColor = lastMove.currentBoardState.activeColor;
@@ -938,11 +891,8 @@ export default class Board {
 			this.moveCount = lastMove.currentBoardState.moveCount;
 			this.halfMoveCountSinceLastCaptureOrPawnMove = lastMove.currentBoardState.halfMoveCountSinceLastCaptureOrPawnMove;
 			this.possibleMoveCount = lastMove.currentBoardState.possibleMoveCount;
-
-			// Add new pieces to hash
-			this.hash.updatePiece(lastMove.from, this.squares[lastMove.from].piece);
-			this.hash.updatePiece(lastMove.to, this.squares[lastMove.to].piece);
-			this.hash.updateColor(this.activeColor);
+			this.hash.valueLow = lastMove.currentBoardState.hash.valueLow;
+			this.hash.valueHigh = lastMove.currentBoardState.hash.valueHigh;
 		}
 	}
 
