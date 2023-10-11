@@ -920,7 +920,10 @@ export default class Board {
 			}
 
 			this.activeColor = lastMove.currentBoardState.activeColor;
-			this.castlingInformation = lastMove.currentBoardState.castlingInformation;
+			this.castlingInformation.isWhiteKingSidePossible = lastMove.currentBoardState.castlingInformation.isWhiteKingSidePossible;
+			this.castlingInformation.isWhiteQueenSidePossible = lastMove.currentBoardState.castlingInformation.isWhiteQueenSidePossible;
+			this.castlingInformation.isBlackKingSidePossible = lastMove.currentBoardState.castlingInformation.isBlackKingSidePossible;
+			this.castlingInformation.isBlackQueenSidePossible = lastMove.currentBoardState.castlingInformation.isBlackQueenSidePossible;
 			this.enPassantSquarePosition = lastMove.currentBoardState.enPassantSquarePosition;
 			this.moveCount = lastMove.currentBoardState.moveCount;
 			this.halfMoveCountSinceLastCaptureOrPawnMove = lastMove.currentBoardState.halfMoveCountSinceLastCaptureOrPawnMove;
