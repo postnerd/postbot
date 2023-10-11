@@ -2,6 +2,12 @@ import Board, { Move, PieceType } from "./board";
 import evaluate from "./evaluate";
 import { communicator, getPvFromHashTable } from "./utils";
 
+interface TtEntry {
+	depth: number;
+	score: number;
+	type: "exact" | "lowerBound" | "upperBound";
+}
+
 const killerMoves: Map<number, Move[]> = new Map();
 
 function getPieceTypeValue(pieceType: PieceType) {
@@ -58,7 +64,7 @@ export default function search(board: Board, depth: number) {
 	let nodes = 0;
 	let startTime = Date.now();
 	let finalScore: number | null = null;
-	let tt: {[key: string]: {[key: string]: any}} = {};
+	let tt: {[key: number]: {[key: number]: TtEntry}} = {};
 
 	for (let i = 0; i < 9999; i++) {
 		killerMoves.set(i, []);
@@ -117,10 +123,10 @@ export default function search(board: Board, depth: number) {
 				if (hashEntry.type === "exact") {
 					return hashEntry.score;
 				}
-				else if (hashEntry.type === "lowerbound") {
+				else if (hashEntry.type === "lowerBound") {
 					alpha = Math.max(alpha, hashEntry.score);
 				}
-				else if (hashEntry.type === "upperbound") {
+				else if (hashEntry.type === "upperBound") {
 					beta = Math.min(beta, hashEntry.score);
 				}
 
@@ -170,17 +176,17 @@ export default function search(board: Board, depth: number) {
 			}
 		}
 
-		let ttEntry = {
+		let ttEntry: TtEntry = {
 			depth: depthLeft,
 			score: evaluationScore,
 			type: "exact",
 		};
 
 		if (evaluationScore <= alphaOriginal) {
-			ttEntry.type = "upperbound";
+			ttEntry.type = "upperBound";
 		}
 		else if (evaluationScore >= beta) {
-			ttEntry.type = "lowerbound";
+			ttEntry.type = "lowerBound";
 		}
 		tt[board.hash.valueLow] = {};
 		tt[board.hash.valueLow][board.hash.valueHigh] = ttEntry;
