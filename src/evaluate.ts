@@ -31,6 +31,22 @@ const MG_WHITE_PAWN = [
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
 
+// Middle game white pawn table
+const EG_WHITE_PAWN = [
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 50, 50, 50, 50, 50, 50, 50, 50, 0,
+	0, 20, 35, 45, 45, 45, 45, 35, 20, 0,
+	0, 15, 20, 35, 35, 35, 25, 20, 15, 0,
+	0, 10, 10, 25, 25, 25, 15, 10, 10, 0,
+	0, 5, 5, 15, 15, 15, 5, 5, 5, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+];
+
 // Middle game white knight table
 const MG_WHITE_KNIGHT = [
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -74,7 +90,7 @@ const MG_WHITE_ROOK = [
 	0, -5,  0,  0,  0,  0,  0,  0, -5, 0,
 	0, -5,  0,  0,  0,  0,  0,  0, -5, 0,
 	0, -5,  0,  0,  0,  0,  0,  0, -5, 0,
-	0, 0,  0,  0,  5,  5,  0,  0, 0, 0,
+	0, 0,  0,  10,  10,  10,  10,  0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
@@ -111,20 +127,52 @@ const MG_WHITE_KING = [
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
 
+//	End game white king table
+const EG_WHITE_KING = [
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, -50, -40, -30, -30, -30, -40, -40, -50, 0,
+	0, -30, -15, -10, -10, -10, -15, -20, -30, 0,
+	0, -30, -10, 10, 20, 20, 10, -10, -30, 0,
+	0, -30, -10, 20, 30, 30, 20, -10, -30, 0,
+	0, -30, -10, 20, 30, 30, 20, -10, -30, 0,
+	0, -30, -10, 10, 20, 20, 10, -10, -30, 0,
+	0, -30, -15, -10, -10, -10, -15, -20, -30, 0,
+	0, -50, -40, -30, -30, -30, -40, -40, -50, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+];
+
 // TODO: Add endgame tables
 const pieceValueTable = {
-	"P": MG_WHITE_PAWN,
-	"N": MG_WHITE_KNIGHT,
-	"B": MG_WHITE_BISHOP,
-	"R": MG_WHITE_ROOK,
-	"Q": MG_WHITE_QUEEN,
-	"K": MG_WHITE_KING,
-	"p": MG_WHITE_PAWN.map(v => v * -1).reverse(),
-	"n": MG_WHITE_KNIGHT.map(v => v * -1).reverse(),
-	"b": MG_WHITE_BISHOP.map(v => v * -1).reverse(),
-	"r": MG_WHITE_ROOK.map(v => v * -1).reverse(),
-	"q": MG_WHITE_QUEEN.map(v => v * -1).reverse(),
-	"k": MG_WHITE_KING.map(v => v * -1).reverse(),
+	"middle": {
+		"P": MG_WHITE_PAWN,
+		"N": MG_WHITE_KNIGHT,
+		"B": MG_WHITE_BISHOP,
+		"R": MG_WHITE_ROOK,
+		"Q": MG_WHITE_QUEEN,
+		"K": MG_WHITE_KING,
+		"p": MG_WHITE_PAWN.map(v => v * -1).reverse(),
+		"n": MG_WHITE_KNIGHT.map(v => v * -1).reverse(),
+		"b": MG_WHITE_BISHOP.map(v => v * -1).reverse(),
+		"r": MG_WHITE_ROOK.map(v => v * -1).reverse(),
+		"q": MG_WHITE_QUEEN.map(v => v * -1).reverse(),
+		"k": MG_WHITE_KING.map(v => v * -1).reverse(),
+	},
+	"end": {
+		"P": EG_WHITE_PAWN,
+		"N": MG_WHITE_KNIGHT,
+		"B": MG_WHITE_BISHOP,
+		"R": MG_WHITE_ROOK,
+		"Q": MG_WHITE_QUEEN,
+		"K": EG_WHITE_KING,
+		"p": EG_WHITE_PAWN.map(v => v * -1).reverse(),
+		"n": MG_WHITE_KNIGHT.map(v => v * -1).reverse(),
+		"b": MG_WHITE_BISHOP.map(v => v * -1).reverse(),
+		"r": MG_WHITE_ROOK.map(v => v * -1).reverse(),
+		"q": MG_WHITE_QUEEN.map(v => v * -1).reverse(),
+		"k": EG_WHITE_KING.map(v => v * -1).reverse(),
+	},
 };
 
 
@@ -152,13 +200,32 @@ export default function evaluate(board: Board): number {
 		return 0;
 	}
 
+
+	let numberOfNonPawnPieces = 0;
+	let pieces = [];
+
 	for (let i = 21; i <= 98; i++) {
 		const square = board.squares[i];
 
 		if (square.piece) {
 			score += PIECE_VALUES[square.piece];
-			score += pieceValueTable[square.piece][i];
+
+			if (square.pieceType !== "pawn") numberOfNonPawnPieces++;
+
+			pieces.push({
+				squareInfo: square,
+				pos: i,
+			});
+
 		}
+	}
+
+	const phase = numberOfNonPawnPieces > 6 ? "middle" : "end";
+
+	for (let i = 0; i < pieces.length; i++) {
+		const piece = pieces[i];
+
+		score += pieceValueTable[phase][piece.squareInfo.piece!][piece.pos];
 	}
 
 	board.hashTable.addScore(score, board.hash.valueLow, board.hash.valueHigh);
