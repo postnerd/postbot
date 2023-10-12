@@ -1,6 +1,6 @@
 {
   "name": "postbot",
-  "version": "0.0.4-alpha",
+  "version": "0.1.0-beta",
   "description": "A TS chess engine",
   "type": "commonjs",
   "main": "compiled/main.js",
@@ -13,9 +13,9 @@
   "pkg": {
     "scripts": "compiled/chessWorker.js",
     "targets": [
-      "node16-macos-x64",
-      "node16-linux-x64",
-      "node16-win-x64"
+      "latest-macos-x64",
+      "latest-linux-x64",
+      "latest-win-x64"
     ],
     "outputPath": "build"
   },

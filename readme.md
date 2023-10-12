@@ -26,15 +26,27 @@ This is the chess engine _postbot_ from postnerd written in Typescript/JavaScrip
 - [X] ALPHA-04: eval score caching
 - [X] ALPHA-04: sorting capture moves by best captures (MVV-LVA)
 - [X] ALPHA-04: killer move implementation
+- [X] BETA-0.1: evaluation: piece-square tables for endgames
+- [X] BETA-0.1: complete implementation of all chess rules (50 move rule, stalemate etc.)
+- [X] BETA-0.1: implementation of transposition tables
+- [X] BETA-0.1: optimizing time management to not lose on time when we have an increment
 - [ ] define a real roadmap
     - [ ] null move pruning
     - [ ] performance optimizations
-    - [ ] detecting 50 move rule
+    - [ ] move ordering optimizations
     - [ ] opening book
     - [ ] endgame table
-    - [ ] evaluation: piece-square tables for endgames
+    - [ ] king safety
 
 ## Changelog
+### postbot 0.1.0-beta – 12.10.2023 :tada:
+- finally a complete implementation of all important chess rules (50 move rule, stalemate etc.)
+- transposition tables 1.0 for main search
+- added endgame piece-square tables to the evaluation
+- enhanced time management when playing with increment
+- bugfixes (hash, castle rights)
+- added perft tests
+
 ### postbot 0.0.4-alpha – 01.10.2023
 - basic evaluation based on piece-square tables for middle game
 - new hash table implementation to reduce hash collisions
