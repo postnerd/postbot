@@ -1,4 +1,4 @@
-import path from "path";
+import { URL } from "url";
 import { Worker } from "worker_threads";
 
 import { name, version, author } from "./package.json";
@@ -141,7 +141,7 @@ async function handleUCIInput(inputData: string) {
 
 		workerData.isDebug = isDebug;
 
-		worker = new Worker(path.join(__dirname, "chessWorker.js"), { workerData });
+		worker = new Worker(new URL("chessWorker.js", import.meta.url), { workerData });
 
 		worker.on("message", (message: any) => {
 			if (isDebug) {

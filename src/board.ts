@@ -1,5 +1,5 @@
-import Hash from "./hash";
-import HashTable from "./hashTable";
+import Hash from "./hash.js";
+import HashTable from "./hashTable.js";
 
 export type Piece = "p" | "P" | "b" | "B" | "n" | "N" | "r" | "R" | "q" | "Q" | "k" | "K" | null;
 type Color = "white" | "black" | null;

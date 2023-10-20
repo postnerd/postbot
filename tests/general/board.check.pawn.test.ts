@@ -1,4 +1,4 @@
-import Board from "../../src/board";
+import Board from "../../src/board.js";
 
 describe("King is in check by pawn", () => {
 	test("pawn check for white king", () => {

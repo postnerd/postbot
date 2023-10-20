@@ -1,8 +1,8 @@
 import { workerData } from "worker_threads";
-import { communicator } from "./utils";
+import { communicator } from "./utils.js";
 
-import Board from "./board";
-import search from "./search";
+import Board from "./board.js";
+import search from "./search.js";
 
 if (workerData.isDebug) {
 	communicator.log("Initializing worker with following data: ");

@@ -1,4 +1,4 @@
-import Board, { Piece } from "./board";
+import Board, { Piece } from "./board.js";
 import { Random, MersenneTwister19937 } from "random-js";
 
 // -940586136 is just a crazy random number, kudo to mattiasahlsen ;-)

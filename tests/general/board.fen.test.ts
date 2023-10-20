@@ -1,4 +1,4 @@
-import Board from "../../src/board";
+import Board from "../../src/board.js";
 
 describe("Testing static board functions", () => {
 	test("Getting index of a8", () => {

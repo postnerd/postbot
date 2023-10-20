@@ -1,4 +1,4 @@
-import Board from "../../src/board";
+import Board from "../../src/board.js";
 
 describe("Testing board move undo for simple pawn move", () => {
 	let board = new Board(Board.startPosFen);

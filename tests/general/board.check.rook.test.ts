@@ -1,4 +1,4 @@
-import Board from "../../src/board";
+import Board from "../../src/board.js";
 
 const checks = [
 	{ fen: "8/8/8/3k4/3r4/8/4N3/3K4 w - - 0 1", result: true },

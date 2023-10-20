@@ -1,4 +1,4 @@
-import Board from "../../src/board";
+import Board from "../../src/board.js";
 
 function perft(depth: number, board: Board) {
 	if (depth === 0) {

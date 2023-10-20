@@ -1,6 +1,6 @@
-import Board from "../../src/board";
-import evaluate from "../../src/evaluate";
-import search from "../../src/search";
+import Board from "../../src/board.js";
+import evaluate from "../../src/evaluate.js";
+import search from "../../src/search.js";
 
 describe("Threefold Repetition", () => {
 	const board = new Board(Board.startPosFen);

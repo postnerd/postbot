@@ -1,4 +1,4 @@
-import Board from "./board";
+import Board from "./board.js";
 
 const PIECE_VALUES = {
 	p: -100,

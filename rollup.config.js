@@ -6,8 +6,8 @@ export default {
 	input: ["main.ts", "src/chessWorker.ts"],
 	output: {
 		dir: "compiled/",
-		format: "cjs",
+		format: "es",
 	},
 	plugins: [typescript(), json()],
-	external: ["path", "worker_threads", "random-js"],
+	external: ["worker_threads", "random-js", "url"],
 };

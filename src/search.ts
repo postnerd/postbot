@@ -1,6 +1,6 @@
-import Board, { Move, PieceType } from "./board";
-import evaluate from "./evaluate";
-import { communicator, getPvFromHashTable } from "./utils";
+import Board, { Move, PieceType } from "./board.js";
+import evaluate from "./evaluate.js";
+import { communicator, getPvFromHashTable } from "./utils.js";
 
 interface TtEntry {
 	depth: number;

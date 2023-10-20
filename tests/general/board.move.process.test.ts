@@ -1,4 +1,4 @@
-import Board from "../../src/board";
+import Board from "../../src/board.js";
 
 describe("Test basic moves and information handling", () => {
 	const board = new Board(Board.startPosFen);

@@ -1,4 +1,4 @@
-import { Move } from "./board";
+import { Move } from "./board.js";
 
 interface HashEntry {
 	bestMove: Move | undefined;

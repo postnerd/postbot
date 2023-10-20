@@ -1,4 +1,4 @@
-import Board, { type Move } from "./board";
+import Board, { type Move } from "./board.js";
 import { parentPort } from "worker_threads";
 
 export function printBoardToConsole(board: Board) {
