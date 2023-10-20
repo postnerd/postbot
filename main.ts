@@ -16,6 +16,7 @@ interface WorkerData {
 		movestogo: number,
 		movetime: number,
 	},
+	depth: number,
 }
 
 const isDebug: boolean = process.argv.includes("--debug");
@@ -41,6 +42,7 @@ let workerData: WorkerData = {
 		movestogo: 0,
 		movetime: 0,
 	},
+	depth: 9999,
 };
 let worker: Worker;
 let currentBestMove: string;
@@ -102,20 +104,21 @@ async function handleUCIInput(inputData: string) {
 		}
 	}
 	else if (commands[0] === "go") {
+		workerData.time = {
+			wtime: 0,
+			btime: 0,
+			winc: 0,
+			binc: 0,
+			movestogo: 0,
+			movetime: 0,
+		};
+		workerData.depth = 9999;
+
 		if (commands[1] === "infinite") {
 			workerData.mode = "analyze";
 		}
 		else {
 			workerData.mode = "game";
-
-			workerData.time = {
-				wtime: 0,
-				btime: 0,
-				winc: 0,
-				binc: 0,
-				movestogo: 0,
-				movetime: 0,
-			};
 
 			for (let i = 1; i < commands.length; i++) {
 				if (commands[i] === "wtime") {
@@ -135,6 +138,9 @@ async function handleUCIInput(inputData: string) {
 				}
 				else if (commands[i] === "movetime") {
 					workerData.time.movetime = parseInt(commands[i + 1]);
+				}
+				else if (commands[i] === "depth") {
+					workerData.depth = parseInt(commands[i + 1]);
 				}
 			}
 		}

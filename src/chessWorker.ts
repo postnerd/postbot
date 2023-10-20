@@ -21,7 +21,7 @@ if (workerData.moves.length > 0) {
 // Set a default best move in case we don't have time to search for a proper one
 communicator.event("bestMove", Board.getFenMoveNotationFromMove(board.getPossibleMoves()[0]));
 
-if (workerData.mode === "game") {
+if (workerData.mode === "game" && workerData.depth === 9999) {
 	let myTimeLeft = 0;
 
 	if (workerData.time.movetime > 0) {
@@ -52,6 +52,6 @@ if (workerData.mode === "game") {
 	communicator.event("timeLeft", myTimeLeft);
 }
 
-search(board, 9999);
+search(board, workerData.depth);
 
 communicator.event("searchFinished");
