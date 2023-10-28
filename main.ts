@@ -17,6 +17,7 @@ interface WorkerData {
 		movetime: number,
 	},
 	depth: number,
+	variant: "raw" | "bm"| "as" | "as_bm" | "as_bm_10" | "as_bm_50" | "as_bm_25+"
 }
 
 const isDebug: boolean = process.argv.includes("--debug");
@@ -43,9 +44,32 @@ let workerData: WorkerData = {
 		movetime: 0,
 	},
 	depth: 9999,
+	variant: "raw",
 };
 let worker: Worker;
 let currentBestMove: string;
+
+if (process.argv.includes("--as")) {
+	workerData.variant = "as";
+}
+else if (process.argv.includes("--bm")) {
+	workerData.variant = "bm";
+}
+else if (process.argv.includes("--as_bm")) {
+	workerData.variant = "as_bm";
+}
+else if (process.argv.includes("--raw")) {
+	workerData.variant = "raw";
+}
+else if (process.argv.includes("--as_bm_10")) {
+	workerData.variant = "as_bm_10";
+}
+else if (process.argv.includes("--as_bm_50")) {
+	workerData.variant = "as_bm_50";
+}
+else if (process.argv.includes("--as_bm_25+")) {
+	workerData.variant = "as_bm_25+";
+}
 
 async function handleUCIInput(inputData: string) {
 	const input: string = inputData.toString().trim();
@@ -56,7 +80,7 @@ async function handleUCIInput(inputData: string) {
 	}
 
 	if (commands[0] === "uci") {
-		console.log(`id name ${name} ${version}`);
+		console.log(`id name ${name} ${version + "-" + workerData.variant}`);
 		console.log(`id author ${author}`);
 		// console.log("option name Debug Log File type string default");
 		// console.log("option name Threads type spin default 1 min 1 max 512");
