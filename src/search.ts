@@ -106,6 +106,7 @@ export default function search(board: Board, depth: number) {
 				}
 
 				if (score > alpha) {
+					board.hashTable.addBestMove(moves[i], board.hash.valueLow, board.hash.valueHigh);
 					alpha = score;
 				}
 			}
@@ -195,7 +196,23 @@ export default function search(board: Board, depth: number) {
 	}
 
 	for (let i = 1; i <= depth; i++) {
-		let score = mainSearch(-Infinity, Infinity, i, 0);
+		let alpha = finalScore === null ? -Infinity : finalScore - 25;
+		let beta = finalScore === null ? Infinity : finalScore + 25;
+
+		let score = mainSearch(alpha, beta, i, 0);
+
+		while (score <= alpha || score >= beta) {
+			if (score <= alpha) {
+				communicator.log(`Score is lower than alpha (${score} <= ${alpha})`);
+				alpha = alpha === 0 ? alpha -= 0.1 : alpha - Math.abs(alpha * 2);
+				score = mainSearch(alpha, beta, i, 0);
+			}
+			else if (score >= beta) {
+				communicator.log(`Score is higher than beta (${score} >= ${beta})`);
+				beta = beta === 0 ? beta += 0.1 : beta + Math.abs(beta * 2);
+				score = mainSearch(alpha, beta, i, 0);
+			}
+		}
 
 		let currentTime = Date.now() - startTime + 1; // +1 to avoid division by zero
 		let nps = Math.floor(nodes / (currentTime / 1000));

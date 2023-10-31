@@ -3,12 +3,6 @@ import { communicator } from "./utils.js";
 
 import Board from "./board.js";
 import search from "./search.js";
-import search_as from "./search_as.js";
-import search_bm from "./search_bm.js";
-import search_as_bm from "./search_as_bm.js";
-import search_as_bm_10 from "./search_as_bm_10.js";
-import search_as_bm_50 from "./search_as_bm_50.js";
-import search_as_bm_25plus from "./search_as_bm_25+.js";
 
 if (workerData.isDebug) {
 	communicator.log("Initializing worker with following data: ");
@@ -59,24 +53,6 @@ if (workerData.mode === "game" && workerData.depth === 9999) {
 }
 
 switch (workerData.variant) {
-case "bm":
-	search_bm(board, workerData.depth);
-	break;
-case "as":
-	search_as(board, workerData.depth);
-	break;
-case "as_bm":
-	search_as_bm(board, workerData.depth);
-	break;
-case "as_bm_10":
-	search_as_bm_10(board, workerData.depth);
-	break;
-case "as_bm_25":
-	search_as_bm_25plus (board, workerData.depth);
-	break;
-case "as_bm_50":
-	search_as_bm_50(board, workerData.depth);
-	break;
 case "raw":
 	search(board, workerData.depth);
 	break;
