@@ -99,9 +99,6 @@ export default function search(board: Board, depth: number) {
 				board.undoLastMove();
 
 				if (score >= beta) {
-					if (!moves[i].willCapture) {
-						killerMoves.get(ply)!.unshift(moves[i]);
-					}
 					return beta;
 				}
 
