@@ -89,7 +89,7 @@ export default function search(board: Board, depth: number) {
 		const moves = sortMoves(board.getPossibleMoves(), board, ply);
 
 		for (let i = 0; i < moves.length; i++) {
-			if (moves[i].willCapture) {
+			if (moves[i].willCapture && !board.isKingPlacedInCheckByMove(moves[i])) {
 				nodes++;
 
 				board.makeMove(moves[i]);
@@ -146,13 +146,13 @@ export default function search(board: Board, depth: number) {
 
 		const moves = sortMoves(board.getPossibleMoves(), board, ply);
 
-		if (moves.length === 0) {
-			return captureSearch(alpha, beta, ply + 1);
-		}
-
 		let evaluationScore = -Infinity;
+		let legalMoves = 0;
 
 		for (let i = 0; i < moves.length; i++) {
+			if (board.isKingPlacedInCheckByMove(moves[i])) continue;
+
+			legalMoves++;
 			board.makeMove(moves[i]);
 
 			let score = -mainSearch(-beta, -alpha, depthLeft - 1, ply + 1);
@@ -172,6 +172,10 @@ export default function search(board: Board, depth: number) {
 				}
 				break;
 			}
+		}
+
+		if (legalMoves === 0) {
+			return captureSearch(alpha, beta, ply + 1);
 		}
 
 		let ttEntry: TtEntry = {

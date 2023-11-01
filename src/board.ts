@@ -296,7 +296,9 @@ export default class Board {
 	 * C: KNIGHT MOVES
 	 * D: QUEEN, ROOK, BISHOP MOVES
 	 */
-	getPossibleMoves(): Move[] {
+	getPossibleMoves(forceLegal?: boolean): Move[] {
+		// TODO: Cache moves
+		// TODO: Sort king moves to the front
 		let moves: Move[] = [];
 
 		const oppositeColor: "white" | "black" = this.activeColor === "white" ? "black" : "white";
@@ -543,12 +545,13 @@ export default class Board {
 			}
 		}
 
-		// filter moves out that would place the king in check
-		const finalMoves = moves.filter((move: Move) => {
-			return !this.isKingPlacedInCheckByMove(move);
-		});
+		if (forceLegal) {
+			moves = moves.filter((move: Move) => {
+				return !this.isKingPlacedInCheckByMove(move);
+			});
+		}
 
-		return finalMoves;
+		return moves;
 	}
 
 	isKingPlacedInCheckByMove(move: Move) {
@@ -638,15 +641,27 @@ export default class Board {
 	}
 
 	isCheckmate(): boolean {
-		if (this.isCheck() && this.getPossibleMoves().length === 0) return true;
+		if (!this.isCheck()) return false;
 
-		return false;
+		const possibleMoves = this.getPossibleMoves();
+
+		for (let i = 0; i < possibleMoves.length; i++) {
+			if (!this.isKingPlacedInCheckByMove(possibleMoves[i])) return false;
+		}
+
+		return true;
 	}
 
 	isStalemate(): boolean {
-		if (!this.isCheck() && this.getPossibleMoves().length === 0) return true;
+		if (this.isCheck()) return false;
 
-		return false;
+		const possibleMoves = this.getPossibleMoves();
+
+		for (let i = 0; i < possibleMoves.length; i++) {
+			if (!this.isKingPlacedInCheckByMove(possibleMoves[i])) return false;
+		}
+
+		return true;
 	}
 
 	makeMove(move: Move) {
