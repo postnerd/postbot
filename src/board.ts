@@ -61,7 +61,6 @@ interface currentBoardState {
 	enPassantSquarePosition: number | null,
 	halfMoveCountSinceLastCaptureOrPawnMove: number,
 	moveCount: number,
-	possibleMoveCount: number,
 	hash: {
 		valueLow: number,
 		valueHigh: number,
@@ -113,9 +112,9 @@ export default class Board {
 	halfMoveCountSinceLastCaptureOrPawnMove: number = 0;
 	moveCount: number = 0;
 	moves: Move[] = [];
-	possibleMoveCount = 0;
 	hashTable: HashTable;
 	hash: Hash;
+	possibleMovesCache: Move[] | null = null;
 
 	static readonly startPosFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -185,7 +184,6 @@ export default class Board {
 		this.hash = new Hash(this);
 		this.hashTable = new HashTable();
 		this.hashTable.increasePositionCount(this.hash.valueLow, this.hash.valueHigh);
-		this.possibleMoveCount = this.getPossibleMoves().length;
 	}
 
 	getCurrentBoardStateInfo(): currentBoardState {
@@ -200,7 +198,6 @@ export default class Board {
 			enPassantSquarePosition: this.enPassantSquarePosition,
 			halfMoveCountSinceLastCaptureOrPawnMove: this.halfMoveCountSinceLastCaptureOrPawnMove,
 			moveCount: this.moveCount,
-			possibleMoveCount: this.possibleMoveCount,
 			hash: {
 				valueLow: this.hash.valueLow,
 				valueHigh: this.hash.valueHigh,
@@ -300,7 +297,10 @@ export default class Board {
 	 * C: KNIGHT MOVES
 	 * D: QUEEN, ROOK, BISHOP MOVES
 	 */
-	getPossibleMoves(): Move[] {
+	getPossibleMoves(forceLegal?: boolean): Move[] {
+		if (this.possibleMovesCache !== null && !forceLegal) {
+			return this.possibleMovesCache;
+		}
 		let moves: Move[] = [];
 
 		const oppositeColor: "white" | "black" = this.activeColor === "white" ? "black" : "white";
@@ -547,13 +547,16 @@ export default class Board {
 			}
 		}
 
-		// filter moves out that would place the king in check
-		const finalMoves = moves.filter((move: Move) => {
-			return !this.isKingPlacedInCheckByMove(move);
-		});
+		if (forceLegal) {
+			moves = moves.filter((move: Move) => {
+				return !this.isKingPlacedInCheckByMove(move);
+			});
+		}
+		else {
+			this.possibleMovesCache = moves;
+		}
 
-		this.possibleMoveCount = finalMoves.length;
-		return finalMoves;
+		return moves;
 	}
 
 	isKingPlacedInCheckByMove(move: Move) {
@@ -643,15 +646,27 @@ export default class Board {
 	}
 
 	isCheckmate(): boolean {
-		if (this.isCheck() && this.getPossibleMoves().length === 0) return true;
+		if (!this.isCheck()) return false;
 
-		return false;
+		const possibleMoves = this.getPossibleMoves();
+
+		for (let i = 0; i < possibleMoves.length; i++) {
+			if (!this.isKingPlacedInCheckByMove(possibleMoves[i])) return false;
+		}
+
+		return true;
 	}
 
 	isStalemate(): boolean {
-		if (!this.isCheck() && this.possibleMoveCount === 0) return true;
+		if (this.isCheck()) return false;
 
-		return false;
+		const possibleMoves = this.getPossibleMoves();
+
+		for (let i = 0; i < possibleMoves.length; i++) {
+			if (!this.isKingPlacedInCheckByMove(possibleMoves[i])) return false;
+		}
+
+		return true;
 	}
 
 	makeMove(move: Move) {
@@ -835,6 +850,7 @@ export default class Board {
 		this.hash.updateColor(this.activeColor);
 
 		this.hashTable.increasePositionCount(this.hash.valueLow, this.hash.valueHigh);
+		this.possibleMovesCache = null;
 	}
 
 	undoLastMove() {
@@ -890,9 +906,9 @@ export default class Board {
 			this.enPassantSquarePosition = lastMove.currentBoardState.enPassantSquarePosition;
 			this.moveCount = lastMove.currentBoardState.moveCount;
 			this.halfMoveCountSinceLastCaptureOrPawnMove = lastMove.currentBoardState.halfMoveCountSinceLastCaptureOrPawnMove;
-			this.possibleMoveCount = lastMove.currentBoardState.possibleMoveCount;
 			this.hash.valueLow = lastMove.currentBoardState.hash.valueLow;
 			this.hash.valueHigh = lastMove.currentBoardState.hash.valueHigh;
+			this.possibleMovesCache = null;
 		}
 	}
 

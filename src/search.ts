@@ -89,7 +89,7 @@ export default function search(board: Board, depth: number) {
 		const moves = sortMoves(board.getPossibleMoves(), board, ply);
 
 		for (let i = 0; i < moves.length; i++) {
-			if (moves[i].willCapture) {
+			if (moves[i].willCapture && !board.isKingPlacedInCheckByMove(moves[i])) {
 				nodes++;
 
 				board.makeMove(moves[i]);
@@ -146,13 +146,13 @@ export default function search(board: Board, depth: number) {
 
 		const moves = sortMoves(board.getPossibleMoves(), board, ply);
 
-		if (moves.length === 0) {
-			return captureSearch(alpha, beta, ply + 1);
-		}
-
 		let evaluationScore = -Infinity;
+		let legalMoves = 0;
 
 		for (let i = 0; i < moves.length; i++) {
+			if (board.isKingPlacedInCheckByMove(moves[i])) continue;
+
+			legalMoves++;
 			board.makeMove(moves[i]);
 
 			let score = -mainSearch(-beta, -alpha, depthLeft - 1, ply + 1);
@@ -172,6 +172,10 @@ export default function search(board: Board, depth: number) {
 				}
 				break;
 			}
+		}
+
+		if (legalMoves === 0) {
+			return captureSearch(alpha, beta, ply + 1);
 		}
 
 		let ttEntry: TtEntry = {
@@ -200,12 +204,12 @@ export default function search(board: Board, depth: number) {
 
 		while (score <= alpha || score >= beta) {
 			if (score <= alpha) {
-				communicator.log(`Score is lower than alpha (${score} <= ${alpha})`);
+				communicator.debug(`Score is lower than alpha (${score} <= ${alpha})`);
 				alpha = alpha === 0 ? alpha -= 0.1 : alpha - Math.abs(alpha * 2);
 				score = mainSearch(alpha, beta, i, 0);
 			}
 			else if (score >= beta) {
-				communicator.log(`Score is higher than beta (${score} >= ${beta})`);
+				communicator.debug(`Score is higher than beta (${score} >= ${beta})`);
 				beta = beta === 0 ? beta += 0.1 : beta + Math.abs(beta * 2);
 				score = mainSearch(alpha, beta, i, 0);
 			}
