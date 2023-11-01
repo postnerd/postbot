@@ -61,7 +61,6 @@ interface currentBoardState {
 	enPassantSquarePosition: number | null,
 	halfMoveCountSinceLastCaptureOrPawnMove: number,
 	moveCount: number,
-	possibleMoveCount: number,
 	hash: {
 		valueLow: number,
 		valueHigh: number,
@@ -113,7 +112,6 @@ export default class Board {
 	halfMoveCountSinceLastCaptureOrPawnMove: number = 0;
 	moveCount: number = 0;
 	moves: Move[] = [];
-	possibleMoveCount = 0;
 	hashTable: HashTable;
 	hash: Hash;
 
@@ -185,7 +183,6 @@ export default class Board {
 		this.hash = new Hash(this);
 		this.hashTable = new HashTable();
 		this.hashTable.increasePositionCount(this.hash.valueLow, this.hash.valueHigh);
-		this.possibleMoveCount = this.getPossibleMoves().length;
 	}
 
 	getCurrentBoardStateInfo(): currentBoardState {
@@ -200,7 +197,6 @@ export default class Board {
 			enPassantSquarePosition: this.enPassantSquarePosition,
 			halfMoveCountSinceLastCaptureOrPawnMove: this.halfMoveCountSinceLastCaptureOrPawnMove,
 			moveCount: this.moveCount,
-			possibleMoveCount: this.possibleMoveCount,
 			hash: {
 				valueLow: this.hash.valueLow,
 				valueHigh: this.hash.valueHigh,
@@ -552,7 +548,6 @@ export default class Board {
 			return !this.isKingPlacedInCheckByMove(move);
 		});
 
-		this.possibleMoveCount = finalMoves.length;
 		return finalMoves;
 	}
 
@@ -649,7 +644,7 @@ export default class Board {
 	}
 
 	isStalemate(): boolean {
-		if (!this.isCheck() && this.possibleMoveCount === 0) return true;
+		if (!this.isCheck() && this.getPossibleMoves().length === 0) return true;
 
 		return false;
 	}
@@ -890,7 +885,6 @@ export default class Board {
 			this.enPassantSquarePosition = lastMove.currentBoardState.enPassantSquarePosition;
 			this.moveCount = lastMove.currentBoardState.moveCount;
 			this.halfMoveCountSinceLastCaptureOrPawnMove = lastMove.currentBoardState.halfMoveCountSinceLastCaptureOrPawnMove;
-			this.possibleMoveCount = lastMove.currentBoardState.possibleMoveCount;
 			this.hash.valueLow = lastMove.currentBoardState.hash.valueLow;
 			this.hash.valueHigh = lastMove.currentBoardState.hash.valueHigh;
 		}
