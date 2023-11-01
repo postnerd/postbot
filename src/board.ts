@@ -114,6 +114,7 @@ export default class Board {
 	moves: Move[] = [];
 	hashTable: HashTable;
 	hash: Hash;
+	possibleMovesCache: Move[] | null = null;
 
 	static readonly startPosFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -297,8 +298,9 @@ export default class Board {
 	 * D: QUEEN, ROOK, BISHOP MOVES
 	 */
 	getPossibleMoves(forceLegal?: boolean): Move[] {
-		// TODO: Cache moves
-		// TODO: Sort king moves to the front
+		if (this.possibleMovesCache !== null && !forceLegal) {
+			return this.possibleMovesCache;
+		}
 		let moves: Move[] = [];
 
 		const oppositeColor: "white" | "black" = this.activeColor === "white" ? "black" : "white";
@@ -549,6 +551,9 @@ export default class Board {
 			moves = moves.filter((move: Move) => {
 				return !this.isKingPlacedInCheckByMove(move);
 			});
+		}
+		else {
+			this.possibleMovesCache = moves;
 		}
 
 		return moves;
@@ -845,6 +850,7 @@ export default class Board {
 		this.hash.updateColor(this.activeColor);
 
 		this.hashTable.increasePositionCount(this.hash.valueLow, this.hash.valueHigh);
+		this.possibleMovesCache = null;
 	}
 
 	undoLastMove() {
@@ -902,6 +908,7 @@ export default class Board {
 			this.halfMoveCountSinceLastCaptureOrPawnMove = lastMove.currentBoardState.halfMoveCountSinceLastCaptureOrPawnMove;
 			this.hash.valueLow = lastMove.currentBoardState.hash.valueLow;
 			this.hash.valueHigh = lastMove.currentBoardState.hash.valueHigh;
+			this.possibleMovesCache = null;
 		}
 	}
 
