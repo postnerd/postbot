@@ -1,5 +1,5 @@
 import { workerData } from "worker_threads";
-import { communicator } from "./utils.js";
+import { communicator, printBoardToConsole } from "./utils.js";
 
 import Board from "./board.js";
 import search from "./search.js";
@@ -52,6 +52,13 @@ if (workerData.mode === "game" && workerData.depth === 9999) {
 	communicator.event("timeLeft", myTimeLeft);
 }
 
-search(board, workerData.depth);
+try {
+	search(board, workerData.depth);
+}
+catch (error) {
+	communicator.log(error);
+	printBoardToConsole(board);
+	process.exit(1);
+}
 
 communicator.event("searchFinished");
