@@ -7,17 +7,11 @@
   "scripts": {
     "start": "node compiled/main.js",
     "watch": "rollup -c -w",
-    "build": "pkg -c package.json compiled/main.js",
+    "build": "rollup -c",
     "test": "jest --verbose"
   },
-  "pkg": {
-    "scripts": "compiled/chessWorker.js",
-    "targets": [
-      "latest-macos-arm64",
-      "latest-linux-arm64",
-      "latest-win-arm64"
-    ],
-    "outputPath": "build"
+  "bin": {
+    "postbot": "./compiled/main.js"
   },
   "author": "postnerd",
   "license": "ISC",
@@ -32,7 +26,6 @@
     "eslint-plugin-jest": "^27.4.2",
     "jest": "^29.7.0",
     "npm-check-updates": "^16.14.6",
-    "pkg": "^5.8.1",
     "rollup": "^4.1.4",
     "ts-jest": "^29.1.1",
     "tslib": "^2.6.2",
