@@ -1,3 +1,4 @@
+#! /usr/bin/env node
 import { URL } from "url";
 import { Worker } from "worker_threads";
 
