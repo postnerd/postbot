@@ -21,5 +21,6 @@ CMD if [ -z "$API_TOKEN" ]; then echo 'Environment variable API_TOKENR must be s
     && npm install \
     && npm run build \
     && chmod +x ./compiled/main.js \
+    && echo "Node.js version: $(node -v)" \
     && cd .. \
     && python3 lichess-bot.py -v
