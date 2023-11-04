@@ -187,9 +187,10 @@ matchmaking:
   challenge_initial_time:          # Initial time in seconds of the challenge (to be chosen at random).
     - 60
     - 180
+    - 300
+    - 600
   challenge_increment:             # Increment in seconds of the challenge (to be chosen at random).
-    - 1
-    - 2
+    - 0
 #  challenge_days:                 # Days for correspondence challenge (to be chosen at random).
 #    - 1
 #    - 2
@@ -200,19 +201,33 @@ matchmaking:
   challenge_mode: "rated"         # Set it to the mode in which challenges are sent. Possible options are 'casual', 'rated' and 'random'.
   challenge_filter: none           # If a bot declines a challenge, do not issue a similar challenge to that bot. Possible options are 'none', 'coarse', and 'fine'.
 # block_list:                      # The list of bots that will not be challenged
-#   - user1
+    - feeks99
 #   - user2
 
-# overrides:                       # List of overrides for the matchmaking specifications above. When a challenge is created, either the default specification above or one of the overrides will be randomly chosen.
-#   bullet_only_horde:             # Name of the override. Can be anything as long as each override has a unique name ("bullet_only_horde" and "easy_chess960" in these examples).
-#     challenge_variant: "horde"   # List of options to override. Only the options mentioned will change when making the challenge. The rest will follow the default matchmaking options above.
-#     challenge_initial_time:
-#       - 1
-#       - 2
-#     challenge_increment:
-#       - 0
-#       - 1
-#
+  overrides:                       # List of overrides for the matchmaking specifications above. When a challenge is created, either the default specification above or one of the overrides will be randomly chosen.
+    blitz_increment:             # Name of the override. Can be anything as long as each override has a unique name ("bullet_only_horde" and "easy_chess960" in these examples).
+      challenge_variant: "standard"   # List of options to override. Only the options mentioned will change when making the challenge. The rest will follow the default matchmaking options above.
+      challenge_initial_time:
+        - 180
+        - 300
+      challenge_increment:
+        - 0
+        - 1
+        - 2
+    bullet_increment:             # Name of the override. Can be anything as long as each override has a unique name ("bullet_only_horde" and "easy_chess960" in these examples).
+      challenge_variant: "standard"   # List of options to override. Only the options mentioned will change when making the challenge. The rest will follow the default matchmaking options above.
+      challenge_initial_time:
+        - 60
+        - 120
+      challenge_increment:
+        - 1
+    rapid_increment:             # Name of the override. Can be anything as long as each override has a unique name ("bullet_only_horde" and "easy_chess960" in these examples).
+      challenge_variant: "standard"   # List of options to override. Only the options mentioned will change when making the challenge. The rest will follow the default matchmaking options above.
+      challenge_initial_time:
+        - 600
+      challenge_increment:
+        - 0
+        - 5
 #   easy_chess960:
 #     challenge_variant: "chess960"
 #     opponent_min_rating: 400
