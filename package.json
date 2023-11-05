@@ -10,6 +10,9 @@
     "build": "rollup -c",
     "test": "jest --verbose"
   },
+  "bin": {
+    "postbot": "./compiled/main.js"
+  },
   "author": "postnerd",
   "license": "ISC",
   "devDependencies": {
