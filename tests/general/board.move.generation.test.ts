@@ -68,7 +68,7 @@ describe("Testing general move generation", () => {
 	fenMoveCount.forEach(testFen => {
 		test(`Testing move count with ${testFen.fen}`, () => {
 			const board = new Board(testFen.fen);
-			expect(board.getPossibleMoves().length).toBe(testFen.result);
+			expect(board.getPossibleMoves(true).length).toBe(testFen.result);
 		});
 	});
 });
@@ -77,7 +77,7 @@ describe("Testing en passant moves", () => {
 	fenEnPassantMoveCount.forEach(testFen => {
 		test(`Testing move count with ${testFen.fen}`, () => {
 			const board = new Board(testFen.fen);
-			expect(board.getPossibleMoves().length).toBe(testFen.result);
+			expect(board.getPossibleMoves(true).length).toBe(testFen.result);
 		});
 	});
 });
@@ -86,7 +86,7 @@ describe("Testing capture moves", () => {
 	fenCaptureMoveCount.forEach(testFen => {
 		test(`Testing move count with ${testFen.fen}`, () => {
 			const board = new Board(testFen.fen);
-			expect(board.getPossibleMoves().length).toBe(testFen.result);
+			expect(board.getPossibleMoves(true).length).toBe(testFen.result);
 		});
 	});
 });
@@ -95,7 +95,7 @@ describe("Testing promotion moves", () => {
 	fenPromotionMoveCount.forEach(testFen => {
 		test(`Testing move count with ${testFen.fen}`, () => {
 			const board = new Board(testFen.fen);
-			expect(board.getPossibleMoves().length).toBe(testFen.result);
+			expect(board.getPossibleMoves(true).length).toBe(testFen.result);
 		});
 	});
 });
@@ -104,7 +104,7 @@ describe("Testing tied up moves", () => {
 	fenTiedUpMoveCount.forEach(testFen => {
 		test(`Testing move count with ${testFen.fen}`, () => {
 			const board = new Board(testFen.fen);
-			expect(board.getPossibleMoves().length).toBe(testFen.result);
+			expect(board.getPossibleMoves(true).length).toBe(testFen.result);
 		});
 	});
 });
@@ -113,7 +113,7 @@ describe("Testing castle moves", () => {
 	castleMoveCount.forEach(testFen => {
 		test(`Testing move count with ${testFen.fen}`, () => {
 			const board = new Board(testFen.fen);
-			expect(board.getPossibleMoves().length).toBe(testFen.result);
+			expect(board.getPossibleMoves(true).length).toBe(testFen.result);
 		});
 	});
 });

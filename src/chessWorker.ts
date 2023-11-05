@@ -1,5 +1,5 @@
 import { workerData } from "worker_threads";
-import { communicator } from "./utils.js";
+import { communicator, printBoardToConsole } from "./utils.js";
 
 import Board from "./board.js";
 import search from "./search.js";
@@ -19,7 +19,7 @@ if (workerData.moves.length > 0) {
 }
 
 // Set a default best move in case we don't have time to search for a proper one
-communicator.event("bestMove", Board.getFenMoveNotationFromMove(board.getPossibleMoves()[0]));
+communicator.event("bestMove", Board.getFenMoveNotationFromMove(board.getPossibleMoves(true)[0]));
 
 if (workerData.mode === "game" && workerData.depth === 9999) {
 	let myTimeLeft = 0;
@@ -52,6 +52,13 @@ if (workerData.mode === "game" && workerData.depth === 9999) {
 	communicator.event("timeLeft", myTimeLeft);
 }
 
-search(board, workerData.depth);
+try {
+	search(board, workerData.depth);
+}
+catch (error) {
+	communicator.log(error);
+	printBoardToConsole(board);
+	process.exit(1);
+}
 
 communicator.event("searchFinished");

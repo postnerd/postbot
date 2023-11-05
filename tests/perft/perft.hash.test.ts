@@ -6,7 +6,7 @@ function perft(depth: number, board: Board) {
 	}
 
 	let nodes = 0;
-	const moves = board.getPossibleMoves();
+	const moves = board.getPossibleMoves(true);
 
 	for (let i = 0; i < moves.length; i++) {
 		board.makeMove(moves[i]);

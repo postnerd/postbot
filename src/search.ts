@@ -89,7 +89,7 @@ export default function search(board: Board, depth: number) {
 		const moves = sortMoves(board.getPossibleMoves(), board, ply);
 
 		for (let i = 0; i < moves.length; i++) {
-			if (moves[i].willCapture) {
+			if (moves[i].willCapture && !board.isKingPlacedInCheckByMove(moves[i])) {
 				nodes++;
 
 				board.makeMove(moves[i]);
@@ -99,13 +99,11 @@ export default function search(board: Board, depth: number) {
 				board.undoLastMove();
 
 				if (score >= beta) {
-					if (!moves[i].willCapture) {
-						killerMoves.get(ply)!.unshift(moves[i]);
-					}
 					return beta;
 				}
 
 				if (score > alpha) {
+					board.hashTable.addBestMove(moves[i], board.hash.valueLow, board.hash.valueHigh);
 					alpha = score;
 				}
 			}
@@ -148,13 +146,13 @@ export default function search(board: Board, depth: number) {
 
 		const moves = sortMoves(board.getPossibleMoves(), board, ply);
 
-		if (moves.length === 0) {
-			return captureSearch(alpha, beta, ply + 1);
-		}
-
 		let evaluationScore = -Infinity;
+		let legalMoves = 0;
 
 		for (let i = 0; i < moves.length; i++) {
+			if (board.isKingPlacedInCheckByMove(moves[i])) continue;
+
+			legalMoves++;
 			board.makeMove(moves[i]);
 
 			let score = -mainSearch(-beta, -alpha, depthLeft - 1, ply + 1);
@@ -176,6 +174,10 @@ export default function search(board: Board, depth: number) {
 			}
 		}
 
+		if (legalMoves === 0) {
+			return captureSearch(alpha, beta, ply + 1);
+		}
+
 		let ttEntry: TtEntry = {
 			depth: depthLeft,
 			score: evaluationScore,
@@ -195,7 +197,23 @@ export default function search(board: Board, depth: number) {
 	}
 
 	for (let i = 1; i <= depth; i++) {
-		let score = mainSearch(-Infinity, Infinity, i, 0);
+		let alpha = finalScore === null ? -Infinity : finalScore - 25;
+		let beta = finalScore === null ? Infinity : finalScore + 25;
+
+		let score = mainSearch(alpha, beta, i, 0);
+
+		while (score <= alpha || score >= beta) {
+			if (score <= alpha) {
+				communicator.debug(`Score is lower than alpha (${score} <= ${alpha})`);
+				alpha = alpha === 0 ? alpha -= 0.1 : alpha - Math.abs(alpha * 2);
+				score = mainSearch(alpha, beta, i, 0);
+			}
+			else if (score >= beta) {
+				communicator.debug(`Score is higher than beta (${score} >= ${beta})`);
+				beta = beta === 0 ? beta += 0.1 : beta + Math.abs(beta * 2);
+				score = mainSearch(alpha, beta, i, 0);
+			}
+		}
 
 		let currentTime = Date.now() - startTime + 1; // +1 to avoid division by zero
 		let nps = Math.floor(nodes / (currentTime / 1000));
