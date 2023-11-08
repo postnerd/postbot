@@ -200,7 +200,7 @@ matchmaking:
   opponent_allow_tos_violation: false # Set to 'true' to allow challenging bots that violated the Lichess Terms of Service.
   challenge_mode: "rated"         # Set it to the mode in which challenges are sent. Possible options are 'casual', 'rated' and 'random'.
   challenge_filter: none           # If a bot declines a challenge, do not issue a similar challenge to that bot. Possible options are 'none', 'coarse', and 'fine'.
-# block_list:                      # The list of bots that will not be challenged
+  block_list:                      # The list of bots that will not be challenged
     - feeks99
 #   - user2
 

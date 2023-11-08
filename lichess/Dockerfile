@@ -16,8 +16,8 @@ COPY config.yml /lichess-bot/
 CMD if [ -z "$API_TOKEN" ]; then echo 'Environment variable API_TOKENR must be specified. Exiting.'; exit 1; fi \
     && sed -i "s|PLEASE_REPLACE_VIA_ENV|${API_TOKEN}|g" /lichess-bot/config.yml \
     && cd lichess-bot/postbot \
+    && git checkout $BRANCH -- \
     && git pull \
-    && git checkout $BRANCH \
     && npm install \
     && npm run build \
     && chmod +x ./compiled/main.js \
