@@ -97,7 +97,8 @@ const MOVE_DIRECTIONS: {[key: string]: number[]} = {
  * CHESS BOARD REPRESENTATION
  *
  * This chess board is represented by 10x12 squares
- * The first two and the last two ranks are just added to have an easier move generation because we can check if an piece has moved outside the 8x8 chess board
+ * The first two and the last two ranks are just added to have an easier move generation
+ * because we can check if an piece has moved outside the 8x8 chess board
  */
 export default class Board {
 	squares: SquareObject[] = [];
@@ -290,7 +291,8 @@ export default class Board {
 	}
 
 	/**
-	 * Returns all possible moves from current board situation.
+	 * Returns all possible moves from current board situation. This should maybe be decomposed into different functions
+	 * for each piece type, so we can also use it in evaluation. But we have to keep performance in mind, when doing so.
 	 *
 	 * A: PAWN MOVES
 	 * B: KING MOVES

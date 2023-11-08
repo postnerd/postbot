@@ -1,3 +1,8 @@
+/**
+ * Please don't be to harsh about this code, it's just a 'placeholder' evaluation function for now
+ * until search and board representation are more mature.
+ */
+
 import Board from "./board.js";
 
 const PIECE_VALUES = {

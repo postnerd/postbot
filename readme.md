@@ -1,44 +1,106 @@
+> **⚠ WARNING: This is a beta version**  
+> This app is in early development. Some features may be broken. Use at your own risk.
+----------
+
 # postbot
-This is the chess engine _postbot_ from postnerd written in Typescript/JavaScript.
+This is _postbot_ an UCI chess engine written in Typescript. It's my second attempt to write a chess engine, since I wrote Canalla back in 2003 (C++ UCI chess engine competing in some [private tournaments](http://www.open-aurec.com/chesswar/Chesswar017/Chesswar017PSt.htm)). Since _postbot_ is written in TypeScript and compiled to JavaScript running in a linux docker container on my Raspberry Pi 4 it won't be breaking performance records but it's a fun project.
 
-## Goals
-- have a lichess & uci bot for fame
-- train my TypeScript skills
-- train my unit test (jest) skills
-- write clean, readable code (so this will maybe not the fastest bot alive)
-- discover more goals
+## postbot on lichess
+Play against the current version on lichess. You can play rated and casual games.
 
-## Roadmap
-- [x] ALPHA-01: setup with github / typescript / jest
-- [x] ALPHA-01: board representation and move generator
-- [x] ALPHA-01: uci / lichess communication with random moves
-- [X] ALPHA-01: release a bot called postbotR to play random moves on lichess
-- [X] ALPHA-02: board evaluation 1.0
-- [X] ALPHA-02: search algorithm 1.0
-- [X] ALPHA-02: use workers for search for not blocking engine communication
-- [X] ALPHA-02: release a bot called postbot on lichess
-- [X] ALPHA-03: deepen search on capture
-- [X] ALPHA-03: implement alpha-beta search
-- [X] ALPHA-03: sorted move candidates
-- [X] ALPHA-04: detection for threefold repetition
-- [X] ALPHA-04: have a basic evaluation function
-- [X] ALPHA-04: hash tables include en passant information 
-- [X] ALPHA-04: eval score caching
-- [X] ALPHA-04: sorting capture moves by best captures (MVV-LVA)
-- [X] ALPHA-04: killer move implementation
-- [X] BETA-0.1: evaluation: piece-square tables for endgames
-- [X] BETA-0.1: complete implementation of all chess rules (50 move rule, stalemate etc.)
-- [X] BETA-0.1: implementation of transposition tables
-- [X] BETA-0.1: optimizing time management to not lose on time when we have an increment
-- [ ] define a real roadmap
-    - [ ] null move pruning
-    - [ ] performance optimizations
-    - [ ] move ordering optimizations
-    - [ ] opening book
-    - [ ] endgame table
-    - [ ] king safety
+lichess: https://lichess.org/@/postbot
+
+postbot is running on a Raspberry Pi 4.
+
+## postbot on your local machine
+
+### Installation
+```
+git clone https://github.com/postnerd/postbot.git
+npm install
+npm build
+```
+
+### Analysing via terminal
+You can analyse a position via terminal giving a fen and then starting the search.
+
+```
+npm start
+```
+
+Set position you want so analyse:
+```
+postion fen <fen_string> OR postion fen <fen_string> moves <moves>
+```
+
+To start analysing you have a few options
+
+#### Infinite
+Analyse the given position until you stop it.
+```
+go infinite
+```
+
+You can stop by typing 'stop'.
+
+#### Depth
+Analyse the given position until the search reaches a certain ply on the search tree.
+```
+go depth <n>
+```
+
+#### Movetime
+Analyse the given position for a specified time.
+```
+go movetime <time in ms>
+```
+
+#### Examples
+```
+position startpos
+go depth 8
+```
+
+```
+position fen 8/8/7p/3KNN1k/2p4p/8/3P2p1/8 w - -
+go infinite
+```
+
+```
+position fen 8/8/7p/3KNN1k/2p4p/8/3P2p1/8 b - - moves d5c6
+go movetime 10000
+```
+
+You can stop a search by typing 'stop' and quit postbot by typing 'quit'.
+
+If you know the UCI specification you can even play a full game in the terminal, but it's not that comfortable. But you can use a chess GUI to play agains _postbot_ on your local machine.
+
+### Playing/Analysing via a chess GUI
+I'm using [BanksiaGUI](https://banksiagui.com/) but it should also work with other GUIs (e.g. ChessX / Arena) as long as they support starting a node process with an init string.
+
+#### Installation in BanksiaGUI
+Go to _Preferences_ -> _Engines_ and click the little "+"-Button in the upper right.
+
+Than fill in the requested informations like this:
+
+![app](assets/postbot-banksiagui.png)
+
+*Make sure you have entered the correct path to your local postbot installation and performed a ```npm run buld```.*
+
+After this BanksiaGUI should auto detect the name and you are ready to analyse and play games against _postbot_.
+
+## Bringing your own version of postbot to lichess
+If you have modified _postbot_ and want so see it playing on lichess against other bots, you can use the postbot [Dockerfile](lichess/Dockerfile) for building a docker container. For more information on this please take a look at the [lichess subfolder](lichess/readme.md).
 
 ## Changelog
+### postbot 0.2.0-beta – 05.11.2023
+- performance optimizations
+    - generate pseudo legal moves and validate them only right before using them
+    - aspiration windows for search
+    - best move caching in capture search
+- optimized docker setup to release new version on lichess by restarting docker container
+- ability to install postbot as a global node packages
+
 ### postbot 0.1.0-beta – 12.10.2023 :tada:
 - finally a complete implementation of all important chess rules (50 move rule, stalemate etc.)
 - transposition tables 1.0 for main search
@@ -68,15 +130,3 @@ This is the chess engine _postbot_ from postnerd written in Typescript/JavaScrip
 - launched postbotR (little brother of postbot) on lichess
 - basic board representation and move generator
 - basic uci communication supporting to start from position
-
-## postbot on lichess
-Play against the current version on lichess. You can play rated and casual games.
-
-lichess: https://lichess.org/@/postbot
-
-postbot is running on a Raspberry Pi 4.
-
-## postbotR on lichess
-The little brother of postbot, just playing random moves in casual games. A proof of concept to launch a chess bot on lichess.
-
-lichess: https://lichess.org/@/postbotR
