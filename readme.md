@@ -85,7 +85,7 @@ Than fill in the requested informations like this:
 
 ![app](assets/postbot-banksiagui.png)
 
-*Make sure you have entered the correct path to your local postbot installation and performed a ```npm run buld```.*
+**_Make sure you have entered the correct path to your local postbot installation and performed a ```npm run build```._**
 
 After this BanksiaGUI should auto detect the name and you are ready to analyse and play games against _postbot_.
 
