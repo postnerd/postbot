@@ -89,7 +89,7 @@ export default function search(board: Board, depth: number) {
 		const moves = sortMoves(board.getPossibleMoves(), board, ply);
 
 		for (let i = 0; i < moves.length; i++) {
-			if (moves[i].willCapture && !board.isKingPlacedInCheckByMove(moves[i])) {
+			if (moves[i].willCapture && board.isMoveLegal(moves[i])) {
 				nodes++;
 
 				board.makeMove(moves[i]);
@@ -150,7 +150,7 @@ export default function search(board: Board, depth: number) {
 		let legalMoves = 0;
 
 		for (let i = 0; i < moves.length; i++) {
-			if (board.isKingPlacedInCheckByMove(moves[i])) continue;
+			if (!board.isMoveLegal(moves[i])) continue;
 
 			legalMoves++;
 			board.makeMove(moves[i]);

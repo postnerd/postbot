@@ -471,13 +471,11 @@ export default class Board {
 				}
 
 				// castle moves
-				if (this.isCheck()) continue;
-
 				const isKingSideCastlePossible = this.activeColor === "white" ? this.castlingInformation.isWhiteKingSidePossible : this.castlingInformation.isBlackKingSidePossible;
 				const isQueenSideCastlePossible = this.activeColor === "white" ? this.castlingInformation.isWhiteQueenSidePossible : this.castlingInformation.isBlackQueenSidePossible;
 
 				if (isKingSideCastlePossible) {
-					if (this.squares[squarePosition + 1].piece === null && this.squares[squarePosition + 2].piece === null && !this.isKingPlacedInCheckByMove({ piece: squareInfo.piece, pieceType: "king", from: squarePosition, to: squarePosition + 1, willCapture: false, currentBoardState: this.getCurrentBoardStateInfo() })) {
+					if (this.squares[squarePosition + 1].piece === null && this.squares[squarePosition + 2].piece === null) {
 						moves.push({
 							piece: squareInfo.piece,
 							pieceType: squareInfo.pieceType,
@@ -491,7 +489,7 @@ export default class Board {
 				}
 
 				if (isQueenSideCastlePossible) {
-					if (this.squares[squarePosition - 1].piece === null && this.squares[squarePosition - 2].piece === null && this.squares[squarePosition - 3].piece === null && !this.isKingPlacedInCheckByMove({ piece: squareInfo.piece, pieceType: "king", from: squarePosition, to: squarePosition - 1, willCapture: false, currentBoardState: this.getCurrentBoardStateInfo() })) {
+					if (this.squares[squarePosition - 1].piece === null && this.squares[squarePosition - 2].piece === null && this.squares[squarePosition - 3].piece === null) {
 						moves.push({
 							piece: squareInfo.piece,
 							pieceType: squareInfo.pieceType,
@@ -551,7 +549,7 @@ export default class Board {
 
 		if (forceLegal) {
 			moves = moves.filter((move: Move) => {
-				return !this.isKingPlacedInCheckByMove(move);
+				return this.isMoveLegal(move);
 			});
 		}
 		else {
@@ -561,7 +559,21 @@ export default class Board {
 		return moves;
 	}
 
-	isKingPlacedInCheckByMove(move: Move) {
+	isMoveLegal(move: Move) {
+		if (move.isCastle) {
+			if (this.isCheck()) return false;
+
+			if (move.to === move.from + 2) {
+				if (!this.isMoveLegal({ piece: move.piece, pieceType: "king", from: move.from, to: move.from + 1, willCapture: false, currentBoardState: this.getCurrentBoardStateInfo() })) {
+					return false;
+				}
+			}
+			else if (move.to === move.from - 2) {
+				if (!this.isMoveLegal({ piece: move.piece, pieceType: "king", from: move.from, to: move.from - 1, willCapture: false, currentBoardState: this.getCurrentBoardStateInfo() })) {
+					return false;
+				}
+			}
+		}
 		const oldTo = this.squares[move.to];
 
 		this.squares[move.to] = this.squares[move.from];
@@ -588,7 +600,7 @@ export default class Board {
 			}
 		}
 
-		return isCheck;
+		return !isCheck;
 	}
 
 	isCheck(): boolean {
@@ -653,7 +665,7 @@ export default class Board {
 		const possibleMoves = this.getPossibleMoves();
 
 		for (let i = 0; i < possibleMoves.length; i++) {
-			if (!this.isKingPlacedInCheckByMove(possibleMoves[i])) return false;
+			if (this.isMoveLegal(possibleMoves[i])) return false;
 		}
 
 		return true;
@@ -665,7 +677,7 @@ export default class Board {
 		const possibleMoves = this.getPossibleMoves();
 
 		for (let i = 0; i < possibleMoves.length; i++) {
-			if (!this.isKingPlacedInCheckByMove(possibleMoves[i])) return false;
+			if (this.isMoveLegal(possibleMoves[i])) return false;
 		}
 
 		return true;

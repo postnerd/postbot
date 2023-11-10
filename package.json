@@ -1,6 +1,6 @@
 {
   "name": "postbot",
-  "version": "0.2.0-beta",
+  "version": "0.2.1-beta",
   "description": "A TS chess engine",
   "type": "module",
   "main": "compiled/main.js",
