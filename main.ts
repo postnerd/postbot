@@ -10,12 +10,12 @@ interface WorkerData {
 	fen: string,
 	isDebug: boolean,
 	time: {
-		wtime: number,
-		btime: number,
-		winc: number,
-		binc: number,
-		movestogo: number,
-		movetime: number,
+		white: number,
+		black: number,
+		whiteIncrement: number,
+		blackIncrement: number,
+		movesToGo: number,
+		moveTime: number,
 	},
 	depth: number,
 }
@@ -36,12 +36,12 @@ let workerData: WorkerData = {
 	fen: "startpos",
 	isDebug,
 	time: {
-		wtime: 0,
-		btime: 0,
-		winc: 0,
-		binc: 0,
-		movestogo: 0,
-		movetime: 0,
+		white: 0,
+		black: 0,
+		whiteIncrement: 0,
+		blackIncrement: 0,
+		movesToGo: 0,
+		moveTime: 0,
 	},
 	depth: 9999,
 };
@@ -59,27 +59,6 @@ async function handleUCIInput(inputData: string) {
 	if (commands[0] === "uci") {
 		console.log(`id name ${name} ${version}`);
 		console.log(`id author ${author}`);
-		// console.log("option name Debug Log File type string default");
-		// console.log("option name Threads type spin default 1 min 1 max 512");
-		// console.log("option name Hash type spin default 16 min 1 max 33554432");
-		// console.log("option name Clear Hash type button");
-		// console.log("option name Ponder type check default false");
-		// console.log("option name MultiPV type spin default 1 min 1 max 500");
-		// console.log("option name Skill Level type spin default 20 min 0 max 20");
-		// console.log("option name Move Overhead type spin default 10 min 0 max 5000");
-		// console.log("option name Slow Mover type spin default 100 min 10 max 1000");
-		// console.log("option name nodestime type spin default 0 min 0 max 10000");
-		// console.log("option name UCI_Chess960 type check default false");
-		// console.log("option name UCI_AnalyseMode type check default false");
-		// console.log("option name UCI_LimitStrength type check default false");
-		// console.log("option name UCI_Elo type spin default 1350 min 1350 max 2850");
-		// console.log("option name UCI_ShowWDL type check default false");
-		// console.log("option name SyzygyPath type string default<empty>");
-		// console.log("option name SyzygyProbeDepth type spin default 1 min 1 max 100");
-		// console.log("option name Syzygy50MoveRule type check default true");
-		// console.log("option name SyzygyProbeLimit type spin default 7 min 0 max 7");
-		// console.log("option name Use NNUE type check default true");
-		// console.log("option name EvalFile type string default nn - 6877cd24400e.nnue");
 		console.log("uciok");
 	}
 	else if (commands[0] === "isready") {
@@ -106,12 +85,12 @@ async function handleUCIInput(inputData: string) {
 	}
 	else if (commands[0] === "go") {
 		workerData.time = {
-			wtime: 0,
-			btime: 0,
-			winc: 0,
-			binc: 0,
-			movestogo: 0,
-			movetime: 0,
+			white: 0,
+			black: 0,
+			whiteIncrement: 0,
+			blackIncrement: 0,
+			movesToGo: 0,
+			moveTime: 0,
 		};
 		workerData.depth = 9999;
 
@@ -123,22 +102,22 @@ async function handleUCIInput(inputData: string) {
 
 			for (let i = 1; i < commands.length; i++) {
 				if (commands[i] === "wtime") {
-					workerData.time.wtime = parseInt(commands[i + 1]);
+					workerData.time.white = parseInt(commands[i + 1]);
 				}
 				else if (commands[i] === "btime") {
-					workerData.time.btime = parseInt(commands[i + 1]);
+					workerData.time.black = parseInt(commands[i + 1]);
 				}
 				else if (commands[i] === "winc") {
-					workerData.time.winc = parseInt(commands[i + 1]);
+					workerData.time.whiteIncrement = parseInt(commands[i + 1]);
 				}
 				else if (commands[i] === "binc") {
-					workerData.time.binc = parseInt(commands[i + 1]);
+					workerData.time.blackIncrement = parseInt(commands[i + 1]);
 				}
 				else if (commands[i] === "movestogo") {
-					workerData.time.movestogo = parseInt(commands[i + 1]);
+					workerData.time.movesToGo = parseInt(commands[i + 1]);
 				}
 				else if (commands[i] === "movetime") {
-					workerData.time.movetime = parseInt(commands[i + 1]);
+					workerData.time.moveTime = parseInt(commands[i + 1]);
 				}
 				else if (commands[i] === "depth") {
 					workerData.depth = parseInt(commands[i + 1]);

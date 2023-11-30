@@ -68,7 +68,7 @@ export default class Hash {
 		}
 	}
 
-	// TODO: Include informations like castling rights, en passant square, active color
+	// TODO: Include information like castling rights, en passant square, active color
 	getComputedHash(board: Board): number[] {
 		let hashLow = 0;
 		let hashHigh = 0;
