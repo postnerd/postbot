@@ -93,6 +93,11 @@ After this BanksiaGUI should auto detect the name and you are ready to analyse a
 If you have modified _postbot_ and want so see it playing on lichess against other bots, you can use the postbot [Dockerfile](lichess/Dockerfile) for building a docker container. For more information on this please take a look at the [lichess subfolder](lichess/readme.md).
 
 ## Changelog
+### postbot 0.2.1-beta – 05.01.2023
+- performance optimizations
+    - improved move generation for castle moves
+- code improvements
+
 ### postbot 0.2.0-beta – 05.11.2023
 - performance optimizations
     - generate pseudo legal moves and validate them only right before using them
