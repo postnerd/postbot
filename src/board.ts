@@ -221,15 +221,13 @@ export default class Board {
 		// 3: en passant move
 		// 4: count of half moves since last capture or advance
 		// 5: count of moves
-		const inputs: string[] = fen.split(" ");
+		const [boardInformation, activeColor, castlingInformation, enPassantSquarePosition, halfMoveCountSinceLastCaptureOrPawnMove, moveCount] = fen.split(" ");
 
 		// 0: BOARD SETUP for 10x12
 		// board information are provided rank by rank separated by "/"
-		const rankInformation: string[] = inputs[0].split("/");
-
 		// setting up the board rank by rank with the fen string information
 		let boardIndex = 0;
-		rankInformation.forEach((rank: string) => {
+		boardInformation.split("/").forEach((rank: string) => {
 			const squareInformation: string[] = rank.split("");
 
 			for (let i = 0; i < squareInformation.length; i++) {
@@ -248,10 +246,10 @@ export default class Board {
 		});
 
 		// 1: WHO`S TO PLAY
-		this.activeColor = inputs[1] === "w" ? "white" : "black";
+		this.activeColor = activeColor === "w" ? "white" : "black";
 
 		// 2: Setting the castling information
-		inputs[2].split("").forEach((castlingInfo: string) => {
+		castlingInformation.split("").forEach((castlingInfo: string) => {
 			switch (castlingInfo) {
 			case "K": {
 				this.castlingInformation.isWhiteKingSidePossible = true;
@@ -273,21 +271,21 @@ export default class Board {
 				break;
 			}
 			default:
-				throw new Error(`Couldn't read castling information "${castlingInfo}" from fen notation "${inputs[2]}".`);
+				throw new Error(`Couldn't read castling information "${castlingInfo}" from fen notation "${castlingInformation}".`);
 			}
 		});
 
 		// 3: Determine if a en passant move from this position will be possible
-		if (inputs[3] !== "-") {
-			this.enPassantSquarePosition = Board.getPositionFromNotation(inputs[3]);
+		if (enPassantSquarePosition !== "-") {
+			this.enPassantSquarePosition = Board.getPositionFromNotation(enPassantSquarePosition);
 		}
 
 		// 4: Set the amount of half moves happened so far since the last piece was captured or we had a pawn move
 		// this will be relevant cause after 50 half moves without a capture or a pawn move we have a draw
-		this.halfMoveCountSinceLastCaptureOrPawnMove = parseInt(inputs[4]);
+		this.halfMoveCountSinceLastCaptureOrPawnMove = parseInt(halfMoveCountSinceLastCaptureOrPawnMove);
 
 		// 5: Set the amount of total moves (two half moves are one move / to be considered as a move every player had to move one of his/her pieces)
-		this.moveCount = parseInt(inputs[5]);
+		this.moveCount = parseInt(moveCount);
 	}
 
 	/**

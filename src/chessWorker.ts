@@ -47,23 +47,15 @@ if (workerData.mode === "game" && workerData.depth === 9999) {
 	}
 	else {
 		// adding 2 extra moves if movestogo is provided to avoid time loss
-		let movesToGo = workerData.time.movesToGo ? (workerData.time.movesToGo + 2) : 40;
+		const movesToGo = workerData.time.movesToGo ? (workerData.time.movesToGo + 2) : 40;
+		const time = board.activeColor === "white" ? workerData.time.white : workerData.time.black;
+		const timeIncrement = board.activeColor === "white" ? workerData.time.whiteIncrement : workerData.time.blackIncrement;
 
-		if (board.activeColor === "white") {
-			myTimeLeft += workerData.time.white / movesToGo  + workerData.time.whiteIncrement;
+		myTimeLeft += time / movesToGo  + timeIncrement;
 
-			if (workerData.time.white < workerData.time.whiteIncrement * 2) {
-				// If we have less than two times the increment left, we should try to spend less time
-				myTimeLeft -= workerData.time.whiteIncrement / 2;
-			}
-		}
-		else {
-			myTimeLeft += workerData.time.black / movesToGo + workerData.time.blackIncrement;
-
-			if (workerData.time.black < workerData.time.blackIncrement * 2) {
-				// If we have less than two times the increment left, we should try to spend less time
-				myTimeLeft -= workerData.time.blackIncrement / 2;
-			}
+		if (time < timeIncrement * 2) {
+			// If we have less than two times the increment left, we should try to spend less time
+			myTimeLeft -= timeIncrement / 2;
 		}
 	}
 

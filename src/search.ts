@@ -205,12 +205,12 @@ export default function search(board: Board, depth: number) {
 		while (score <= alpha || score >= beta) {
 			if (score <= alpha) {
 				communicator.debug(`Score is lower than alpha (${score} <= ${alpha})`);
-				alpha = alpha === 0 ? alpha -= 0.1 : alpha - Math.abs(alpha * 2);
+				alpha = alpha === 0 ? alpha - 0.1 : alpha - Math.abs(alpha * 2);
 				score = mainSearch(alpha, beta, i, 0);
 			}
 			else if (score >= beta) {
 				communicator.debug(`Score is higher than beta (${score} >= ${beta})`);
-				beta = beta === 0 ? beta += 0.1 : beta + Math.abs(beta * 2);
+				beta = beta === 0 ? beta + 0.1 : beta + Math.abs(beta * 2);
 				score = mainSearch(alpha, beta, i, 0);
 			}
 		}

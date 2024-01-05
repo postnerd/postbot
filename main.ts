@@ -7,14 +7,6 @@ import { WorkerData } from "./src/chessWorker.js";
 
 const isDebug: boolean = process.argv.includes("--debug");
 
-function processMoves(commands: string[], start: number): void {
-	workerData.moves = [];
-
-	commands.slice(start).forEach((move: string) => {
-		workerData.moves.push(move);
-	});
-}
-
 let workerData: WorkerData = {
 	mode: "analyze",
 	moves: [],
@@ -35,40 +27,41 @@ let currentBestMove: string;
 
 async function handleUCIInput(inputData: string) {
 	const input: string = inputData.toString().trim();
-	const commands: string[] = input.split(" ");
+	const [mainCommand, ...commandArguments] = input.split(" ");
 
 	if (isDebug) {
-		console.debug(commands);
+		console.debug("Main command: " + mainCommand);
+		console.debug("Command arguments: " + commandArguments);
 	}
 
-	if (commands[0] === "uci") {
+	if (mainCommand === "uci") {
 		console.log(`id name ${name} ${version}`);
 		console.log(`id author ${author}`);
 		console.log("uciok");
 	}
-	else if (commands[0] === "isready") {
+	else if (mainCommand === "isready") {
 		console.log("readyok");
 	}
-	else if (commands[0] === "ucinewgame") {
+	else if (mainCommand === "ucinewgame") {
 		// Noting to do here at the moment
 	}
-	else if (commands[0] === "position") {
+	else if (mainCommand === "position") {
 		let fen = "startpos";
 
-		if (commands[1] === "fen") {
-			fen = (`${commands[2]} ${commands[3]} ${commands[4]} ${commands[5]} ${commands[6]} ${commands[7]}`);
+		if (commandArguments[0] === "fen") {
+			fen = commandArguments.slice(1, 7).join(" ");
 		}
 
 		workerData.fen = fen;
 
-		if (commands[2] === "moves") {
-			processMoves(commands, 3);
+		if (commandArguments[1] === "moves") {
+			workerData.moves = [...commandArguments.slice(2)];
 		}
 		else {
-			processMoves(commands, 9);
+			workerData.moves = [...commandArguments.slice(8)];
 		}
 	}
-	else if (commands[0] === "go") {
+	else if (mainCommand === "go") {
 		workerData.time = {
 			white: 0,
 			black: 0,
@@ -79,33 +72,33 @@ async function handleUCIInput(inputData: string) {
 		};
 		workerData.depth = 9999;
 
-		if (commands[1] === "infinite") {
+		if (commandArguments[0] === "infinite") {
 			workerData.mode = "analyze";
 		}
 		else {
 			workerData.mode = "game";
 
-			for (let i = 1; i < commands.length; i++) {
-				if (commands[i] === "wtime") {
-					workerData.time.white = parseInt(commands[i + 1]);
+			for (let i = 0; i < commandArguments.length; i++) {
+				if (commandArguments[i] === "wtime") {
+					workerData.time.white = parseInt(commandArguments[i + 1]);
 				}
-				else if (commands[i] === "btime") {
-					workerData.time.black = parseInt(commands[i + 1]);
+				else if (commandArguments[i] === "btime") {
+					workerData.time.black = parseInt(commandArguments[i + 1]);
 				}
-				else if (commands[i] === "winc") {
-					workerData.time.whiteIncrement = parseInt(commands[i + 1]);
+				else if (commandArguments[i] === "winc") {
+					workerData.time.whiteIncrement = parseInt(commandArguments[i + 1]);
 				}
-				else if (commands[i] === "binc") {
-					workerData.time.blackIncrement = parseInt(commands[i + 1]);
+				else if (commandArguments[i] === "binc") {
+					workerData.time.blackIncrement = parseInt(commandArguments[i + 1]);
 				}
-				else if (commands[i] === "movestogo") {
-					workerData.time.movesToGo = parseInt(commands[i + 1]);
+				else if (commandArguments[i] === "movestogo") {
+					workerData.time.movesToGo = parseInt(commandArguments[i + 1]);
 				}
-				else if (commands[i] === "movetime") {
-					workerData.time.moveTime = parseInt(commands[i + 1]);
+				else if (commandArguments[i] === "movetime") {
+					workerData.time.moveTime = parseInt(commandArguments[i + 1]);
 				}
-				else if (commands[i] === "depth") {
-					workerData.depth = parseInt(commands[i + 1]);
+				else if (commandArguments[i] === "depth") {
+					workerData.depth = parseInt(commandArguments[i + 1]);
 				}
 			}
 		}
@@ -115,7 +108,7 @@ async function handleUCIInput(inputData: string) {
 		worker = new Worker(new URL("chessWorker.js", import.meta.url), { workerData });
 
 		worker.on("message", (message: any) => {
-			if (isDebug) {
+			if (isDebug && message.event !== "log" && message.event !== "debug") {
 				console.log(message);
 			}
 
@@ -154,11 +147,11 @@ async function handleUCIInput(inputData: string) {
 			console.error(error);
 		});
 	}
-	else if (commands[0] === "stop") {
+	else if (mainCommand === "stop") {
 		console.log(`bestmove ${currentBestMove}`);
 		worker.terminate();
 	}
-	else if (commands[0] === "quit") {
+	else if (mainCommand === "quit") {
 		process.exit();
 	}
 }
