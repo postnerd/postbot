@@ -3,22 +3,7 @@ import { URL } from "url";
 import { Worker } from "worker_threads";
 
 import { name, version, author } from "./package.json";
-
-interface WorkerData {
-	mode: "analyze" | "game",
-	moves: string[],
-	fen: string,
-	isDebug: boolean,
-	time: {
-		white: number,
-		black: number,
-		whiteIncrement: number,
-		blackIncrement: number,
-		movesToGo: number,
-		moveTime: number,
-	},
-	depth: number,
-}
+import { WorkerData } from "./src/chessWorker.js";
 
 const isDebug: boolean = process.argv.includes("--debug");
 
