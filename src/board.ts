@@ -221,15 +221,13 @@ export default class Board {
 		// 3: en passant move
 		// 4: count of half moves since last capture or advance
 		// 5: count of moves
-		const inputs: string[] = fen.split(" ");
+		const [boardInformation, activeColor, castlingInformation, enPassantSquarePosition, halfMoveCountSinceLastCaptureOrPawnMove, moveCount] = fen.split(" ");
 
 		// 0: BOARD SETUP for 10x12
 		// board information are provided rank by rank separated by "/"
-		const rankInformation: string[] = inputs[0].split("/");
-
 		// setting up the board rank by rank with the fen string information
 		let boardIndex = 0;
-		rankInformation.forEach((rank: string) => {
+		boardInformation.split("/").forEach((rank: string) => {
 			const squareInformation: string[] = rank.split("");
 
 			for (let i = 0; i < squareInformation.length; i++) {
@@ -248,10 +246,10 @@ export default class Board {
 		});
 
 		// 1: WHO`S TO PLAY
-		this.activeColor = inputs[1] === "w" ? "white" : "black";
+		this.activeColor = activeColor === "w" ? "white" : "black";
 
 		// 2: Setting the castling information
-		inputs[2].split("").forEach((castlingInfo: string) => {
+		castlingInformation.split("").forEach((castlingInfo: string) => {
 			switch (castlingInfo) {
 			case "K": {
 				this.castlingInformation.isWhiteKingSidePossible = true;
@@ -273,21 +271,21 @@ export default class Board {
 				break;
 			}
 			default:
-				throw new Error(`Couldn't read castling information "${castlingInfo}" from fen notation "${inputs[2]}".`);
+				throw new Error(`Couldn't read castling information "${castlingInfo}" from fen notation "${castlingInformation}".`);
 			}
 		});
 
 		// 3: Determine if a en passant move from this position will be possible
-		if (inputs[3] !== "-") {
-			this.enPassantSquarePosition = Board.getPositionFromNotation(inputs[3]);
+		if (enPassantSquarePosition !== "-") {
+			this.enPassantSquarePosition = Board.getPositionFromNotation(enPassantSquarePosition);
 		}
 
 		// 4: Set the amount of half moves happened so far since the last piece was captured or we had a pawn move
 		// this will be relevant cause after 50 half moves without a capture or a pawn move we have a draw
-		this.halfMoveCountSinceLastCaptureOrPawnMove = parseInt(inputs[4]);
+		this.halfMoveCountSinceLastCaptureOrPawnMove = parseInt(halfMoveCountSinceLastCaptureOrPawnMove);
 
 		// 5: Set the amount of total moves (two half moves are one move / to be considered as a move every player had to move one of his/her pieces)
-		this.moveCount = parseInt(inputs[5]);
+		this.moveCount = parseInt(moveCount);
 	}
 
 	/**
@@ -471,13 +469,11 @@ export default class Board {
 				}
 
 				// castle moves
-				if (this.isCheck()) continue;
-
 				const isKingSideCastlePossible = this.activeColor === "white" ? this.castlingInformation.isWhiteKingSidePossible : this.castlingInformation.isBlackKingSidePossible;
 				const isQueenSideCastlePossible = this.activeColor === "white" ? this.castlingInformation.isWhiteQueenSidePossible : this.castlingInformation.isBlackQueenSidePossible;
 
 				if (isKingSideCastlePossible) {
-					if (this.squares[squarePosition + 1].piece === null && this.squares[squarePosition + 2].piece === null && !this.isKingPlacedInCheckByMove({ piece: squareInfo.piece, pieceType: "king", from: squarePosition, to: squarePosition + 1, willCapture: false, currentBoardState: this.getCurrentBoardStateInfo() })) {
+					if (this.squares[squarePosition + 1].piece === null && this.squares[squarePosition + 2].piece === null) {
 						moves.push({
 							piece: squareInfo.piece,
 							pieceType: squareInfo.pieceType,
@@ -491,7 +487,7 @@ export default class Board {
 				}
 
 				if (isQueenSideCastlePossible) {
-					if (this.squares[squarePosition - 1].piece === null && this.squares[squarePosition - 2].piece === null && this.squares[squarePosition - 3].piece === null && !this.isKingPlacedInCheckByMove({ piece: squareInfo.piece, pieceType: "king", from: squarePosition, to: squarePosition - 1, willCapture: false, currentBoardState: this.getCurrentBoardStateInfo() })) {
+					if (this.squares[squarePosition - 1].piece === null && this.squares[squarePosition - 2].piece === null && this.squares[squarePosition - 3].piece === null) {
 						moves.push({
 							piece: squareInfo.piece,
 							pieceType: squareInfo.pieceType,
@@ -551,7 +547,7 @@ export default class Board {
 
 		if (forceLegal) {
 			moves = moves.filter((move: Move) => {
-				return !this.isKingPlacedInCheckByMove(move);
+				return this.isMoveLegal(move);
 			});
 		}
 		else {
@@ -561,7 +557,21 @@ export default class Board {
 		return moves;
 	}
 
-	isKingPlacedInCheckByMove(move: Move) {
+	isMoveLegal(move: Move) {
+		if (move.isCastle) {
+			if (this.isCheck()) return false;
+
+			if (move.to === move.from + 2) {
+				if (!this.isMoveLegal({ piece: move.piece, pieceType: "king", from: move.from, to: move.from + 1, willCapture: false, currentBoardState: this.getCurrentBoardStateInfo() })) {
+					return false;
+				}
+			}
+			else if (move.to === move.from - 2) {
+				if (!this.isMoveLegal({ piece: move.piece, pieceType: "king", from: move.from, to: move.from - 1, willCapture: false, currentBoardState: this.getCurrentBoardStateInfo() })) {
+					return false;
+				}
+			}
+		}
 		const oldTo = this.squares[move.to];
 
 		this.squares[move.to] = this.squares[move.from];
@@ -588,7 +598,7 @@ export default class Board {
 			}
 		}
 
-		return isCheck;
+		return !isCheck;
 	}
 
 	isCheck(): boolean {
@@ -653,7 +663,7 @@ export default class Board {
 		const possibleMoves = this.getPossibleMoves();
 
 		for (let i = 0; i < possibleMoves.length; i++) {
-			if (!this.isKingPlacedInCheckByMove(possibleMoves[i])) return false;
+			if (this.isMoveLegal(possibleMoves[i])) return false;
 		}
 
 		return true;
@@ -665,7 +675,7 @@ export default class Board {
 		const possibleMoves = this.getPossibleMoves();
 
 		for (let i = 0; i < possibleMoves.length; i++) {
-			if (!this.isKingPlacedInCheckByMove(possibleMoves[i])) return false;
+			if (this.isMoveLegal(possibleMoves[i])) return false;
 		}
 
 		return true;

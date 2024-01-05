@@ -3,32 +3,9 @@ import { URL } from "url";
 import { Worker } from "worker_threads";
 
 import { name, version, author } from "./package.json";
-
-interface WorkerData {
-	mode: "analyze" | "game",
-	moves: string[],
-	fen: string,
-	isDebug: boolean,
-	time: {
-		wtime: number,
-		btime: number,
-		winc: number,
-		binc: number,
-		movestogo: number,
-		movetime: number,
-	},
-	depth: number,
-}
+import { WorkerData } from "./src/chessWorker.js";
 
 const isDebug: boolean = process.argv.includes("--debug");
-
-function processMoves(commands: string[], start: number): void {
-	workerData.moves = [];
-
-	commands.slice(start).forEach((move: string) => {
-		workerData.moves.push(move);
-	});
-}
 
 let workerData: WorkerData = {
 	mode: "analyze",
@@ -36,12 +13,12 @@ let workerData: WorkerData = {
 	fen: "startpos",
 	isDebug,
 	time: {
-		wtime: 0,
-		btime: 0,
-		winc: 0,
-		binc: 0,
-		movestogo: 0,
-		movetime: 0,
+		white: 0,
+		black: 0,
+		whiteIncrement: 0,
+		blackIncrement: 0,
+		movesToGo: 0,
+		moveTime: 0,
 	},
 	depth: 9999,
 };
@@ -50,98 +27,78 @@ let currentBestMove: string;
 
 async function handleUCIInput(inputData: string) {
 	const input: string = inputData.toString().trim();
-	const commands: string[] = input.split(" ");
+	const [mainCommand, ...commandArguments] = input.split(" ");
 
 	if (isDebug) {
-		console.debug(commands);
+		console.debug("Main command: " + mainCommand);
+		console.debug("Command arguments: " + commandArguments);
 	}
 
-	if (commands[0] === "uci") {
+	if (mainCommand === "uci") {
 		console.log(`id name ${name} ${version}`);
 		console.log(`id author ${author}`);
-		// console.log("option name Debug Log File type string default");
-		// console.log("option name Threads type spin default 1 min 1 max 512");
-		// console.log("option name Hash type spin default 16 min 1 max 33554432");
-		// console.log("option name Clear Hash type button");
-		// console.log("option name Ponder type check default false");
-		// console.log("option name MultiPV type spin default 1 min 1 max 500");
-		// console.log("option name Skill Level type spin default 20 min 0 max 20");
-		// console.log("option name Move Overhead type spin default 10 min 0 max 5000");
-		// console.log("option name Slow Mover type spin default 100 min 10 max 1000");
-		// console.log("option name nodestime type spin default 0 min 0 max 10000");
-		// console.log("option name UCI_Chess960 type check default false");
-		// console.log("option name UCI_AnalyseMode type check default false");
-		// console.log("option name UCI_LimitStrength type check default false");
-		// console.log("option name UCI_Elo type spin default 1350 min 1350 max 2850");
-		// console.log("option name UCI_ShowWDL type check default false");
-		// console.log("option name SyzygyPath type string default<empty>");
-		// console.log("option name SyzygyProbeDepth type spin default 1 min 1 max 100");
-		// console.log("option name Syzygy50MoveRule type check default true");
-		// console.log("option name SyzygyProbeLimit type spin default 7 min 0 max 7");
-		// console.log("option name Use NNUE type check default true");
-		// console.log("option name EvalFile type string default nn - 6877cd24400e.nnue");
 		console.log("uciok");
 	}
-	else if (commands[0] === "isready") {
+	else if (mainCommand === "isready") {
 		console.log("readyok");
 	}
-	else if (commands[0] === "ucinewgame") {
+	else if (mainCommand === "ucinewgame") {
 		// Noting to do here at the moment
 	}
-	else if (commands[0] === "position") {
+	else if (mainCommand === "position") {
 		let fen = "startpos";
 
-		if (commands[1] === "fen") {
-			fen = (`${commands[2]} ${commands[3]} ${commands[4]} ${commands[5]} ${commands[6]} ${commands[7]}`);
+		if (commandArguments[0] === "fen") {
+			fen = commandArguments.slice(1, 7).join(" ");
 		}
 
 		workerData.fen = fen;
 
-		if (commands[2] === "moves") {
-			processMoves(commands, 3);
+		if (commandArguments[1] === "moves") {
+			workerData.moves = [...commandArguments.slice(2)];
 		}
 		else {
-			processMoves(commands, 9);
+			workerData.moves = [...commandArguments.slice(8)];
 		}
 	}
-	else if (commands[0] === "go") {
+	else if (mainCommand === "go") {
 		workerData.time = {
-			wtime: 0,
-			btime: 0,
-			winc: 0,
-			binc: 0,
-			movestogo: 0,
-			movetime: 0,
+			white: 0,
+			black: 0,
+			whiteIncrement: 0,
+			blackIncrement: 0,
+			movesToGo: 0,
+			moveTime: 0,
 		};
 		workerData.depth = 9999;
 
-		if (commands[1] === "infinite") {
+		if (commandArguments[0] === "infinite") {
 			workerData.mode = "analyze";
 		}
 		else {
 			workerData.mode = "game";
 
-			for (let i = 1; i < commands.length; i++) {
-				if (commands[i] === "wtime") {
-					workerData.time.wtime = parseInt(commands[i + 1]);
+			for (let i = 0; i < commandArguments.length; i++) {
+				if (commandArguments[i] === "wtime") {
+					workerData.time.white = parseInt(commandArguments[i + 1]);
 				}
-				else if (commands[i] === "btime") {
-					workerData.time.btime = parseInt(commands[i + 1]);
+				else if (commandArguments[i] === "btime") {
+					workerData.time.black = parseInt(commandArguments[i + 1]);
 				}
-				else if (commands[i] === "winc") {
-					workerData.time.winc = parseInt(commands[i + 1]);
+				else if (commandArguments[i] === "winc") {
+					workerData.time.whiteIncrement = parseInt(commandArguments[i + 1]);
 				}
-				else if (commands[i] === "binc") {
-					workerData.time.binc = parseInt(commands[i + 1]);
+				else if (commandArguments[i] === "binc") {
+					workerData.time.blackIncrement = parseInt(commandArguments[i + 1]);
 				}
-				else if (commands[i] === "movestogo") {
-					workerData.time.movestogo = parseInt(commands[i + 1]);
+				else if (commandArguments[i] === "movestogo") {
+					workerData.time.movesToGo = parseInt(commandArguments[i + 1]);
 				}
-				else if (commands[i] === "movetime") {
-					workerData.time.movetime = parseInt(commands[i + 1]);
+				else if (commandArguments[i] === "movetime") {
+					workerData.time.moveTime = parseInt(commandArguments[i + 1]);
 				}
-				else if (commands[i] === "depth") {
-					workerData.depth = parseInt(commands[i + 1]);
+				else if (commandArguments[i] === "depth") {
+					workerData.depth = parseInt(commandArguments[i + 1]);
 				}
 			}
 		}
@@ -151,7 +108,7 @@ async function handleUCIInput(inputData: string) {
 		worker = new Worker(new URL("chessWorker.js", import.meta.url), { workerData });
 
 		worker.on("message", (message: any) => {
-			if (isDebug) {
+			if (isDebug && message.event !== "log" && message.event !== "debug") {
 				console.log(message);
 			}
 
@@ -190,11 +147,11 @@ async function handleUCIInput(inputData: string) {
 			console.error(error);
 		});
 	}
-	else if (commands[0] === "stop") {
+	else if (mainCommand === "stop") {
 		console.log(`bestmove ${currentBestMove}`);
 		worker.terminate();
 	}
-	else if (commands[0] === "quit") {
+	else if (mainCommand === "quit") {
 		process.exit();
 	}
 }

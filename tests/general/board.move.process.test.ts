@@ -44,7 +44,7 @@ describe("Test basic moves and information handling", () => {
 		expect(board.squares[Board.getPositionFromNotation("b6")].piece).toBe("P");
 	});
 
-	test("Test move and halfmove count", () => {
+	test("Test move and half move count", () => {
 		expect(board.halfMoveCountSinceLastCaptureOrPawnMove).toBe(0);
 		board.makeMoveFromNotation("a7a6");
 		board.makeMoveFromNotation("e2e3");

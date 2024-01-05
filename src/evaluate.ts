@@ -1,6 +1,8 @@
 /**
  * Please don't be to harsh about this code, it's just a 'placeholder' evaluation function for now
  * until search and board representation are more mature.
+ *
+ * Maybe this gets replaced by a neural network in the future.
  */
 
 import Board from "./board.js";

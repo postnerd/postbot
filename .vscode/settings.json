@@ -1,0 +1,37 @@
+{
+	"cSpell.words": [
+		"bestmove",
+		"binc",
+		"btime",
+		"isready",
+		"Mersenne",
+		"movestogo",
+		"movetime",
+		"perft",
+		"readyok",
+		"rnbqkbnr",
+		"startpos",
+		"ucinewgame",
+		"uciok",
+		"winc",
+		"wtime",
+		"zobrist"
+	],
+	"cSpell.ignoreWords": [
+		"BPPP",
+		"BPQBP",
+		"PPPBBPPP",
+		"PQBP",
+		"Pbppp",
+		"QPPP",
+		"RNBQK",
+		"RNBQKB",
+		"Rpppp",
+		"bqkbnr",
+		"kbnr",
+		"mattiasahlsen",
+		"rbqkb",
+		"rnbq",
+		"ppqpb"
+	]
+}
