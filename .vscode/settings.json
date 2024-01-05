@@ -4,10 +4,12 @@
 		"binc",
 		"btime",
 		"isready",
+		"lichess",
 		"Mersenne",
 		"movestogo",
 		"movetime",
 		"perft",
+		"postbot",
 		"readyok",
 		"rnbqkbnr",
 		"startpos",
@@ -30,8 +32,9 @@
 		"bqkbnr",
 		"kbnr",
 		"mattiasahlsen",
+		"ppqpb",
 		"rbqkb",
 		"rnbq",
-		"ppqpb"
+		"tada"
 	]
 }

@@ -21,22 +21,22 @@ npm install
 npm build
 ```
 
-### Analysing via terminal
-You can analyse a position via terminal giving a fen and then starting the search.
+### Analyzing via terminal
+You can analyze a position via terminal giving a fen and then starting the search.
 
 ```
 npm start
 ```
 
-Set position you want so analyse:
+Set position you want so analyze:
 ```
-postion fen <fen_string> OR postion fen <fen_string> moves <moves>
+position fen <fen_string> OR position fen <fen_string> moves <moves>
 ```
 
-To start analysing you have a few options
+To start analyzing you have a few options
 
 #### Infinite
-Analyse the given position until you stop it.
+Analyze the given position until you stop it.
 ```
 go infinite
 ```
@@ -44,13 +44,13 @@ go infinite
 You can stop by typing 'stop'.
 
 #### Depth
-Analyse the given position until the search reaches a certain ply on the search tree.
+Analyze the given position until the search reaches a certain ply on the search tree.
 ```
 go depth <n>
 ```
 
-#### Movetime
-Analyse the given position for a specified time.
+#### Move time
+Analyze the given position for a specified time.
 ```
 go movetime <time in ms>
 ```
@@ -73,9 +73,9 @@ go movetime 10000
 
 You can stop a search by typing 'stop' and quit postbot by typing 'quit'.
 
-If you know the UCI specification you can even play a full game in the terminal, but it's not that comfortable. But you can use a chess GUI to play agains _postbot_ on your local machine.
+If you know the UCI specification you can even play a full game in the terminal, but it's not that comfortable. But you can use a chess GUI to play against _postbot_ on your local machine.
 
-### Playing/Analysing via a chess GUI
+### Playing/Analyzing via a chess GUI
 I'm using [BanksiaGUI](https://banksiagui.com/) but it should also work with other GUIs (e.g. ChessX / Arena) as long as they support starting a node process with an init string.
 
 #### Installation in BanksiaGUI
@@ -87,7 +87,7 @@ Than fill in the requested informations like this:
 
 **_Make sure you have entered the correct path to your local postbot installation and performed a ```npm run build```._**
 
-After this BanksiaGUI should auto detect the name and you are ready to analyse and play games against _postbot_.
+After this BanksiaGUI should auto detect the name and you are ready to analyze and play games against _postbot_.
 
 ## Bringing your own version of postbot to lichess
 If you have modified _postbot_ and want so see it playing on lichess against other bots, you can use the postbot [Dockerfile](lichess/Dockerfile) for building a docker container. For more information on this please take a look at the [lichess subfolder](lichess/readme.md).
