@@ -1,9 +1,6 @@
-#! /usr/bin/env node
-import { URL } from "url";
-import { Worker } from "worker_threads";
-
+#!/usr/bin/env bun
 import { name, version, author } from "./package.json";
-import { WorkerData } from "./src/chessWorker.js";
+import { type WorkerData } from "./src/chessWorker.ts";
 
 const isDebug: boolean = process.argv.includes("--debug");
 
@@ -105,9 +102,17 @@ async function handleUCIInput(inputData: string) {
 
 		workerData.isDebug = isDebug;
 
-		worker = new Worker(new URL("chessWorker.js", import.meta.url), { workerData });
+		worker = new Worker(new URL("src/chessWorker.ts", import.meta.url));
 
-		worker.on("message", (message: any) => {
+		worker.addEventListener("open", () => {
+			worker.postMessage({
+				event: "start",
+				data: workerData,
+			});
+		});
+
+		worker.addEventListener("message", (event: any) => {
+			const message = event.data;
 			if (isDebug && message.event !== "log" && message.event !== "debug") {
 				console.log(message);
 			}
@@ -128,7 +133,9 @@ async function handleUCIInput(inputData: string) {
 					console.log(`bestmove ${currentBestMove}`);
 				}
 				else {
-					console.log("TODO: What should we do if there is nothing more to analyze?");
+					console.log(
+						"TODO: What should we do if there is nothing more to analyze?",
+					);
 				}
 			}
 			else if (message.event === "timeLeft") {
@@ -139,11 +146,11 @@ async function handleUCIInput(inputData: string) {
 			}
 		});
 
-		worker.on("exit", (code: number) => {
-			console.log(`Worker stopped with exit code ${code}`);
+		worker.addEventListener("close", (event) => {
+			console.log("Worker is being closed");
 		});
 
-		worker.on("error", (error: Error) => {
+		worker.addEventListener("error", (error) => {
 			console.error(error);
 		});
 	}
@@ -163,4 +170,8 @@ process.stdin.on("data", (input: string) => {
 	lines.forEach((line: string) => {
 		handleUCIInput(line);
 	});
+});
+
+process.stdin.on("end", function () {
+	process.exit();
 });

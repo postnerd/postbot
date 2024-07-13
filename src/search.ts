@@ -1,6 +1,6 @@
-import Board, { Move, PieceType } from "./board.js";
+import Board, { type Move, type PieceType } from "./board.ts";
 import evaluate from "./evaluate.js";
-import { communicator, getPvFromHashTable } from "./utils.js";
+import { communicator, getPvFromHashTable } from "./utils.ts";
 
 interface TtEntry {
 	depth: number;
@@ -12,17 +12,17 @@ const killerMoves: Map<number, Move[]> = new Map();
 
 function getPieceTypeValue(pieceType: PieceType) {
 	switch (pieceType) {
-	case "pawn": return 1;
-	case "knight": return 3;
-	case "bishop": return 3;
-	case "rook": return 5;
-	case "queen": return 9;
-	case "king": return 12;
-	default: return 0;
+		case "pawn": return 1;
+		case "knight": return 3;
+		case "bishop": return 3;
+		case "rook": return 5;
+		case "queen": return 9;
+		case "king": return 12;
+		default: return 0;
 	}
 }
 
-function sortMoves(moves: Move[], board: Board, ply: number) : Move[] {
+function sortMoves(moves: Move[], board: Board, ply: number): Move[] {
 	// Current best move should be first in the array
 	const currentBestMove = board.hashTable.getBestMove(board.hash.valueLow, board.hash.valueHigh);
 
@@ -64,7 +64,7 @@ export default function search(board: Board, depth: number) {
 	let nodes = 0;
 	let startTime = Date.now();
 	let finalScore: number | null = null;
-	let tt: {[key: number]: {[key: number]: TtEntry}} = {};
+	let tt: { [key: number]: { [key: number]: TtEntry } } = {};
 
 	for (let i = 0; i < 9999; i++) {
 		killerMoves.set(i, []);

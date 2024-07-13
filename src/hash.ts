@@ -1,4 +1,4 @@
-import Board, { Piece } from "./board.js";
+import Board, { type Piece } from "./board.ts";
 import { Random, MersenneTwister19937 } from "random-js";
 
 // -940586136 is just a crazy random number, kudo to mattiasahlsen ;-)
@@ -11,19 +11,19 @@ function randomInt() {
 function getPieceZobristIndex(piece: string | null) {
 
 	switch (piece) {
-	case "K": return 0;
-	case "Q": return 1;
-	case "R": return 2;
-	case "B": return 3;
-	case "N": return 4;
-	case "P": return 5;
-	case "k": return 6;
-	case "q": return 7;
-	case "r": return 8;
-	case "b": return 9;
-	case "n": return 10;
-	case "p": return 11;
-	case null: return 12;
+		case "K": return 0;
+		case "Q": return 1;
+		case "R": return 2;
+		case "B": return 3;
+		case "N": return 4;
+		case "P": return 5;
+		case "k": return 6;
+		case "q": return 7;
+		case "r": return 8;
+		case "b": return 9;
+		case "n": return 10;
+		case "p": return 11;
+		case null: return 12;
 	}
 
 	throw new Error(`Can't get zobrist index for invalid piece ${piece}`);

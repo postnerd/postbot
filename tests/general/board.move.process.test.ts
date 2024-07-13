@@ -1,4 +1,6 @@
-import Board from "../../src/board.js";
+import { describe, expect, test } from "bun:test";
+
+import Board from "../../src/board.ts";
 
 describe("Test basic moves and information handling", () => {
 	const board = new Board(Board.startPosFen);

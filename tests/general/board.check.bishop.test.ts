@@ -1,4 +1,6 @@
-import Board from "../../src/board.js";
+import { describe, expect, test } from "bun:test";
+
+import Board from "../../src/board.ts";
 
 const checks = [
 	{ fen: "8/8/8/3k1b2/8/3KN3/8/8 w - - 0 1", result: true },

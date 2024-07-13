@@ -1,5 +1,7 @@
-import Board, { type Move } from "./board.js";
-import { parentPort } from "worker_threads";
+import Board, { type Move } from "./board.ts";
+
+// prevents TS errors
+declare let self: Worker;
 
 export function printBoardToConsole(board: Board) {
 	const getComputedHash = board.hash.getComputedHash(board);
@@ -28,24 +30,24 @@ export function printBoardToConsole(board: Board) {
 
 export const communicator = {
 	event(event: string, data?: any) {
-		if (parentPort !== null) {
-			parentPort.postMessage({
+		if (self !== null) {
+			self.postMessage({
 				event,
 				data,
 			});
 		}
 	},
 	log(message: any) {
-		if (parentPort !== null) {
-			parentPort.postMessage({
+		if (self !== null) {
+			self.postMessage({
 				event: "log",
 				message,
 			});
 		}
 	},
 	debug(message: any) {
-		if (parentPort !== null) {
-			parentPort.postMessage({
+		if (self !== null) {
+			self.postMessage({
 				event: "debug",
 				message,
 			});
