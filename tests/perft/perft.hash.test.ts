@@ -1,3 +1,5 @@
+import { describe, expect, test } from "bun:test";
+
 import Board from "../../src/board.js";
 
 function perft(depth: number, board: Board) {

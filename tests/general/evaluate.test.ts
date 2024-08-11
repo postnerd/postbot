@@ -1,6 +1,8 @@
-import Board from "../../src/board.js";
-import evaluate from "../../src/evaluate.js";
-import search from "../../src/search.js";
+import { describe, expect, test } from "bun:test";
+
+import Board from "../../src/board.ts";
+import evaluate from "../../src/evaluate.ts";
+import search from "../../src/search.ts";
 
 describe("Threefold Repetition", () => {
 	const board = new Board(Board.startPosFen);

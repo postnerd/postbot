@@ -1,5 +1,6 @@
 > **⚠ WARNING: This is a beta version**  
 > This app is in early development. Some features may be broken. Use at your own risk.
+> Due to a [bug](https://github.com/oven-sh/bun/issues/10080) in bun, postbot only works with bun v1.30 at the moment, when used with BanksiaGUI or the lichess-bot.
 ----------
 
 # postbot
@@ -76,16 +77,14 @@ You can stop a search by typing 'stop' and quit postbot by typing 'quit'.
 If you know the UCI specification you can even play a full game in the terminal, but it's not that comfortable. But you can use a chess GUI to play against _postbot_ on your local machine.
 
 ### Playing/Analyzing via a chess GUI
-I'm using [BanksiaGUI](https://banksiagui.com/) but it should also work with other GUIs (e.g. ChessX / Arena) as long as they support starting a node process with an init string.
+I'm using [BanksiaGUI](https://banksiagui.com/) but it should also work with other GUIs (e.g. ChessX / Arena) as long as they support starting a bun process with an init string.
 
 #### Installation in BanksiaGUI
 Go to _Preferences_ -> _Engines_ and click the little "+"-Button in the upper right.
 
-Than fill in the requested informations like this:
+Than fill in the requested information like this:
 
 ![app](assets/postbot-banksiagui.png)
-
-**_Make sure you have entered the correct path to your local postbot installation and performed a ```npm run build```._**
 
 After this BanksiaGUI should auto detect the name and you are ready to analyze and play games against _postbot_.
 
@@ -93,7 +92,12 @@ After this BanksiaGUI should auto detect the name and you are ready to analyze a
 If you have modified _postbot_ and want so see it playing on lichess against other bots, you can use the postbot [Dockerfile](lichess/Dockerfile) for building a docker container. For more information on this please take a look at the [lichess subfolder](lichess/readme.md).
 
 ## Changelog
-### postbot 0.2.1-beta – 05.01.2023
+### postbot 0.3.0-beta - 11.08.2024
+- switched from node to bun
+    - performance improvements of around 26%
+    - no build process needed anymore   
+
+### postbot 0.2.1-beta – 05.01.2024
 - performance optimizations
     - improved move generation for castle moves
 - code improvements

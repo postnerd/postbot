@@ -1,4 +1,6 @@
-import Board from "../../src/board.js";
+import { describe, expect, test } from "bun:test";
+
+import Board from "../../src/board.ts";
 
 describe("Testing static board functions", () => {
 	test("Getting index of a8", () => {

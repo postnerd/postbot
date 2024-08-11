@@ -1,5 +1,5 @@
-import Hash from "./hash.js";
-import HashTable from "./hashTable.js";
+import Hash from "./hash.ts";
+import HashTable from "./hashTable.ts";
 
 export type Piece = "p" | "P" | "b" | "B" | "n" | "N" | "r" | "R" | "q" | "Q" | "k" | "K" | null;
 type Color = "white" | "black" | null;
@@ -12,25 +12,25 @@ interface SquareObject {
 }
 
 const CHESS_BOARD_POSITIONS = [
-	21,	22,	23,	24,	25,	26,	27,	28,
-	31,	32,	33,	34,	35,	36,	37,	38,
-	41,	42,	43,	44,	45,	46,	47,	48,
-	51,	52,	53,	54,	55,	56,	57,	58,
-	61,	62,	63,	64,	65,	66,	67,	68,
-	71,	72,	73,	74,	75,	76,	77,	78,
-	81,	82,	83,	84,	85,	86,	87,	88,
-	91,	92,	93,	94,	95,	96,	97,	98,
+	21, 22, 23, 24, 25, 26, 27, 28,
+	31, 32, 33, 34, 35, 36, 37, 38,
+	41, 42, 43, 44, 45, 46, 47, 48,
+	51, 52, 53, 54, 55, 56, 57, 58,
+	61, 62, 63, 64, 65, 66, 67, 68,
+	71, 72, 73, 74, 75, 76, 77, 78,
+	81, 82, 83, 84, 85, 86, 87, 88,
+	91, 92, 93, 94, 95, 96, 97, 98,
 ];
 
-const CHESS_BOARD_NOTATION: {[key: string]: number} = {
-	a8: 21,	b8: 22,	c8: 23,	d8: 24,	e8: 25,	f8: 26,	g8: 27,	h8: 28,
-	a7: 31,	b7: 32,	c7: 33,	d7: 34,	e7: 35,	f7: 36,	g7: 37,	h7: 38,
-	a6: 41,	b6: 42,	c6: 43,	d6: 44,	e6: 45,	f6: 46,	g6: 47,	h6: 48,
-	a5: 51,	b5: 52,	c5: 53,	d5: 54,	e5: 55,	f5: 56,	g5: 57,	h5: 58,
-	a4: 61,	b4: 62,	c4: 63,	d4: 64,	e4: 65,	f4: 66,	g4: 67,	h4: 68,
-	a3: 71,	b3: 72,	c3: 73,	d3: 74,	e3: 75,	f3: 76,	g3: 77,	h3: 78,
-	a2: 81,	b2: 82,	c2: 83,	d2: 84,	e2: 85,	f2: 86,	g2: 87,	h2: 88,
-	a1: 91,	b1: 92,	c1: 93,	d1: 94,	e1: 95,	f1: 96,	g1: 97,	h1: 98,
+const CHESS_BOARD_NOTATION: { [key: string]: number } = {
+	a8: 21, b8: 22, c8: 23, d8: 24, e8: 25, f8: 26, g8: 27, h8: 28,
+	a7: 31, b7: 32, c7: 33, d7: 34, e7: 35, f7: 36, g7: 37, h7: 38,
+	a6: 41, b6: 42, c6: 43, d6: 44, e6: 45, f6: 46, g6: 47, h6: 48,
+	a5: 51, b5: 52, c5: 53, d5: 54, e5: 55, f5: 56, g5: 57, h5: 58,
+	a4: 61, b4: 62, c4: 63, d4: 64, e4: 65, f4: 66, g4: 67, h4: 68,
+	a3: 71, b3: 72, c3: 73, d3: 74, e3: 75, f3: 76, g3: 77, h3: 78,
+	a2: 81, b2: 82, c2: 83, d2: 84, e2: 85, f2: 86, g2: 87, h2: 88,
+	a1: 91, b1: 92, c1: 93, d1: 94, e1: 95, f1: 96, g1: 97, h1: 98,
 };
 
 const CHESS_BOARD_BOUNDARIES = [
@@ -81,7 +81,7 @@ export interface Move {
 	score?: number,
 }
 
-const MOVE_DIRECTIONS: {[key: string]: number[]} = {
+const MOVE_DIRECTIONS: { [key: string]: number[] } = {
 	king: [-9, -10, -11, 1, 11, 10, 9, -1],
 	queen: [-9, -10, -11, 1, 11, 10, 9, -1],
 	rook: [-10, 1, 10, -1],
@@ -129,35 +129,35 @@ export default class Board {
 
 	static getSquareObjectByFenNotation(fenNotation: string | null): SquareObject {
 		switch (fenNotation) {
-		case "p":
-			return { piece: "p", color: "black", pieceType: "pawn" };
-		case "P":
-			return { piece: "P", color: "white", pieceType: "pawn" };
-		case "n":
-			return { piece: "n", color: "black", pieceType: "knight" };
-		case "N":
-			return { piece: "N", color: "white", pieceType: "knight" };
-		case "b":
-			return { piece: "b", color: "black", pieceType: "bishop" };
-		case "B":
-			return { piece: "B", color: "white", pieceType: "bishop" };
-		case "r":
-			return { piece: "r", color: "black", pieceType: "rook" };
-		case "R":
-			return { piece: "R", color: "white", pieceType: "rook" };
-		case "q":
-			return { piece: "q", color: "black", pieceType: "queen" };
-		case "Q":
-			return { piece: "Q", color: "white", pieceType: "queen" };
-		case "k":
-			return { piece: "k", color: "black", pieceType: "king" };
-		case "K":
-			return { piece: "K", color: "white", pieceType: "king" };
-		case "empty":
-			return { piece: null, color: null, pieceType: null };
-		default: {
-			throw new Error(`Fen notation for ${fenNotation} is not recognized.`);
-		}
+			case "p":
+				return { piece: "p", color: "black", pieceType: "pawn" };
+			case "P":
+				return { piece: "P", color: "white", pieceType: "pawn" };
+			case "n":
+				return { piece: "n", color: "black", pieceType: "knight" };
+			case "N":
+				return { piece: "N", color: "white", pieceType: "knight" };
+			case "b":
+				return { piece: "b", color: "black", pieceType: "bishop" };
+			case "B":
+				return { piece: "B", color: "white", pieceType: "bishop" };
+			case "r":
+				return { piece: "r", color: "black", pieceType: "rook" };
+			case "R":
+				return { piece: "R", color: "white", pieceType: "rook" };
+			case "q":
+				return { piece: "q", color: "black", pieceType: "queen" };
+			case "Q":
+				return { piece: "Q", color: "white", pieceType: "queen" };
+			case "k":
+				return { piece: "k", color: "black", pieceType: "king" };
+			case "K":
+				return { piece: "K", color: "white", pieceType: "king" };
+			case "empty":
+				return { piece: null, color: null, pieceType: null };
+			default: {
+				throw new Error(`Fen notation for ${fenNotation} is not recognized.`);
+			}
 
 		}
 	}
@@ -251,27 +251,27 @@ export default class Board {
 		// 2: Setting the castling information
 		castlingInformation.split("").forEach((castlingInfo: string) => {
 			switch (castlingInfo) {
-			case "K": {
-				this.castlingInformation.isWhiteKingSidePossible = true;
-				break;
-			}
-			case "Q": {
-				this.castlingInformation.isWhiteQueenSidePossible = true;
-				break;
-			}
-			case "k": {
-				this.castlingInformation.isBlackKingSidePossible = true;
-				break;
-			}
-			case "q": {
-				this.castlingInformation.isBlackQueenSidePossible = true;
-				break;
-			}
-			case "-": {
-				break;
-			}
-			default:
-				throw new Error(`Couldn't read castling information "${castlingInfo}" from fen notation "${castlingInformation}".`);
+				case "K": {
+					this.castlingInformation.isWhiteKingSidePossible = true;
+					break;
+				}
+				case "Q": {
+					this.castlingInformation.isWhiteQueenSidePossible = true;
+					break;
+				}
+				case "k": {
+					this.castlingInformation.isBlackKingSidePossible = true;
+					break;
+				}
+				case "q": {
+					this.castlingInformation.isBlackQueenSidePossible = true;
+					break;
+				}
+				case "-": {
+					break;
+				}
+				default:
+					throw new Error(`Couldn't read castling information "${castlingInfo}" from fen notation "${castlingInformation}".`);
 			}
 		});
 

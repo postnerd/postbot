@@ -1,4 +1,6 @@
-import Board from "../../src/board.js";
+import { describe, expect, test } from "bun:test";
+
+import Board from "../../src/board.ts";
 
 describe("King is in check by pawn", () => {
 	test("pawn check for white king", () => {
