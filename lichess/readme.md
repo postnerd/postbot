@@ -26,10 +26,11 @@ Specify the git branch that should be used to start the lichess bot.
 ## Sparse cloning lichess folder
 If you have a dedicated machine to run _postbot_ (I use a Raspberry PI 4) than you can only checkout/clone the lichess folder on your machine.
 
-1. ```git clone --filter=blob:none --sparse https://github.com/postnerd/postbot.git``` (or of course the git url of your fork)
+1. ```git clone --filter=blob:none --no-checkout https://github.com/postnerd/postbot.git``` (or of course the git url of your fork)
 2. ```cd postbot``` (or of course your fork name)
-3. ```git sparse-checkout add lichess```
-4. ```cd lichess```
+3. ```git sparse-checkout set --no-cone lichess```
+4. ```git sparse-checkout checkout main```
+5. ```cd lichess```
 
 ## Docker container options/handling
 
