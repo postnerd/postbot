@@ -1,6 +1,6 @@
 {
   "name": "postbot",
-  "version": "0.3-beta",
+  "version": "0.3.0-beta",
   "description": "A TS chess engine running on bunjs",
   "type": "module",
   "main": "main.ts",
