@@ -18,15 +18,14 @@ postbot is running on a Raspberry Pi 4.
 ### Installation
 ```
 git clone https://github.com/postnerd/postbot.git
-npm install
-npm build
+bun install
 ```
 
 ### Analyzing via terminal
 You can analyze a position via terminal giving a fen and then starting the search.
 
 ```
-npm start
+bun main.ts
 ```
 
 Set position you want so analyze:
